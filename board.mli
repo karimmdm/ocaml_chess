@@ -7,7 +7,7 @@
 type t
 
 (* Mutable array for player 1's pieces. *)
-type pieces1
+val pieces1 : Piece.t array
 
 (* Mutable array for player 2's pieces. *)
-type pieces2
+val pieces2 : Piece.t array
