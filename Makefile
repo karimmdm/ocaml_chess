@@ -1,4 +1,4 @@
-MODULES=frame board piece
+MODULES=frame state piece
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
