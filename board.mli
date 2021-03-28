@@ -1,4 +1,4 @@
-(* Representation of a board.
+(* (* Representation of a board.
 
    A board will contain information about the game state and a mutable
    array of pieces for each player. A chess board is always an 8x8 grid. *)
@@ -10,4 +10,4 @@ type t
 type pieces1
 
 (* Mutable array for player 2's pieces. *)
-type pieces2
+type pieces2 *)

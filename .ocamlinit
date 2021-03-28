@@ -1,4 +1,6 @@
 #require "ounit2";;
 #require "graphics";;
 #directory "_build";;
-
+#load "state.cmo";;
+#load "gui.cmo";;
+#load "piece.cmo";;
