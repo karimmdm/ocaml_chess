@@ -10,7 +10,7 @@ type t = {
   piece_type : piece;
   color : string;
   icon : string;
-  position: int * int;
+  position : int * int;
 }
 
 let piece_type p = p.piece_type
@@ -21,6 +21,6 @@ let icon p = p.icon
 
 let position p = p.position
 
-(* let locations p = failwith "" *)
+let locations p = failwith ""
 
 let move p loc = List.mem loc (locations p)
