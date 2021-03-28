@@ -26,4 +26,4 @@ val checkmate : t -> bool
 
 (* [stalemate st] will return true if the current player is in stalemate
    and false otherwise. *)
-val stalemaet : t -> bool
+val stalemate : t -> bool

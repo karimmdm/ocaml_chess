@@ -6,13 +6,7 @@
 type t
 
 (* The different types of chess pieces. *)
-type piece =
-  | Pawn
-  | Bishop
-  | Knight
-  | Rook
-  | Queen
-  | King
+type piece
 
 (* [piece_type p] will return a variant of the piece type. *)
 val piece_type : t -> piece
