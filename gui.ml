@@ -1,6 +1,4 @@
 open Graphics
-open Piece
-open State
 
 let init () =
   open_graph " 800x800";
