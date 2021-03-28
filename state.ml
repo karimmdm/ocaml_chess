@@ -16,4 +16,9 @@ let checkmate st = st.checkmate
 
 let stalemate st = st.stalemate
 
-let valid_move st p loc = failwith ""
+let valid_move st p loc = 
+  (* [check_bounds grid loc] *)
+  let check_bounds (grid : 'a list list) (loc : 'a * 'a) : bool =
+    failwith "" in
+  if check_bounds st.board loc then true
+  else false
