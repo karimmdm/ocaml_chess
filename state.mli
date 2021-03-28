@@ -8,6 +8,10 @@
 (* The abstract type of values representing a game state. *)
 type t
 
+(* [init_state f] initializes a new state with an empty 8x8 board and
+   sets the player turn to 1 and all the booleans to false. *)
+val init_state : 'a -> t
+
 (* [player_turn st] will return an int representing whose turn it is, 1
    for player 1 (white) and 2 for player 2 (black). *)
 val player_turn : t -> int
@@ -16,10 +20,6 @@ val player_turn : t -> int
    false otherwise. *)
 val check : t -> bool
 
-(* [game_win st] will return true if the game has reached an end state
-   and false otherwise. *)
-val game_win : t -> bool
-
 (* [checkmate st] will return true if the current player is in checkmate
    and false otherwise. *)
 val checkmate : t -> bool
@@ -27,3 +27,9 @@ val checkmate : t -> bool
 (* [stalemate st] will return true if the current player is in stalemate
    and false otherwise. *)
 val stalemate : t -> bool
+
+(* [valid_move st p loc] returns true if the given piece can move to the
+   given location if the given piece can legally move to that location,
+   if that location is not occupied, and and if the given location is
+   within the bounds of the board. *)
+val valid_move : t -> Piece.t -> int * int -> bool
