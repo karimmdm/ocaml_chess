@@ -21,7 +21,7 @@ val icon : t -> string
 
 (* [position p] will return a tuple containing the current piece's
    position. *)
-val position : t -> char * int
+val position : t -> int * int
 
 (* [locations p] will return a list of tuples containing the current
    piece's possible locations. *)
@@ -29,4 +29,4 @@ val locations : t -> (int * int) list
 
 (* [move p loc] will return true if the current piece can move to the
    given location and false otherwise. *)
-val move : t -> int * int -> bool
+(* val move : t -> int * int -> bool *)

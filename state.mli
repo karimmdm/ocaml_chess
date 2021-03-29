@@ -10,7 +10,7 @@ type t
 
 (* [init_state f] initializes a new state with an empty 8x8 board and
    sets the player turn to 1 and all the booleans to false. *)
-val init_state : 'a -> t
+val init_state : unit -> t
 
 (* [player_turn st] will return an int representing whose turn it is, 1
    for player 1 (white) and 2 for player 2 (black). *)
@@ -27,6 +27,10 @@ val checkmate : t -> bool
 (* [stalemate st] will return true if the current player is in stalemate
    and false otherwise. *)
 val stalemate : t -> bool
+
+(* [locations st p] returns a list of positions represented by int
+   tuples that the given piece can move to via official chess rules. *)
+val locations : t -> Piece.t -> (int * int) list
 
 (* [valid_move st p loc] returns true if the given piece can move to the
    given location if the given piece can legally move to that location,
