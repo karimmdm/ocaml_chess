@@ -6,14 +6,6 @@ type t = {
   stalemate : bool;
 }
 
-(* type piece =
-  | Pawn
-  | Bishop
-  | Knight
-  | Rook
-  | Queen
-  | King *)
-
 let init_state f = {
   board = [
     [None; None; None; None; None; None; None; None];
@@ -39,23 +31,143 @@ let checkmate st = st.checkmate
 
 let stalemate st = st.stalemate
 
-let locations st p =
-  let lst = [] in
-  let board = st.board in
-  let piece = Piece.piece_type p in
-  match piece with
-  | piece Pawn -> []
-  | _ -> [] in
-  lst
+(* [check_bounds grid loc] returns true if the given location is within the
+  bounds of the given grid and false otherwise. *)
+let check_bounds (grid : 'a option list list) (loc : int * int) : bool =
+  let width = List.length grid in
+  let height = List.length (List.hd grid) in
+  let x = fst loc in
+  let y = snd loc in
+  if x >= width || x < 0 || y >= height || y < 0 then false else true
 
-let valid_move st p loc = 
+(* [get_elt grid x y] returns an option of element in the grid at (x, y) if that
+  element exists and if x and y are within the bounds of the grid. *)
+let get_elt (grid : 'a list list) (x : int) (y : int) : 'a =
+  if check_bounds grid (x, y) then List.nth (List.nth grid x) y
+  else None
+
+(* [is_occupied grid loc] returns true if the given location in the grid 
+  contains a piece and false otherwise. *)
+let is_occupied (grid : Piece.t option list list) (loc : int * int) : bool =
+  let piece = get_elt grid (fst loc) (snd loc) in
+  match piece with
+  | Some piece -> true
+  | None -> false
+
+(* [piece_move grid loc p] returns true if the given piece can move to
+    the given location in the given grid and false otherwise. *)
+(* let piece_move (grid : Piece.t option list list) (p : Piece.t) 
+  : (int * int) list =
+     *)
+
+(* [can_capture p st loc] returns a list of all valid positions where the given
+  piece can capture an enemy piece via official chess rules. *)
+let can_capture (p : Piece.t) (st : t) (loc : int * int) : (int * int) list =
+  let clr = Piece.color p in
+  let x = fst (Piece.position p) in
+  let y = snd (Piece.position p) in
+  let l1 = fst loc in
+  let l2 = snd loc in
+  let locs = [] in
+  match Piece.piece_type p with
+  | Pawn -> 
+    if String.equal clr "white" then
+      if l1 == x + 1 || l1 == x - 1 && l2 == y + 1 
+        && check_bounds st.board loc then let piece = get_elt st.board x y in
+          match piece with
+          | Some p -> 
+            if String.equal (Piece.color p) "black" then loc::locs else []
+          | None -> []
+      else []
+    else
+      if l1 == x + 1 || l1 == x - 1 && l2 == y - 1 
+        && check_bounds st.board loc then let piece = get_elt st.board x y in
+        match piece with
+        | Some p ->
+          if String.equal (Piece.color p) "white" then loc::locs else []
+        | None -> []
+      else []
+    (* if ((String.equal clr "white" && (l1 == x + 1 || l1 == x - 1) && l2 == y + 1) 
+      || (l1 == x + 1 || l1 == x - 1) && l2 == y - 1) && 
+        check_bounds st.board loc then
+          match List.nth (List.nth st.board x) y with
+          | Some piece -> 
+            if not (String.equal (Piece.color piece) clr) then loc::locs else []
+          | None -> []
+      else [] *)
+  | Bishop ->
+    if String.equal clr "white" then
+      let l = (x + 1, y + 1) in
+      while check_bounds st.board l do
+        let piece = get_elt st.board x y in
+        match piece with
+        | Some p ->
+          if String.equal (Piece.color p) "white" then loc::locs else []
+        | None -> [] in
+        l = (x + 1, y + 1)
+        done;
+      let l = (x - 1, y - 1) in
+      while check_bounds st.board l do
+        let piece = get_elt st.board x y in
+        match piece with
+        | Some p ->
+          if String.equal (Piece.color p) "white" then loc::locs else []
+        | None -> [] in
+        l = (x - 1, y - 1)
+        done; locs
+    else
+      let l = (x - 1, y + 1) in
+      while check_bounds st.board l do
+        let piece = get_elt st.board x y in
+        match piece with
+        | Some p ->
+          if String.equal (Piece.color p) "white" then loc::locs else []
+        | None -> [] in
+        l = (x - 1, y + 1)
+        done;
+      let l = (x + 1, y - 1) in
+      while check_bounds st.board l do
+        let piece = get_elt st.board x y in
+        match piece with
+        | Some p ->
+          if String.equal (Piece.color p) "white" then loc::locs else []
+        | None -> [] in
+        l = (x + 1, y - 1)
+        done; locs
+  | Knight -> []
+  | Rook -> []
+  | Queen -> []
+  | King -> [] in
+  locs
+
+let locations st p =
+  let x = fst (Piece.position p) in
+  let y = snd (Piece.position p) in
+  let clr = Piece.color p in
+  let width = st.board in
+  match Piece.piece_type p with
+  | Pawn -> 
+      let pawn_move f = 
+        let locs = [] in
+        if 
+      pawn_move ()
+  | Bishop ->
+    let bishop_move f = failwith ""
+  | Knight ->
+    let knight_move f = failwith ""
+  | Rook -> 
+    let rook_move f = failwith ""
+  | Queen -> failwith ""
+  | King -> failwith ""
+
+let valid_move st (p : Piece.t) loc = 
   (* [check_bounds grid loc] returns true if the given location is within the
     bounds of the given grid and false otherwise. *)
   let check_bounds (grid : Piece.t option list list) (loc : int * int) : bool =
     let width = List.length grid in
     let height = List.length (List.hd grid) in
-    let x = (fun (fst, _) -> fst) loc in
-    let y = (fun (_, snd) -> snd) loc in
+    let x = fst loc in
+    let y = snd loc in
     if x >= width || x < 0 || y >= height || y < 0 then false else true in
 
   (* [is_occupied grid loc] returns true if the given location in the grid 
@@ -70,8 +182,7 @@ let valid_move st p loc =
 
   (* [can_piece_move grid loc p] returns true if the given piece can move to
     the given location in the given grid and false otherwise. *)
-  let can_move_piece (grid : Piece.t option list list) (loc : int * int)
-    (p : Piece.t) = List.mem p. loc
-  if check_bounds st.board loc && not (is_occupied st.board loc) && 
-    can_move_piece st.board loc p then true
+  (* let can_move_piece (grid : Piece.t option list list) (loc : int * int)
+    (p : Piece.t) = List.mem p. loc *)
+  if check_bounds st.board loc && not (is_occupied st.board loc) then true
   else false
