@@ -22,7 +22,7 @@ let draw st = failwith "Unimplemented"
 
 let coordinate_pair status = (status.mouse_x, status.mouse_y)
 
-let string_or_coordinate_pair tuple =
+let string_of_coordinate_pair tuple =
   string_of_int (fst tuple / 100) ^ " " ^ string_of_int (snd tuple / 100)
 
 let listen f =
