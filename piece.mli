@@ -5,7 +5,13 @@
    is represented as a tuple with a char and int, such as (a, 8). *)
 
 (* The different types of chess pieces. *)
-type piece
+type piece =
+  | Pawn
+  | Bishop
+  | Knight
+  | Rook
+  | Queen
+  | King
 
 (* The abstract type of values representing a chess piece. *)
 type t
