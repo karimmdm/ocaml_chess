@@ -59,34 +59,51 @@ let is_occupied (grid : Piece.t option list list) (loc : int * int) : bool =
 (* let piece_move (grid : Piece.t option list list) (p : Piece.t) 
   : (int * int) list =
      *)
+(* let match_piece (piece : Piece.t option) (color : string) : bool =
+  match piece with
+  | Some p -> if String.equal (Piece.color p) color then false else true
+  | None -> false *)
 
 (* [can_capture p st loc] returns a list of all valid positions where the given
   piece can capture an enemy piece via official chess rules. *)
-let can_capture (p : Piece.t) (st : t) (loc : int * int) : (int * int) list =
+let can_capture (p : Piece.t) (st : t) : (int * int) list =
   let clr = Piece.color p in
   let x = fst (Piece.position p) in
   let y = snd (Piece.position p) in
-  let l1 = fst loc in
-  let l2 = snd loc in
-  let locs = [] in
+  (* let locs = [] in *)
   match Piece.piece_type p with
-  | Pawn -> 
+  | Pawn ->
     if String.equal clr "white" then
-      if l1 == x + 1 || l1 == x - 1 && l2 == y + 1 
-        && check_bounds st.board loc then let piece = get_elt st.board x y in
+      let check_locs = (x + 1, y + 1)::(x - 1, y + 1)::[] in
+      let rec helper lst acc = 
+        match lst with
+        | h::t -> helper t (if check_bounds st.board h then h::acc else acc)
+        | [] -> acc in
+      helper check_locs []
+    else
+      let check_locs = (x + 1, y - 1)::(x - 1, y - 1)::[] in
+      let rec helper lst acc = 
+        match lst with
+        | h::t -> helper t (if check_bounds st.board h then h::acc else acc)
+        | [] -> acc in
+      helper check_locs []
+  (* | Pawn -> 
+    if String.equal clr "white" then
+      if l1 == x + 1 || l1 == x - 1 && l2 == y + 1 &&
+        check_bounds st.board loc then let piece = get_elt st.board x y in
           match piece with
           | Some p -> 
             if String.equal (Piece.color p) "black" then loc::locs else []
           | None -> []
       else []
     else
-      if l1 == x + 1 || l1 == x - 1 && l2 == y - 1 
-        && check_bounds st.board loc then let piece = get_elt st.board x y in
-        match piece with
-        | Some p ->
-          if String.equal (Piece.color p) "white" then loc::locs else []
-        | None -> []
-      else []
+      if l1 == x + 1 || l1 == x - 1 && l2 == y - 1 &&
+        check_bounds st.board loc then let piece = get_elt st.board x y in
+          match piece with
+          | Some p ->
+            if String.equal (Piece.color p) "white" then loc::locs else []
+          | None -> []
+      else [] *)
     (* if ((String.equal clr "white" && (l1 == x + 1 || l1 == x - 1) && l2 == y + 1) 
       || (l1 == x + 1 || l1 == x - 1) && l2 == y - 1) && 
         check_bounds st.board loc then
@@ -97,48 +114,59 @@ let can_capture (p : Piece.t) (st : t) (loc : int * int) : (int * int) list =
       else [] *)
   | Bishop ->
     if String.equal clr "white" then
-      let l = (x + 1, y + 1) in
-      while check_bounds st.board l do
-        let piece = get_elt st.board x y in
-        match piece with
+      let rec check_main_diag grid clr x y acc =
+        if check_bounds grid (x, y) then 
+          if String.equal clr "white" then 
+            check_main_diag grid clr (x + 1, y + 1) (x, y)::acc else acc
+          else 
+            check_main_diag grid clr (x + 1, y - 1) (x, y)::acc else acc in
+      let check_locs = check_diag st.board x y in
+      []
+      (* while check_bounds st.board l do *)
+        (* let piece = get_elt st.board x y in *)
+        (* let rec check_diag loc = *)
+        (* if match_piece piece "white" then loc::locs else []; *)
+        (* match piece with
         | Some p ->
           if String.equal (Piece.color p) "white" then loc::locs else []
-        | None -> [] in
-        l = (x + 1, y + 1)
-        done;
-      let l = (x - 1, y - 1) in
+        | None -> [] in *)
+        (* l = (x + 1, y + 1) *)
+        (* done; *)
+      (* let l = (x - 1, y - 1) in
       while check_bounds st.board l do
         let piece = get_elt st.board x y in
-        match piece with
+        if match_piece piece "black" then loc::locs else []; *)
+        (* match piece with
         | Some p ->
           if String.equal (Piece.color p) "white" then loc::locs else []
-        | None -> [] in
-        l = (x - 1, y - 1)
-        done; locs
+        | None -> [] in *)
+        (* l = (x - 1, y - 1)
+        done; locs *)
     else
       let l = (x - 1, y + 1) in
       while check_bounds st.board l do
         let piece = get_elt st.board x y in
-        match piece with
+        if match_piece piece "white" then loc::locs else [];
+        (* match piece with
         | Some p ->
           if String.equal (Piece.color p) "white" then loc::locs else []
-        | None -> [] in
+        | None -> [] in *)
         l = (x - 1, y + 1)
         done;
       let l = (x + 1, y - 1) in
       while check_bounds st.board l do
         let piece = get_elt st.board x y in
-        match piece with
+        if match_piece piece "black" then loc::locs else [];
+        (* match piece with
         | Some p ->
           if String.equal (Piece.color p) "white" then loc::locs else []
-        | None -> [] in
+        | None -> [] in *)
         l = (x + 1, y - 1)
         done; locs
   | Knight -> []
   | Rook -> []
   | Queen -> []
-  | King -> [] in
-  locs
+  | King -> []
 
 let locations st p =
   let x = fst (Piece.position p) in
