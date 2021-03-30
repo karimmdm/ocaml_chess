@@ -46,8 +46,8 @@ let get_elt (grid : 'a list list) (x : int) (y : int) : 'a =
   if check_bounds grid (x, y) then List.nth (List.nth grid x) y
   else None
 
-(* [valid_positions_helper lst acc] returns [acc] which contains all the  
-  valid board positions in [lst]. If an enemy piece (piece that is not [clr]),
+(* [valid_positions_ lst acc] returns [acc] which contains all the valid
+  board positions in [lst]. If an enemy piece (piece that is not [clr]),
   this function assumes that the piece can capture it, so this does not apply
   to pawns, which cannot capture pieces in its way vertically. *)
 let rec valid_positions board clr x y lst acc =
@@ -174,3 +174,6 @@ let locations st p =
          (x + 1, y - 2); (x - 1, y - 2); (x + 2, y - 1); (x - 2, y - 1)] in
       valid_positions board clr x y check_locs [] in 
     king_move board clr x y
+
+let valid_move st p loc =
+  List.mem (locations st p) loc
