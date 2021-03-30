@@ -124,21 +124,14 @@ let rec check_rank board clr x y acc dir =
         if not (String.equal (Piece.color p) clr) then ((x, y)::acc)
         else acc
       | None -> 
-        if String.equal dir "vertical" then
-          check_rank board clr x (y + 1) dir @ 
-          check_rank board clr x (y - 1) dir
-        else
-          check_rank board clr (x + 1) y dir @ 
-          check_rank board clr (x - 1) y dir
-        (* match dir with
+        match dir with
         | "vertical" -> 
-            check_rank board clr x (y + 1) dir
-            (* check_rank board clr x (y + 1) dir @ 
-            check_rank board clr x (y - 1) dir *)
+            check_rank board clr x (y + 1) acc dir @ 
+            check_rank board clr x (y - 1) acc dir
         | "horizontal" ->
-            (check_rank board clr (x + 1) y dir) @ 
-            (check_rank board clr (x - 1) y dir)
-        | _ -> [] *)
+            check_rank board clr (x + 1) y acc dir @ 
+            check_rank board clr (x - 1) y acc dir
+        | _ -> []
   else acc
 
 let locations st p =
