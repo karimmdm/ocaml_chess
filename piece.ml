@@ -20,10 +20,3 @@ let color p = p.color
 let icon p = p.icon
 
 let position p = p.position
-
-let locations p =
-  let clr = p.color in
-  match p.piece_type with
-  | Pawn -> 
-      if String.equal clr "white" then
-      else
