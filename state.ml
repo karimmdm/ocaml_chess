@@ -9,14 +9,16 @@ type t = {
 }
 
 (* [init_board] is the starting board facing player 1 (white king) *)
-let rec init_board =
+let rec init_board () =
   let grid = Array.make 8 (Array.make 8 None) in
   for i = 0 to 7 do
     let wp = Piece.make Pawn White "/images/wp.png" (6, i) in
     grid.(6).(i) <- Some wp;
     let bp = Piece.make Pawn Black "/images/bp.png" (1, i) in
-    grid.(1).(i) <- Some bp;
-    for j = 2 to 5 do
+    grid.(1).(i) <- Some bp
+  done;
+  for j = 2 to 5 do
+    for i = 0 to 7 do
       grid.(j).(i) <- None
     done
   done;
@@ -56,7 +58,7 @@ let rec init_board =
 
 let init_state () =
   {
-    board = init_board;
+    board = init_board ();
     player_turn = 1;
     check = false;
     checkmate = false;

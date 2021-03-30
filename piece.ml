@@ -31,3 +31,5 @@ let position p = p.position
 let locations p = failwith ""
 
 let move p loc = List.mem loc (locations p)
+
+
