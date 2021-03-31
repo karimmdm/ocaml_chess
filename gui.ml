@@ -43,7 +43,7 @@ let rec overlay_piece_img x y = function
           (* let img = Images.load "./imagesjk255/WP.jpg" [
              Load_Resolution (80., 80.) ] in let img' =
              Graphic_image.of_image img in *)
-          let img' = open_img "./images/br.png" 80. 80. in
+          let img' = open_img "./images/wr.png" 80. 80. in
           Graphics.draw_image img' ((x * 100) + 20) ((y * 100) + 20);
           let x' = if x = 7 then 0 else x + 1 in
           let y' = if x = 7 then y + 1 else y in
