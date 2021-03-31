@@ -24,18 +24,26 @@ let rec gen_grid x y =
     gen_grid_horizontal x y;
     gen_grid x (y + 100))
 
+let open_img path x y =
+  let img = Png.load_as_rgb24 path [ Load_Resolution (x, y) ] in
+  let img' = Graphic_image.of_image img in
+  let to_transp ele = if ele = white then transp else ele in
+  let color_arr =
+    dump_image img' |> Array.map (fun x -> Array.map to_transp x)
+  in
+  make_image color_arr
+
 let rec overlay_piece_img x y = function
   | [] -> ()
   | h :: t -> (
       match h with
       | None ->
-          let img =
-            Png.load_as_rgb24 "./images/wp.png"
-              [ Load_Resolution (80., 80.) ]
-            (* let img = Images.load "./imagesjk255/WP.jpg" [
-               Load_Resolution (80., 80.) ]*)
-          in
-          let img' = Graphic_image.of_image img in
+          (* let img = Png.load_as_rgb24 "./images/wp.png" [
+             Load_Resolution (80., 80.) ] *)
+          (* let img = Images.load "./imagesjk255/WP.jpg" [
+             Load_Resolution (80., 80.) ] in let img' =
+             Graphic_image.of_image img in *)
+          let img' = open_img "./images/br.png" 80. 80. in
           Graphics.draw_image img' ((x * 100) + 20) ((y * 100) + 20);
           let x' = if x = 7 then 0 else x + 1 in
           let y' = if x = 7 then y + 1 else y in
@@ -57,7 +65,8 @@ let draw st =
   let player = State.player_turn st in
   let boardlst = gen_oriented_board_lst board player in
   clear_graph ();
-  set_color black;
+  let grey = rgb 112 128 144 in
+  set_color grey;
   gen_grid 0 0;
   overlay_piece_img 0 0 boardlst
 
