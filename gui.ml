@@ -33,34 +33,49 @@ let open_img path x y =
   in
   make_image color_arr
 
-let rec overlay_piece_img x y = function
+let rec overlay_piece_img = function
   | [] -> ()
   | h :: t -> (
       match h with
       | None ->
+          ()
           (* let img = Png.load_as_rgb24 "./images/wp.png" [
              Load_Resolution (80., 80.) ] *)
           (* let img = Images.load "./imagesjk255/WP.jpg" [
              Load_Resolution (80., 80.) ] in let img' =
              Graphic_image.of_image img in *)
-          let img' = open_img "./images/wr.png" 80. 80. in
-          Graphics.draw_image img' ((x * 100) + 20) ((y * 100) + 20);
-          let x' = if x = 7 then 0 else x + 1 in
-          let y' = if x = 7 then y + 1 else y in
-          overlay_piece_img x' y' t
+          (* let img' = open_img "./images/wr.png" 80. 80. in
+             Graphics.draw_image img' ((x * 100) + 20) ((y * 100) + 20);
+             let x' = if x = 7 then 0 else x + 1 in let y' = if x = 7
+             then y + 1 else y in overlay_piece_img x' y' t *)
       | Some piece ->
           let pos = position piece in
-          let x = fst pos in
-          let y = snd pos in
-          ())
+          let y = fst pos in
+          let x = snd pos in
+          let img = open_img (icon piece) 80. 80. in
+          Graphics.draw_image img ((x * 100) + 20) ((y * 100) + 20);
+          overlay_piece_img t)
+
+let rec string_flattened = function
+  | [] -> "]"
+  | h :: t -> (
+      match h with
+      | None -> "empty; " ^ string_flattened t
+      | Some p ->
+          Printer.print_piece p ^ ": "
+          ^ Printer.print_piece_position p
+          ^ "; " ^ string_flattened t)
 
 (* [gen_oriented_board_lst board player] gives the [board] as a
    flattened list oriented with respect to [player]*)
 let gen_oriented_board_lst board player =
   let flattenedBoard = List.concat board in
-  if player = 2 then List.rev flattenedBoard else flattenedBoard
+  print_endline (string_of_int (List.length flattenedBoard));
+  print_endline (string_flattened flattenedBoard);
+  if player = 1 then List.rev flattenedBoard else flattenedBoard
 
 let draw st =
+  print_endline (Printer.print_board st);
   let board = State.board st in
   let player = State.player_turn st in
   let boardlst = gen_oriented_board_lst board player in
@@ -68,7 +83,7 @@ let draw st =
   let grey = rgb 112 128 144 in
   set_color grey;
   gen_grid 0 0;
-  overlay_piece_img 0 0 boardlst
+  overlay_piece_img boardlst
 
 let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 

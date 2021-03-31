@@ -8,25 +8,6 @@ type t = {
   stalemate : bool;
 }
 
-let init_state () =
-  {
-    board =
-      [
-        [ None; None; None; None; None; None; None; None ];
-        [ None; None; None; None; None; None; None; None ];
-        [ None; None; None; None; None; None; None; None ];
-        [ None; None; None; None; None; None; None; None ];
-        [ None; None; None; None; None; None; None; None ];
-        [ None; None; None; None; None; None; None; None ];
-        [ None; None; None; None; None; None; None; None ];
-        [ None; None; None; None; None; None; None; None ];
-      ];
-    player_turn = 1;
-    check = false;
-    checkmate = false;
-    stalemate = false;
-  }
-
 let letter_to_piece_type c : piece =
   match c with
   | 'P' -> Pawn
@@ -39,7 +20,9 @@ let letter_to_piece_type c : piece =
 let letter_to_piece c pos : Piece.t =
   let color = if Char.code c - 97 < 0 then "white" else "black" in
   let piece_type = letter_to_piece_type (Char.uppercase_ascii c) in
-  make piece_type color "" pos
+  let prefix = if color = "white" then "w" else "b" in
+  let icon_str = "./images/" ^ prefix ^ Char.escaped c ^ ".png" in
+  make piece_type color icon_str pos
 
 let rec int_to_nones i : Piece.t option list =
   if i = 0 then [] else None :: int_to_nones (i - 1)
@@ -73,6 +56,9 @@ let state_from_fen (fen : string) =
     checkmate = false;
     stalemate = false;
   }
+
+let init_state () =
+  state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 let board st = st.board
 
