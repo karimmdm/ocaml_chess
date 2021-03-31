@@ -1,7 +1,7 @@
-open Graphics
-open Png
-open Graphic_image
 open Piece
+open Graphics
+open Images
+open Graphic_image
 
 let init () =
   open_graph " 800x800";
@@ -24,71 +24,42 @@ let rec gen_grid x y =
     gen_grid_horizontal x y;
     gen_grid x (y + 100))
 
-let string_of_pair x y =
-  "( " ^ string_of_int x ^ ", " ^ string_of_int y ^ " )"
-
-let string_of_piece_option_pos = function
-  | None -> ""
-  | Some p -> string_of_pair (position p |> fst) (position p |> snd)
-
-let string_piece_list l =
-  List.fold_right
-    (fun x acc -> string_of_piece_option_pos x ^ ", " ^ acc)
-    l ""
-
-let print_ll l =
-  List.iter (fun ll -> print_endline (string_piece_list ll)) l
-
-let string_board bd =
-  let res = ref "" in
-  for i = 0 to Array.length bd - 1 do
-    for j = 0 to Array.length bd.(i) - 1 do
-      match bd.(i).(j) with
-      | None -> res := !res ^ "empty; "
-      | Some p ->
-          let x = fst (position p) in
-          let y = snd (position p) in
-          res := !res ^ string_of_pair x y ^ "; "
-      (* let img = Png.load "png.png" [];; let g =
-         Graphic_image.of_image img;; Graphics.draw_image g 0 0;; *)
-    done
-  done;
-  !res
-
-let rec overlay_piece_img = function
+let rec overlay_piece_img x y = function
   | [] -> ()
-  | x :: t -> (
-      match x with
-      | None -> ()
+  | h :: t -> (
+      match h with
+      | None ->
+          let img =
+            Png.load_as_rgb24 "./images/wp.png"
+              [ Load_Resolution (80., 80.) ]
+            (* let img = Images.load "./imagesjk255/WP.jpg" [
+               Load_Resolution (80., 80.) ]*)
+          in
+          let img' = Graphic_image.of_image img in
+          Graphics.draw_image img' ((x * 100) + 20) ((y * 100) + 20);
+          let x' = if x = 7 then 0 else x + 1 in
+          let y' = if x = 7 then y + 1 else y in
+          overlay_piece_img x' y' t
       | Some piece ->
           let pos = position piece in
           let x = fst pos in
           let y = snd pos in
-          overlay_piece_img t)
+          ())
 
 (* [gen_oriented_board_lst board player] gives the [board] as a
    flattened list oriented with respect to [player]*)
 let gen_oriented_board_lst board player =
-  let flattize l =
-    let rec helper = function
-      | x :: t -> Array.to_list x :: helper t
-      | [] -> []
-    in
-    Array.to_list l |> helper |> List.concat
-  in
-  let flattenedBoard = flattize board in
+  let flattenedBoard = List.concat board in
   if player = 2 then List.rev flattenedBoard else flattenedBoard
 
 let draw st =
   let board = State.board st in
-  print_endline (string_board board);
   let player = State.player_turn st in
   let boardlst = gen_oriented_board_lst board player in
-  (* print_endline (string_of_int (List.length boardlst)); *)
   clear_graph ();
   set_color black;
   gen_grid 0 0;
-  overlay_piece_img boardlst
+  overlay_piece_img 0 0 boardlst
 
 let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 
