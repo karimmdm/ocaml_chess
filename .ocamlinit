@@ -1,5 +1,6 @@
 #require "ounit2";;
 #require "graphics";;
+#require "camlimages";;
 #directory "_build";;
 #load "state.cmo";;
 #load "gui.cmo";;

@@ -6,10 +6,6 @@ type piece =
   | Queen
   | King
 
-type color =
-  | Black
-  | White
-
 type t = {
   piece_type : piece;
   color : color;
