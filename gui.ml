@@ -23,7 +23,7 @@ let rec gen_grid x y =
   else (
     gen_grid_horizontal x y;
     gen_grid x (y + 100))
-
+    
 let open_img path x y =
   let img = Png.load_as_rgb24 path [ Load_Resolution (x, y) ] in
   let img' = Graphic_image.of_image img in
