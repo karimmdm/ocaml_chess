@@ -30,6 +30,10 @@ val checkmate : t -> bool
    and false otherwise. *)
 val stalemate : t -> bool
 
+(* [locations st p] returns a list of positions represented by int
+   tuples that the given piece can move to via official chess rules. *)
+val locations : t -> Piece.t -> (int * int) list
+
 (* [valid_move st p loc] returns true if the given piece can move to the
    given location if the given piece can legally move to that location,
    if that location is not occupied, and and if the given location is

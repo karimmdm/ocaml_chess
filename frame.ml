@@ -31,7 +31,6 @@ let rec allow_quit args =
     print_endline "Enter quit to terminate the program: ";
     try
       while true do
-        print_endline "Listening for events";
         let st = wait_next_event [ Button_down; Key_pressed ] in
         synchronize ();
         if st.keypressed then raise Exit;
@@ -39,9 +38,6 @@ let rec allow_quit args =
           st |> coordinate_pair |> print_coordinate_pair |> print_endline
       done
     with Exit -> ()
-    (* let input = read_line () in
-    if String.equal (String.lowercase_ascii input) "quit" then ()
-    else play_game args *)
 
 let main () =
   open_graph " 800x800";

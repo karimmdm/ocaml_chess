@@ -6,10 +6,6 @@ type piece =
   | Queen
   | King
 
-type color =
-  | Black
-  | White
-
 type t = {
   piece_type : piece;
   color : color;
@@ -27,9 +23,3 @@ let color p = p.color
 let icon p = p.icon
 
 let position p = p.position
-
-let locations p = failwith ""
-
-let move p loc = List.mem loc (locations p)
-
-

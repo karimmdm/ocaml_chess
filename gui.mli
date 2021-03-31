@@ -1,7 +1,7 @@
 (* Module to handle gui changes such as listening for mouse events and
    drawing graphics from state. *)
 
-(* [draw state] will draw the chess board according to the state of the
+(* [draw st] will draw the chess board according to the state of the
    board [state] *)
 val draw : State.t -> unit
 
