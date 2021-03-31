@@ -49,6 +49,8 @@ let string_board bd =
           let x = fst (position p) in
           let y = snd (position p) in
           res := !res ^ string_of_pair x y ^ "; "
+      (* let img = Png.load "png.png" [];; let g =
+         Graphic_image.of_image img;; Graphics.draw_image g 0 0;; *)
     done
   done;
   !res
@@ -83,14 +85,15 @@ let draw st =
   let player = State.player_turn st in
   let boardlst = gen_oriented_board_lst board player in
   (* print_endline (string_of_int (List.length boardlst)); *)
+  clear_graph ();
   set_color black;
   gen_grid 0 0;
   overlay_piece_img boardlst
 
-let coordinate_pair status = (status.mouse_x, status.mouse_y)
+let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 
 let string_of_coordinate_pair tuple =
-  string_of_int (fst tuple / 100) ^ " " ^ string_of_int (snd tuple / 100)
+  string_of_int (fst tuple) ^ " " ^ string_of_int (snd tuple)
 
 let listen f =
   let st = wait_next_event [ Button_down ] in
