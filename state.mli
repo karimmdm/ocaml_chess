@@ -12,6 +12,11 @@ type t
    sets the player turn to 1 and all the booleans to false. *)
 val init_state : unit -> t
 
+(* [state_from_fen s] initializes a new state based on the piece
+   placement of the fen notation [s] and sets the player turn to 1 and
+   all the booleans to false. *)
+val state_from_fen : string -> t
+
 (* [board st] is the current board configuration of the game state [st] *)
 val board : t -> Piece.t option list list
 

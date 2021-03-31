@@ -1,4 +1,4 @@
-MODULES=frame state piece gui
+MODULES=frame state piece gui printer
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
