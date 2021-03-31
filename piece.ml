@@ -8,7 +8,7 @@ type piece =
 
 type t = {
   piece_type : piece;
-  color : color;
+  color : string;
   icon : string;
   position : int * int;
 }
