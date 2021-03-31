@@ -1,3 +1,5 @@
+open Piece
+
 type t = {
   board : Piece.t option list list;
   player_turn : int;
@@ -6,7 +8,7 @@ type t = {
   stalemate : bool;
 }
 
-let init_state f = {
+let init_state () = {
   board = [
     [None; None; None; None; None; None; None; None];
     [None; None; None; None; None; None; None; None];
@@ -22,6 +24,8 @@ let init_state f = {
   checkmate = false;
   stalemate = false;
 }
+
+let board st = st.board
 
 let player_turn st = st.player_turn
 

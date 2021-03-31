@@ -16,4 +16,4 @@ val string_of_coordinate_pair : int * int -> string
 
 (* [listen f] will listen for a mouse click and pass the mouse location
    to [f] Requires: listen to be executed in a loop *)
-val listen : ('a -> 'b) -> unit
+val listen : (int * int -> unit) -> unit

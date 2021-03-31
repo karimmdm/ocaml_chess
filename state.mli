@@ -8,10 +8,12 @@
 (* The abstract type of values representing a game state. *)
 type t
 
-(* [init_state f] initializes a new state with an empty 8x8 board and
+(* [init_state ()] initializes a new state with an empty 8x8 board and
    sets the player turn to 1 and all the booleans to false. *)
 val init_state : unit -> t
 
+(* [board st] is the current board configuration of the game state [st]*)
+val board: t -> Piece.t option array array
 (* [player_turn st] will return an int representing whose turn it is, 1
    for player 1 (white) and 2 for player 2 (black). *)
 val player_turn : t -> int

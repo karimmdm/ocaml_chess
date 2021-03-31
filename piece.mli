@@ -16,11 +16,17 @@ type piece =
 (* The abstract type of values representing a chess piece. *)
 type t
 
-(* [piece_type p] will return a variant of the piece type. *)
+(* [make piece color icon positoin] is a piece with piece variant [piece], 
+   color variant [color],
+   icon path [icon] and positon on a 2d array [position]
+   requires: [positon] to be (i, j) where i and j are elements of (0,8]) *)
+val make : piece -> color -> string -> int * int -> t
+
+(* [piece_type p] will return a variant of the piece type for piece [p]. *)
 val piece_type : t -> piece
 
 (* [color p] will return a string of the piece's color, white or black. *)
-val color : t -> string
+val color : t -> color
 
 (* [icon p] will return the image file for the current piece. *)
 val icon : t -> string
