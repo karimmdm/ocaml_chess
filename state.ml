@@ -180,4 +180,4 @@ let locations st p =
     king_move board clr x y
 
 let valid_move st p loc =
-  List.mem (locations st p) loc
+  List.mem loc (locations st p)
