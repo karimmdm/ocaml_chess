@@ -15,5 +15,5 @@ val coordinate_pair : Graphics.status -> int * int
 val string_of_coordinate_pair : int * int -> string
 
 (* [listen f] will listen for a mouse click and pass the mouse location
-   to [f] Requires: listen to be executed in a loop *)
+   to [f] *)
 val listen : (int * int -> unit) -> unit

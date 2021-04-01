@@ -1,3 +1,4 @@
+open Graphics
 open Gui
 open State
 
@@ -12,10 +13,21 @@ let rec play_game args =
   if String.equal (String.lowercase_ascii input) "quit" then ()
   else play_game args
 
+let play_game' args =
+  try
+    while true do
+      print_endline "listening for click...";
+      let f (x, y) = print_endline (string_of_coordinate_pair (x, y)) in
+      listen f;
+      ()
+    done
+  with Exit -> ()
+
 let main () =
   let st = init_state () in
   init ();
   draw st;
+  play_game' ();
   play_game "dummy"
 
 let () = main ()
