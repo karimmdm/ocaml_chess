@@ -1,4 +1,4 @@
-MODULES=frame state piece gui printer
+MODULES=frame state piece gui printer authors
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
@@ -35,12 +35,12 @@ docs: docs-public docs-private
 	
 docs-public: build
 	mkdir -p _doc.public
-	ocamlfind ocamldoc -I _build -package graphics camlimages.all\
+	ocamlfind ocamldoc -I _build -package graphics, camlimages.png, camlimages.graphics\
 		-html -stars -d _doc.public $(MLIS)
 
 docs-private: build
 	mkdir -p _doc.private
-	ocamlfind ocamldoc -I _build -package graphics camlimages.all\
+	ocamlfind ocamldoc -I _build -package graphics, camlimages.png, camlimages.graphics\
 		-html -stars -d _doc.private \
 		-inv-merge-ml-mli -m A $(MLIS) $(MLS)
 
