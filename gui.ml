@@ -96,6 +96,6 @@ let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 let string_of_coordinate_pair tuple =
   string_of_int (fst tuple) ^ " " ^ string_of_int (snd tuple)
 
-let listen f =
+let rec listen (f : int * int -> unit) =
   let st = wait_next_event [ Button_down ] in
-  if st.button then st |> coordinate_pair |> f
+  if st.button then st |> coordinate_pair |> f else listen f
