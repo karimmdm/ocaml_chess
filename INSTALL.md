@@ -2,8 +2,8 @@
 
 ### Packages to install
 1. Install XQuartz 2.7.11
-2. opam install graphics 5.1.1
-3. opam install camlimages 5.0.4
+2. brew install libpng pkg-config
+4. opam install graphics base cppo dune dune-configurator ocaml ocamlfind stdio camlimages
 
 ### Running the program
 1. make play
