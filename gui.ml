@@ -2,6 +2,7 @@ open Piece
 open Graphics
 open Images
 open Graphic_image
+open Printer
 
 let init () =
   open_graph " 800x800";
@@ -23,7 +24,9 @@ let rec gen_grid x y =
   else (
     gen_grid_horizontal x y;
     gen_grid x (y + 100))
-    
+
+(* [open_img path x y] is the image found at [path] with resolution
+   ([x], [y])*)
 let open_img path x y =
   let img = Png.load_as_rgb24 path [ Load_Resolution (x, y) ] in
   let img' = Graphic_image.of_image img in
@@ -33,28 +36,33 @@ let open_img path x y =
   in
   make_image color_arr
 
-let rec overlay_piece_img = function
+let rec overlay_piece_img player = function
   | [] -> ()
   | h :: t -> (
       match h with
-      | None ->
-          ()
-          (* let img = Png.load_as_rgb24 "./images/wp.png" [
-             Load_Resolution (80., 80.) ] *)
-          (* let img = Images.load "./imagesjk255/WP.jpg" [
-             Load_Resolution (80., 80.) ] in let img' =
-             Graphic_image.of_image img in *)
-          (* let img' = open_img "./images/wr.png" 80. 80. in
-             Graphics.draw_image img' ((x * 100) + 20) ((y * 100) + 20);
-             let x' = if x = 7 then 0 else x + 1 in let y' = if x = 7
-             then y + 1 else y in overlay_piece_img x' y' t *)
+      | None -> overlay_piece_img player t
+      | Some piece ->
+          let pos = position piece in
+          let y = if player = 1 then 7 - fst pos else fst pos in
+          let x = snd pos in
+          let img = open_img (icon piece) 80. 80. in
+          Graphics.draw_image img ((x * 100) + 20) ((y * 100) + 20);
+          overlay_piece_img player t)
+
+(* [overlay_piece_icon lst] draws the letter of the piece *)
+let rec overlay_piece_icon = function
+  | [] -> ()
+  | h :: t -> (
+      match h with
+      | None -> overlay_piece_icon t
       | Some piece ->
           let pos = position piece in
           let y = fst pos in
           let x = snd pos in
-          let img = open_img (icon piece) 80. 80. in
-          Graphics.draw_image img ((x * 100) + 20) ((y * 100) + 20);
-          overlay_piece_img t)
+          let symbol = print_piece_type piece in
+          moveto ((x * 100) + 20) ((y * 100) + 20);
+          Graphics.draw_string symbol;
+          overlay_piece_icon t)
 
 let rec string_flattened = function
   | [] -> "]"
@@ -66,24 +74,22 @@ let rec string_flattened = function
           ^ Printer.print_piece_position p
           ^ "; " ^ string_flattened t)
 
-(* [gen_oriented_board_lst board player] gives the [board] as a
-   flattened list oriented with respect to [player]*)
-let gen_oriented_board_lst board player =
+(* [gen_board_lst board player] gives the [board] as a flattened list*)
+let gen_board_lst board =
   let flattenedBoard = List.concat board in
-  print_endline (string_of_int (List.length flattenedBoard));
-  print_endline (string_flattened flattenedBoard);
-  if player = 1 then List.rev flattenedBoard else flattenedBoard
+  flattenedBoard
 
 let draw st =
   print_endline (Printer.print_board st);
   let board = State.board st in
   let player = State.player_turn st in
-  let boardlst = gen_oriented_board_lst board player in
+  let boardlst = gen_board_lst board in
   clear_graph ();
   let grey = rgb 112 128 144 in
   set_color grey;
   gen_grid 0 0;
-  overlay_piece_img boardlst
+  set_text_size 50;
+  overlay_piece_img player boardlst
 
 let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 
