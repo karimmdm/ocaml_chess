@@ -1,6 +1,5 @@
 B _build
 PKG ounit2
 PKG graphics
-PKG camlimages.jpeg
 PKG camlimages.png
 PKG camlimages.graphics
