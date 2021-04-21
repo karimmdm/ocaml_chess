@@ -101,7 +101,8 @@ let rec listen (f : int * int -> unit) =
   if st.button then st |> coordinate_pair |> f else listen f
 
 let get_piece st ((x, y) : int * int) =
-  let pos = (y, x) in
+  let y' = if State.player_turn st = 1 then 7 - y else y in
+  let pos = (y', x) in
   let rec helper = function
     | [] -> None
     | h :: t -> (

@@ -22,7 +22,7 @@ let play_game' st =
         let piece_str =
           match piece_option with
           | None -> "Empty cell"
-          | Some piece -> Printer.print_piece_type piece
+          | Some piece -> Printer.print_piece_color piece
         in
         print_endline piece_str
       in
