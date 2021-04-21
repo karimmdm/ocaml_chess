@@ -106,7 +106,7 @@ let get_piece st ((x, y) : int * int) =
     | [] -> None
     | h :: t -> (
         match h with
-        | None -> None
+        | None -> helper t
         | Some piece ->
             if Piece.position piece = pos then h else helper t)
   in
