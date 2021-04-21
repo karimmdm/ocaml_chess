@@ -99,3 +99,15 @@ let string_of_coordinate_pair tuple =
 let rec listen (f : int * int -> unit) =
   let st = wait_next_event [ Button_down ] in
   if st.button then st |> coordinate_pair |> f else listen f
+
+let get_piece st ((x, y) : int * int) =
+  let pos = (y, x) in
+  let rec helper = function
+    | [] -> None
+    | h :: t -> (
+        match h with
+        | None -> None
+        | Some piece ->
+            if Piece.position piece = pos then h else helper t)
+  in
+  helper (gen_board_lst (State.board st))

@@ -13,11 +13,19 @@ let rec play_game args =
   if String.equal (String.lowercase_ascii input) "quit" then ()
   else play_game args
 
-let play_game' args =
+let play_game' st =
   try
     while true do
       print_endline "listening for click...";
-      let f (x, y) = print_endline (string_of_coordinate_pair (x, y)) in
+      let f pos =
+        let piece_option = get_piece st pos in
+        let piece_str =
+          match piece_option with
+          | None -> "Empty cell"
+          | Some piece -> Printer.print_piece_type piece
+        in
+        print_endline piece_str
+      in
       listen f;
       ()
     done
@@ -27,7 +35,7 @@ let main () =
   let st = init_state () in
   init ();
   draw st;
-  play_game' ();
+  play_game' st;
   play_game "dummy"
 
 let () = main ()
