@@ -86,6 +86,8 @@ let get_elt (grid : 'a list list) (x : int) (y : int) : 'a =
   if check_bounds grid (x, y) then List.nth (List.nth grid x) y
   else None
 
+let piece st loc = get_elt st.board (fst loc) (snd loc)
+
 (* [valid_positions_ lst acc] returns [acc] which contains all the valid
    board positions in [lst]. If an enemy piece (piece that is not
    [clr]), this function assumes that the piece can capture it, so this

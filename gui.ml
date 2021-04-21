@@ -91,10 +91,30 @@ let draw st =
   set_text_size 50;
   overlay_piece_img player boardlst
 
+let draw_square loc =
+  set_color yellow;
+  let x = fst loc in
+  let y = snd loc in
+  fill_rect x y 100 100
+
 let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 
 let string_of_coordinate_pair tuple =
   string_of_int (fst tuple) ^ " " ^ string_of_int (snd tuple)
+
+let highlight_squares st loc p =
+  match p with
+  | Some piece -> 
+    print_endline ((Printer.print_piece piece) ^ " at " ^ (Printer.print_piece_position piece));
+    let valid_locs = State.locations st piece in 
+      let rec highlight_helper lst =
+        match lst with
+        | [] -> ()
+        | h::t -> 
+          print_endline ("Can move to (" ^ string_of_int (fst h) ^ ", " ^ string_of_int (snd h) ^ ")");
+          draw_square h in
+    highlight_helper valid_locs
+  | None -> print_endline ("No piece found at (" ^ string_of_int (fst loc) ^ ", " ^ string_of_int (snd loc) ^ ")")
 
 let rec listen (f : int * int -> unit) =
   let st = wait_next_event [ Button_down ] in

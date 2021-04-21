@@ -14,6 +14,10 @@ val coordinate_pair : Graphics.status -> int * int
 (* [string_of_coordinate_pair tuple ]*)
 val string_of_coordinate_pair : int * int -> string
 
+(* [highlight_squares loc] highlights all the valid squares on the board
+   that the selected piece can move to. *)
+val highlight_squares : State.t -> int * int -> Piece.t option -> unit
+
 (* [listen f] will listen for a mouse click and pass the mouse location
    to [f] *)
 val listen : (int * int -> unit) -> unit
