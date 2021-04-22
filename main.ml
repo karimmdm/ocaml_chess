@@ -17,7 +17,6 @@ let play_game st args =
   try
     while true do
       print_endline "listening for click...";
-      print_endline (Printer.print_board st);
       let f (x, y) = highlight_squares st (x, y) (piece st (x, y)) in
       (* let f (x, y) = print_endline (string_of_coordinate_pair (x, y)) in *)
       listen f;
