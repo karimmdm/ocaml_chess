@@ -119,3 +119,16 @@ let highlight_squares st loc p =
 let rec listen (f : int * int -> unit) =
   let st = wait_next_event [ Button_down ] in
   if st.button then st |> coordinate_pair |> f else listen f
+
+let get_piece st ((x, y) : int * int) =
+  let y' = if State.player_turn st = 1 then 7 - y else y in
+  let pos = (y', x) in
+  let rec helper = function
+    | [] -> None
+    | h :: t -> (
+        match h with
+        | None -> helper t
+        | Some piece ->
+            if Piece.position piece = pos then h else helper t)
+  in
+  helper (gen_board_lst (State.board st))

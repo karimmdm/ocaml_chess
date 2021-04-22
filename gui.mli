@@ -21,3 +21,7 @@ val highlight_squares : State.t -> int * int -> Piece.t option -> unit
 (* [listen f] will listen for a mouse click and pass the mouse location
    to [f] *)
 val listen : (int * int -> unit) -> unit
+
+(* [get_piece st pair] is the piece that is being clicked 
+   on at the poisiton the mouse clicked *)
+val get_piece : State.t -> int*int -> Piece.t option
