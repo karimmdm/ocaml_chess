@@ -36,6 +36,7 @@ let open_img path x y =
   in
   make_image color_arr
 
+  (* [overlay_piece_icon lst] draws the image of the piece *)
 let rec overlay_piece_img player = function
   | [] -> ()
   | h :: t -> (
@@ -91,10 +92,61 @@ let draw st =
   set_text_size 50;
   overlay_piece_img player boardlst
 
+let draw_square st loc =
+  set_color yellow;
+  let x = fst loc in
+  let y = if State.player_turn st = 1 then 7 - snd loc else snd loc in
+  print_endline
+    ("Can move to ("
+    ^ string_of_int (fst loc)
+    ^ ", "
+    ^ string_of_int (snd loc)
+    ^ ")");
+  fill_rect y x 100 100
+
 let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 
 let string_of_coordinate_pair tuple =
   string_of_int (fst tuple) ^ " " ^ string_of_int (snd tuple)
+
+let highlight_squares st loc p =
+  let loc =
+    if State.player_turn st = 1 then (7 - snd loc, fst loc) else loc
+  in
+  print_endline
+    ("Clicked on ("
+    ^ string_of_int (fst loc)
+    ^ ", "
+    ^ string_of_int (snd loc)
+    ^ ")");
+  match p with
+  | Some piece ->
+      print_endline
+        (Printer.print_piece piece
+        ^ " at "
+        ^ Printer.print_piece_position piece);
+      let valid_locs = State.locations st piece in
+      let rec highlight_helper lst =
+        match lst with
+        | [] -> ()
+        | h :: t ->
+            print_endline
+              ("Can move to ("
+              ^ string_of_int (fst h)
+              ^ ", "
+              ^ string_of_int (snd h)
+              ^ ")");
+            draw_square st h;
+            highlight_helper t
+      in
+      highlight_helper valid_locs
+  | None ->
+      print_endline
+        ("No piece found at ("
+        ^ string_of_int (fst loc)
+        ^ ", "
+        ^ string_of_int (snd loc)
+        ^ ")")
 
 let rec listen (f : int * int -> unit) =
   let st = wait_next_event [ Button_down ] in

@@ -165,7 +165,9 @@ let locations st p =
         let rec helper lst acc =
           match lst with
           | h :: t ->
-              helper t (if check_bounds board h then h :: acc else acc)
+              helper t 
+              (if check_bounds board h && not (String.equal (Piece.color p) clr) 
+                then h :: acc else acc)
           | [] -> acc
         in
         if String.equal clr "white" then
@@ -182,7 +184,10 @@ let locations st p =
           if y == 1 then [ (x, y + 1); (x, y + 2) ]
           else if check_bounds board (x, y + 1) then [ (x, y + 1) ]
           else []
-        else []
+        else
+          if y == 6 then [ (x, y - 1); (x, y - 2) ]
+          else if check_bounds board (x, y - 1) then [ (x, y - 1) ]
+          else []
       in
       pawn_capture board clr x y @ pawn_move board clr x y
   | Bishop ->
