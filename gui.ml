@@ -103,6 +103,8 @@ let string_of_coordinate_pair tuple =
   string_of_int (fst tuple) ^ " " ^ string_of_int (snd tuple)
 
 let highlight_squares st loc p =
+  let loc = if State.player_turn st = 1 then (7 - (snd loc), fst loc) else loc in
+  print_endline ("Clicked on (" ^ string_of_int (fst loc) ^ ", " ^ string_of_int (snd loc) ^ ")");
   match p with
   | Some piece -> 
     print_endline ((Printer.print_piece piece) ^ " at " ^ (Printer.print_piece_position piece));
@@ -111,8 +113,9 @@ let highlight_squares st loc p =
         match lst with
         | [] -> ()
         | h::t -> 
-          print_endline ("Can move to (" ^ string_of_int (fst h) ^ ", " ^ string_of_int (snd h) ^ ")");
-          draw_square h in
+          (* print_endline ("Can move to (" ^ string_of_int (fst h) ^ ", " ^ string_of_int (snd h) ^ ")"); *)
+          draw_square h;
+          highlight_helper t in
     highlight_helper valid_locs
   | None -> print_endline ("No piece found at (" ^ string_of_int (fst loc) ^ ", " ^ string_of_int (snd loc) ^ ")")
 

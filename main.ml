@@ -7,34 +7,22 @@ open State
    will terminate the program and close the graphics window. As long as
    the program is running, the graphics window will still be open.
    [args] is not used. *)
-(* let rec play_game args =
-  print_endline "Enter quit to terminate the program: ";
-  let input = read_line () in
-  if String.equal (String.lowercase_ascii input) "quit" then ()
-  else play_game args *)
 
-let play_game st args =
+(* let play_game st args =
   try
     while true do
       print_endline "listening for click...";
       let f (x, y) = highlight_squares st (x, y) (piece st (x, y)) in
       (* let f (x, y) = print_endline (string_of_coordinate_pair (x, y)) in *)
+      listen f
+    done *)
 
-let play_game' st =
+let play_game st =
   try
     while true do
       print_endline "listening for click...";
-      let f pos =
-        let piece_option = get_piece st pos in
-        let piece_str =
-          match piece_option with
-          | None -> "Empty cell"
-          | Some piece -> Printer.print_piece_color piece
-        in
-        print_endline piece_str
-      in
-      listen f;
-      ()
+      let f pos = highlight_squares st pos (get_piece st pos) in
+      listen f
     done
   with Exit -> ()
 
@@ -42,7 +30,6 @@ let main () =
   let st = init_state () in
   init ();
   draw st;
-  play_game' st;
-  play_game "dummy"
+  play_game st
 
 let () = main ()
