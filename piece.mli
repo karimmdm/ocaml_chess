@@ -13,13 +13,24 @@ type piece =
   | Queen
   | King
 
+(* The rule type specifying the general direction a piece can move and
+   if that piece can move multiple squares in that direction. *)
+type rule = {
+  directions : (int * int) list;
+  scalable : bool;
+}
+
+(* [base_moves p] is the basic directinal rule that the piece [p] abides
+   by*)
+val base_moves : piece -> rule
+
 (* The abstract type of values representing a chess piece. *)
 type t
 
-(* [make piece color icon positoin] is a piece with piece variant [piece], 
-   color variant [color],
-   icon path [icon] and positon on a 2d array [position]
-   requires: [positon] to be (i, j) where i and j are elements of (0,8]) *)
+(* [make piece color icon positoin] is a piece with piece variant
+   [piece], color variant [color], icon path [icon] and positon on a 2d
+   array [position] requires: [positon] to be (i, j) where i and j are
+   elements of (0,8]) *)
 val make : piece -> string -> string -> int * int -> t
 
 (* [piece_type p] will return a variant of the piece type for piece [p]. *)
