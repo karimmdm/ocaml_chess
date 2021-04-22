@@ -36,9 +36,6 @@ val checkmate : t -> bool
    and false otherwise. *)
 val stalemate : t -> bool
 
-(* [piece loc] returns a Piece option at the location on the board. *)
-val piece : t -> int * int -> Piece.t option
-
 (* [locations st p] returns a list of positions represented by int
    tuples that the given piece can move to via official chess rules. *)
 val locations : t -> Piece.t -> (int * int) list

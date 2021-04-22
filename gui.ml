@@ -80,7 +80,6 @@ let gen_board_lst board =
   flattenedBoard
 
 let draw st =
-  print_endline (Printer.print_board st);
   let board = State.board st in
   let player = State.player_turn st in
   let boardlst = gen_board_lst board in
@@ -91,11 +90,12 @@ let draw st =
   set_text_size 50;
   overlay_piece_img player boardlst
 
-let draw_square loc =
+let draw_square st loc =
   set_color yellow;
   let x = fst loc in
-  let y = snd loc in
-  fill_rect x y 100 100
+  let y = if State.player_turn st = 1 then 7 - snd loc else snd loc in
+  print_endline ("Can move to (" ^ string_of_int (fst h) ^ ", " ^ string_of_int (snd h) ^ ")");
+  fill_rect y x 100 100
 
 let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 
@@ -113,8 +113,8 @@ let highlight_squares st loc p =
         match lst with
         | [] -> ()
         | h::t -> 
-          (* print_endline ("Can move to (" ^ string_of_int (fst h) ^ ", " ^ string_of_int (snd h) ^ ")"); *)
-          draw_square h;
+          print_endline ("Can move to (" ^ string_of_int (fst h) ^ ", " ^ string_of_int (snd h) ^ ")");
+          draw_square st h;
           highlight_helper t in
     highlight_helper valid_locs
   | None -> print_endline ("No piece found at (" ^ string_of_int (fst loc) ^ ", " ^ string_of_int (snd loc) ^ ")")
