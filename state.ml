@@ -75,48 +75,119 @@ let stalemate st = st.stalemate
 let check_bounds (grid : 'a option list list) (loc : int * int) : bool =
   let width = List.length grid in
   let height = List.length (List.hd grid) in
-  let x = fst loc in
-  let y = snd loc in
-  if x >= width || x < 0 || y >= height || y < 0 then false else true
+  let row = fst loc in
+  let col = snd loc in
+  if row >= width || row < 0 || col >= height || col < 0 then false
+  else true
 
 (* [get_elt grid x y] returns an option of element in the grid at (x, y)
    if that element exists and if x and y are within the bounds of the
    grid. *)
-let get_elt (grid : 'a list list) (x : int) (y : int) : 'a =
+let get_elt (grid : 'a list list) (loc : int * int) : 'a =
+  let x = fst loc in
+  let y = snd loc in
   if check_bounds grid (x, y) then List.nth (List.nth grid x) y
   else None
 
-(* [valid_positions_ lst acc] returns [acc] which contains all the valid
-   board positions in [lst]. If an enemy piece (piece that is not
-   [clr]), this function assumes that the piece can capture it, so this
-   does not apply to pawns, which cannot capture pieces in its way
-   vertically. *)
-let rec valid_positions board clr x y lst acc =
-  match lst with
+let check_empty (grid : 'a list list) (clr : string) (loc : int * int) :
+    bool =
+  let p = get_elt grid loc in
+  match p with Some p -> false | None -> true
+
+let rec pr l =
+  match l with
+  | [] -> print_endline "End"
   | h :: t ->
-      if check_bounds board h then
-        let elt = get_elt board x y in
-        match elt with
-        | Some p ->
-            if not (String.equal (Piece.color p) clr) then
-              valid_positions board clr x y t (h :: acc)
-            else valid_positions board clr x y t acc
-        | None -> valid_positions board clr x y t (h :: acc)
-      else valid_positions board clr x y t acc
-  | [] -> acc
+      print_endline
+        ("("
+        ^ string_of_int (fst h)
+        ^ ", "
+        ^ string_of_int (snd h)
+        ^ ")");
+      pr t
+
+let check_pawn_capture st clr loc dir =
+  let board = board st in
+  let check_loc = (fst loc + fst dir, snd loc + snd dir) in
+  let p = get_elt board check_loc in
+  match p with
+  | Some p -> if String.equal clr (Piece.color p) then true else false
+  | None -> false
+
+let rec scalable_helper st p loc dir acc =
+  let board = board st in
+  let check_loc = (fst loc + fst dir, snd loc + snd dir) in
+  if check_bounds board check_loc then
+    match get_elt board check_loc with
+    | Some pce ->
+        if String.equal (Piece.color pce) (Piece.color p) then acc
+        else scalable_helper st p check_loc dir (check_loc :: acc)
+    | None -> scalable_helper st p check_loc dir (check_loc :: acc)
+  else acc
+
+let pawn_locs st p loc =
+  let board = board st in
+  let clr = Piece.color p in
+  let base_moves = Piece.base_moves (Piece.piece_type p) in
+  let rec pawn_locs_helper lst scalable acc =
+    match lst with
+    | [] -> acc
+    | h :: t ->
+        (* Check if the direction involves moving to the right or left
+           column. If so, then this location direciton is a piece
+           capture. *)
+        let check_loc = (fst h + fst loc, snd h + snd loc) in
+        if snd h == 1 || snd h == -1 then
+          pawn_locs_helper t scalable
+            (if check_pawn_capture st clr loc h then check_loc :: acc
+            else acc)
+        else if fst h == 2 || fst h == -2 then
+          if
+            fst h == -2
+            && fst loc == 6
+            && check_empty board clr check_loc
+            || fst h == 2
+               && fst loc == 1
+               && check_empty board clr check_loc
+          then pawn_locs_helper t scalable (check_loc :: acc)
+          else pawn_locs_helper t scalable acc
+        else
+          pawn_locs_helper t scalable
+            (if
+             (fst h == 1 && check_empty board clr check_loc)
+             || (fst h == -1 && check_empty board clr check_loc)
+            then check_loc :: acc
+            else acc)
+  in
+  pawn_locs_helper
+    (if String.equal clr "white" then base_moves.directions
+    else List.map (fun (row, col) -> (-row, col)) base_moves.directions)
+    base_moves.scalable []
+
+let bishop_locs st p loc =
+  let base_moves = Piece.base_moves (Piece.piece_type p) in
+  let rec bishop_locs_helper lst scalable acc =
+    match lst with
+    | [] -> acc
+    | h :: t ->
+        bishop_locs_helper t scalable (scalable_helper st p loc h acc)
+  in
+  bishop_locs_helper base_moves.directions base_moves.scalable []
 
 let locations st p =
-  let x = fst (Piece.position p) in
-  let y = snd (Piece.position p) in
-  let board = st.board in
-  let clr = Piece.color p in
   let piece = Piece.piece_type p in
   match piece with
   | Pawn ->
+      let pl = pawn_locs st p (Piece.position p) in
+      pr pl;
+      pl
   | Bishop ->
-  | Knight ->
-  | Rook ->
-  | Queen ->
-  | King ->
+      let pl = bishop_locs st p (Piece.position p) in
+      pr pl;
+      pl
+  | Knight -> []
+  | Rook -> []
+  | Queen -> []
+  | King -> []
 
 let valid_move st p loc = List.mem loc (locations st p)

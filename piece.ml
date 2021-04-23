@@ -22,7 +22,7 @@ let base_moves piece_type =
   match piece_type with
   | Pawn ->
       {
-        directions = [ (1, 0); (2, 0); (1, 1); (1, -1) ];
+        directions = [ (-1, 0); (-2, 0); (-1, 1); (-1, -1) ];
         scalable = false;
       }
   | Bishop ->
