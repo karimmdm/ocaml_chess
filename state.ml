@@ -58,7 +58,8 @@ let state_from_fen (fen : string) =
   }
 
 let init_state () =
-  state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+  (* state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" *)
+  state_from_fen "pppppppp/rnbqkbnr/8/8/8/8/RNBQKBNR/PPPPPPPP"
 
 let board st = st.board
 
@@ -89,14 +90,15 @@ let get_elt (grid : 'a list list) (loc : int * int) : 'a =
   if check_bounds grid (x, y) then List.nth (List.nth grid x) y
   else None
 
-let check_empty (grid : 'a list list) (clr : string) (loc : int * int) :
-    bool =
+(* [check_empty grid clr loc] is true if the location at loc is empty
+   otherwise false*)
+let check_empty (grid : 'a list list) (loc : int * int) : bool =
   let p = get_elt grid loc in
   match p with Some p -> false | None -> true
 
 let rec pr l =
   match l with
-  | [] -> print_endline "End"
+  | [] -> print_endline "End of valid possible move locations"
   | h :: t ->
       print_endline
         ("("
@@ -143,19 +145,17 @@ let pawn_locs st p loc =
             else acc)
         else if fst h == 2 || fst h == -2 then
           if
-            fst h == -2
-            && fst loc == 6
-            && check_empty board clr check_loc
+            (fst h == -2 && fst loc == 6 && check_empty board check_loc)
             || fst h == 2
                && fst loc == 1
-               && check_empty board clr check_loc
+               && check_empty board check_loc
           then pawn_locs_helper t scalable (check_loc :: acc)
           else pawn_locs_helper t scalable acc
         else
           pawn_locs_helper t scalable
             (if
-             (fst h == 1 && check_empty board clr check_loc)
-             || (fst h == -1 && check_empty board clr check_loc)
+             (fst h == 1 && check_empty board check_loc)
+             || (fst h == -1 && check_empty board check_loc)
             then check_loc :: acc
             else acc)
   in
@@ -174,6 +174,28 @@ let bishop_locs st p loc =
   in
   bishop_locs_helper base_moves.directions base_moves.scalable []
 
+let knight_locs st p loc =
+  let clr = Piece.color p in
+  let base_moves = Piece.base_moves (Piece.piece_type p) in
+  let rec knight_locs_helper lst acc =
+    match lst with
+    | [] -> acc
+    | h :: t ->
+        if not (check_bounds st.board loc) then knight_locs_helper t acc
+        else
+          let loc_to_check = (fst h + fst loc, snd h + snd loc) in
+          let not_empty = not (check_empty st.board loc) in
+          let enemy_capture =
+            match get_elt st.board loc_to_check with
+            | None -> false
+            | Some p_other -> Piece.color p_other <> clr
+          in
+          if not_empty || enemy_capture then
+            knight_locs_helper t (loc_to_check :: acc)
+          else knight_locs_helper t acc
+  in
+  knight_locs_helper base_moves.directions []
+
 let locations st p =
   let piece = Piece.piece_type p in
   match piece with
@@ -185,9 +207,15 @@ let locations st p =
       let pl = bishop_locs st p (Piece.position p) in
       pr pl;
       pl
-  | Knight -> []
+  | Knight ->
+      let pl = knight_locs st p (Piece.position p) in
+      pr pl;
+      pl
   | Rook -> []
   | Queen -> []
   | King -> []
 
 let valid_move st p loc = List.mem loc (locations st p)
+
+let move st p loc =
+  if not (valid_move st p loc) then failwith "Illegal Move" else st
