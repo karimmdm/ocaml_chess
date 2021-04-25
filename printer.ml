@@ -28,7 +28,7 @@ let print_piece (piece : Piece.t) : string =
 
 (* [print_piece_option p] is the string of the Piece option*)
 let print_piece_option (piece : Piece.t option) : string =
-  match piece with Some p -> print_piece p | None -> "  "
+  match piece with Some p -> print_piece p | None -> "None"
 
 (* [print_row lst] is the string representation of [lst]*)
 let print_row (lst : Piece.t option list) : string =

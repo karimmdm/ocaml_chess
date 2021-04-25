@@ -47,7 +47,7 @@ let base_moves piece_type =
       }
   | Rook ->
       {
-        directions = [ (-1, 0); (0, 1); (1, 0); (-1, 0) ];
+        directions = [ (-1, 0); (1, 0); (0, 1); (0, -1) ];
         scalable = true;
       }
   | Queen ->
