@@ -61,7 +61,7 @@ let init_state () =
   (* state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" *)
   (* state_from_fen "pppppppp/rnbqkbnr/8/8/8/8/RNBQKBNR/PPPPPPPP" *)
   (* state_from_fen "rnbqkbnr/RNBQKBNR/8/8/8/8/PPPPPPPP/pppppppp" *)
-  state_from_fen "rn11kb1r/1NBQKBNR/8/2qRn2/4b3/8/PPPPPPPP/pppppppp"
+  state_from_fen "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp"
 
 let board st = st.board
 
