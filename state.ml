@@ -6,6 +6,7 @@ type t = {
   check : bool;
   checkmate : bool;
   stalemate : bool;
+  piece_clicked : Piece.t option;
 }
 
 let letter_to_piece_type c : piece =
@@ -55,6 +56,7 @@ let state_from_fen (fen : string) =
     check = false;
     checkmate = false;
     stalemate = false;
+    piece_clicked = None;
   }
 
 let init_state () =
@@ -64,11 +66,26 @@ let board st = st.board
 
 let player_turn st = st.player_turn
 
+let update_player_turn st pt = {st with player_turn = pt}
+
 let check st = st.check
+
+let update_check st ch = {st with check = ch}
 
 let checkmate st = st.checkmate
 
+let update_checkmate st cm = {st with checkmate = cm}
+
 let stalemate st = st.stalemate
+
+let update_stalemate st sm = {st with stalemate = sm}
+
+let piece_clicked st = st.piece_clicked
+
+let update_piece_clicked st pc = {st with piece_clicked = pc}
+
+let update_state board pt check cm sm pc = 
+  {board = board; player_turn = pt; check = check; checkmate = cm; stalemate = sm; piece_clicked = pc}
 
 (* [check_bounds grid loc] returns true if the given location is within
    the bounds of the given grid and false otherwise. *)

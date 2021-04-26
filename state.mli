@@ -24,17 +24,41 @@ val board : t -> Piece.t option list list
    for player 1 (white) and 2 for player 2 (black). *)
 val player_turn : t -> int
 
+(* [update_player_turn st pt] returns a new State with the updated
+   player_turn field. *)
+val update_player_turn : t -> int -> t
+
 (* [check st] will return true if the current player is in check and
    false otherwise. *)
 val check : t -> bool
+
+(* [update_check st ch] returns a new State with the updated check
+   field. *)
+val update_check : t -> bool -> t
 
 (* [checkmate st] will return true if the current player is in checkmate
    and false otherwise. *)
 val checkmate : t -> bool
 
+(* [update_player_turn st cm] returns a new State with the updated
+   checkmate field. *)
+val update_checkmate : t -> bool -> t
+
 (* [stalemate st] will return true if the current player is in stalemate
    and false otherwise. *)
 val stalemate : t -> bool
+
+(* [update_player_turn st sm] returns a new State with the updated
+   stalemate field. *)
+val update_stalemate : t -> bool -> t
+
+(* [piece_clicked st] will return a Piece option of the current piece
+   clicked. *)
+val piece_clicked : t -> Piece.t option
+
+(* [update_player_turn st pt] returns a new State with the updated
+   piece_clicked field. *)
+val update_piece_clicked : t -> Piece.t option -> t
 
 (* [locations st p] returns a list of positions represented by int
    tuples that the given piece can move to via official chess rules. *)
