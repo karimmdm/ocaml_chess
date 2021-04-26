@@ -61,8 +61,9 @@ val piece_clicked : t -> Piece.t option
 val update_piece_clicked : t -> Piece.t option -> t
 
 (* [locations st p] returns a list of positions represented by int
-   tuples that the given piece can move to via official chess rules with one exception:
-   a locaiton that causes ones one king to be checked is still a valid locaiton but not a legal move *)
+   tuples that the given piece can move to via official chess rules with
+   one exception: a locaiton that causes ones one king to be checked is
+   still a valid locaiton but not a legal move *)
 val locations : t -> Piece.t -> (int * int) list
 
 (* [valid_move st p loc] returns true if the given piece can move to the
@@ -73,4 +74,4 @@ val valid_move : t -> Piece.t -> int * int -> bool
 
 (* [move st p loc] returns a new state after after [p] moves to location
    [loc]*)
-val move: t -> Piece.t -> int * int -> t
+(* val move: t -> Piece.t -> int * int -> t *)

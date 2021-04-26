@@ -17,12 +17,11 @@ val string_of_coordinate_pair : int * int -> string
 (* [move st pos] checks if the current state has a piece clicked
    already. If there is no piece selected, then [move st pos] updates
    the current state. *)
-val move : State.t * int * int -> State.t
+val move : State.t -> int * int -> State.t
 
-(* highlight_valid_locations] highlights all the valid squares on the board
-   that the selected piece can move to. *)
-val highlight_valid_locations
-   : State.t -> Piece.t option -> unit
+(* highlight_valid_locations] highlights all the valid squares on the
+   board that the selected piece can move to. *)
+val highlight_valid_locations : State.t -> Piece.t option -> unit
 
 (* [listen f] will listen for a mouse click and pass the mouse location
    to [f] *)

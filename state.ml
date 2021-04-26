@@ -63,7 +63,7 @@ let init_state () =
   (* state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" *)
   (* state_from_fen "pppppppp/rnbqkbnr/8/8/8/8/RNBQKBNR/PPPPPPPP" *)
   (* state_from_fen "rnbqkbnr/RNBQKBNR/8/8/8/8/PPPPPPPP/pppppppp" *)
-  state_from_fen "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp"
+  state_from_fen "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/11111P1p/PPPPPPPP/pppppppp"
 
 let board st = st.board
 
@@ -155,19 +155,8 @@ let check_pawn_capture st clr loc dir =
   let check_loc = (fst loc + fst dir, snd loc + snd dir) in
   let p = get_elt board check_loc in
   match p with
-  | Some p -> if String.equal clr (Piece.color p) then true else false
+  | Some p -> if String.equal clr (Piece.color p) then false else true
   | None -> false
-
-let rec scalable_helper st p loc dir acc =
-  let board = board st in
-  let check_loc = (fst loc + fst dir, snd loc + snd dir) in
-  if check_bounds board check_loc then
-    match get_elt board check_loc with
-    | Some pce ->
-        if String.equal (Piece.color pce) (Piece.color p) then acc
-        else scalable_helper st p check_loc dir (check_loc :: acc)
-    | None -> scalable_helper st p check_loc dir (check_loc :: acc)
-  else acc
 
 let pawn_locs st p loc =
   let board = board st in
@@ -201,20 +190,20 @@ let pawn_locs st p loc =
             then check_loc :: acc
             else acc)
   in
+  (* Reverse directions if the player is using the black pieces. *)
   pawn_locs_helper
     (if String.equal clr "white" then base_moves.directions
     else List.map (fun (row, col) -> (-row, col)) base_moves.directions)
     base_moves.scalable []
 
 let bishop_locs st p loc =
+  let clr = Piece.color p in
   let base_moves = Piece.base_moves (Piece.piece_type p) in
-  let rec bishop_locs_helper lst scalable acc =
-    match lst with
+  let rec bishop_helper acc = function
     | [] -> acc
-    | h :: t ->
-        bishop_locs_helper t scalable (scalable_helper st p loc h acc)
+    | h :: t -> march st clr h loc [] @ bishop_helper acc t
   in
-  bishop_locs_helper base_moves.directions base_moves.scalable []
+  bishop_helper [] base_moves.directions
 
 let knight_locs st p loc =
   let clr = Piece.color p in
@@ -274,5 +263,5 @@ let locations st p =
 
 let valid_move st p loc = List.mem loc (locations st p)
 
-let move st p loc =
-  if not (valid_move st p loc) then failwith "Illegal Move" else st
+(* let move st p loc =
+  if not (valid_move st p loc) then failwith "Illegal Move" else st *)
