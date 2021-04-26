@@ -108,7 +108,7 @@ let highlight_square clr loc =
 let draw_border clr (x, y) =
   set_color clr;
   set_line_width 2;
-  moveto (x+1) (y);
+  moveto (x + 1) y;
   lineto (current_x () + 99) (current_y ());
   lineto (current_x ()) (current_y () + 99);
   lineto (current_x () - 99) (current_y ());
