@@ -6,7 +6,6 @@ type t = {
   check : bool;
   checkmate : bool;
   stalemate : bool;
-  piece_clicked : Piece.t option;
 }
 
 let letter_to_piece_type c : piece =
@@ -85,7 +84,6 @@ let state_from_fen (fen : string) =
     check = bool_of_tf (snd flag_pt_c);
     checkmate = bool_of_tf (fst flag_cm_sm);
     stalemate = bool_of_tf (snd flag_cm_sm);
-    piece_clicked = None;
   }
 
 (* let board_to_fen board = let rec helper row = match row with | [] ->
@@ -176,7 +174,7 @@ let rec march st scalable clr direction loc acc =
   (* let sample_state = move_to st loc_to_check
      if sample_state.check = true then acc else --> *)
   else
-    let is_empty = check_empty st.board check_loc in
+    let is_empty = check_empty st.board loc_to_check in
     if is_empty then
       if scalable then
         march st scalable clr direction loc_to_check
@@ -184,11 +182,11 @@ let rec march st scalable clr direction loc acc =
       else loc_to_check :: acc
     else
       let enemy_capture =
-        match get_elt st.board check_loc with
+        match get_elt st.board loc_to_check with
         | None -> false
         | Some p_other -> Piece.color p_other <> clr
       in
-      if enemy_capture then check_loc :: acc else acc
+      if enemy_capture then loc_to_check :: acc else acc
 
 let rec pr l =
   match l with
@@ -252,10 +250,6 @@ let pawn_locs st p loc =
     else List.map (fun (row, col) -> (-row, col)) base_moves.directions)
     base_moves.scalable []
 
-let rook_locs st p loc =
-  let clr = Piece.color p in
-  let base_moves = Piece.base_moves (Piece.piece_type p) in
-  let rec rook_helper acc = function
 let locs_helper st p loc =
   let clr = Piece.color p in
   let base_moves = Piece.base_moves (Piece.piece_type p) in
