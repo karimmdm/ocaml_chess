@@ -13,9 +13,11 @@ type t
 val init_state : unit -> t
 
 (* [state_from_fen s] initializes a new state based on the piece
-   placement of the fen notation [s] and sets the player turn to 1 and
-   all the booleans to false. *)
+   placement of the fen notation [s] *)
 val state_from_fen : string -> t
+
+(* [fen_from_state st] is the string representation of the state [st]
+val fen_from_state : t -> string *)
 
 (* [board st] is the current board configuration of the game state [st] *)
 val board : t -> Piece.t option list list
@@ -52,13 +54,13 @@ val stalemate : t -> bool
    stalemate field. *)
 val update_stalemate : t -> bool -> t
 
-(* [piece_clicked st] will return a Piece option of the current piece
+(* (* [piece_clicked st] will return a Piece option of the current piece
    clicked. *)
-val piece_clicked : t -> Piece.t option
+val piece_clicked : t -> Piece.t optionwaterbottle
 
 (* [update_player_turn st pt] returns a new State with the updated
    piece_clicked field. *)
-val update_piece_clicked : t -> Piece.t option -> t
+val update_piece_clicked : t -> Piece.t option -> t *)
 
 (* [locations st p] returns a list of positions represented by int
    tuples that the given piece can move to via official chess rules with one exception:

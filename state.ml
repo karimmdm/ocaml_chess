@@ -6,7 +6,6 @@ type t = {
   check : bool;
   checkmate : bool;
   stalemate : bool;
-  piece_clicked : Piece.t option;
 }
 
 let letter_to_piece_type c : piece =
@@ -17,6 +16,15 @@ let letter_to_piece_type c : piece =
   | 'R' -> Rook
   | 'Q' -> Queen
   | _ -> King
+
+let piece_type_to_letter piece =
+  match piece with
+  | Pawn -> 'P'
+  | Bishop -> 'B'
+  | Knight -> 'N'
+  | Rook -> 'R'
+  | Queen -> 'Q'
+  | King -> 'K'
 
 let letter_to_piece c pos : Piece.t =
   let color = if Char.code c - 97 < 0 then "white" else "black" in
@@ -40,8 +48,8 @@ let rec string_to_lst (s : string) (i : int) (j : int) :
       int_to_nones n @ string_to_lst rest i (j + n)
     else Some (letter_to_piece c (i, j)) :: string_to_lst rest i (j + 1)
 
-let make_board (fen : string) =
-  let row_lst = String.split_on_char '/' fen in
+let make_board (str : string) =
+  let row_lst = String.split_on_char '/' str in
   let rec board_helper lst i =
     match lst with
     | [] -> []
@@ -49,22 +57,50 @@ let make_board (fen : string) =
   in
   board_helper row_lst 0
 
+let get_status_flags (str : string) =
+  let flags_lst = String.split_on_char ',' str in
+  match flags_lst with
+  | [] -> failwith "flag statuses needed"
+  | [ pt; c; cm; sm ] -> ((pt, c), (cm, sm))
+  | h :: t -> failwith "flag statuses were not appropriately entered"
+
 let state_from_fen (fen : string) =
+  let fen_split_lst = String.split_on_char ':' fen in
+  let board_str = List.hd fen_split_lst in
+  let flag_status_str = List.hd (List.tl fen_split_lst) in
+  let flag_statuses = get_status_flags flag_status_str in
+  (* player_turn, check*)
+  let flag_pt_c = fst flag_statuses in
+  (*checkmate, stalemate*)
+  let flag_cm_sm = snd flag_statuses in
+  let bool_of_tf = function
+    | "t" -> true
+    | "f" -> false
+    | _ -> failwith "not t or f"
+  in
   {
-    board = make_board fen;
-    player_turn = 1;
-    check = false;
-    checkmate = false;
-    stalemate = false;
-    piece_clicked = None;
+    board = make_board board_str;
+    player_turn = int_of_string (fst flag_pt_c);
+    check = bool_of_tf (snd flag_pt_c);
+    checkmate = bool_of_tf (fst flag_cm_sm);
+    stalemate = bool_of_tf (snd flag_cm_sm);
   }
 
+(* let board_to_fen board = let rec helper row = match row with | [] ->
+   "/" | h :: t -> *)
+let to_fen t = failwith "unimplemented"
+
 let init_state () =
-  (* state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" *)
-  (* state_from_fen "pppppppp/rnbqkbnr/8/8/8/8/RNBQKBNR/PPPPPPPP" *)
-  (* state_from_fen "rnbqkbnr/RNBQKBNR/8/8/8/8/PPPPPPPP/pppppppp" *)
-  (* state_from_fen "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp" *)
-  state_from_fen "1n11kb1r/1BQKNBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp"
+  (* state_from_fen
+     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f" *)
+  (* state_from_fen
+     "pppppppp/rnbqkbnr/8/8/8/8/RNBQKBNR/PPPPPPPP:1,f,f,f" *)
+  (* state_from_fen
+     "rnbqkbnr/RNBQKBNR/8/8/8/8/PPPPPPPP/pppppppp:1,f,f,f" *)
+  (* state_from_fen
+     "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp:1,f,f,f" *)
+  state_from_fen
+    "1n11kb1r/1BQKNBNR/r7/2qRn3/4b2P/8/PPPPPPP1/pppppppp:1,f,f,f"
 
 let board st = st.board
 
@@ -84,19 +120,12 @@ let stalemate st = st.stalemate
 
 let update_stalemate st sm = { st with stalemate = sm }
 
-let piece_clicked st = st.piece_clicked
+(* let piece_clicked st = st.piece_clicked
 
-let update_piece_clicked st pc = { st with piece_clicked = pc }
+   let update_piece_clicked st pc = { st with piece_clicked = pc } *)
 
 let update_state board pt check cm sm pc =
-  {
-    board;
-    player_turn = pt;
-    check;
-    checkmate = cm;
-    stalemate = sm;
-    piece_clicked = pc;
-  }
+  { board; player_turn = pt; check; checkmate = cm; stalemate = sm }
 
 (* [check_bounds grid loc] returns true if the given location is within
    the bounds of the given grid and false otherwise. *)
@@ -112,9 +141,15 @@ let check_bounds (grid : 'a option list list) (loc : int * int) : bool =
    if that element exists and if x and y are within the bounds of the
    grid. *)
 let get_elt (grid : 'a list list) (loc : int * int) : 'a =
-  let x = fst loc in
-  let y = snd loc in
-  if check_bounds grid (x, y) then List.nth (List.nth grid x) y
+  let i = fst loc in
+  let j = snd loc in
+  print_endline "Nth tracker";
+  print_endline (string_of_int i);
+  print_endline (string_of_int j);
+  print_endline "End of Nth tracker";
+  print_string "testing ith row, length: ";
+  print_endline (string_of_int (List.length (List.nth grid i)));
+  if check_bounds grid (i, j) then List.nth (List.nth grid i) j
   else None
 
 (* [check_empty grid clr loc] is true if the location at loc is empty
@@ -134,6 +169,8 @@ let rec march st scalable clr direction loc acc =
   let y' = y + j in
   let loc_to_check = (x', y') in
   if not (check_bounds st.board loc_to_check) then acc
+  (* let sample_state = move_to st loc_to_check
+     if sample_state.check = true then acc else --> *)
   else
     let is_empty = check_empty st.board loc_to_check in
     if is_empty then
