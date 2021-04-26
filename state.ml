@@ -6,6 +6,7 @@ type t = {
   check : bool;
   checkmate : bool;
   stalemate : bool;
+  piece_clicked : Piece.t option;
 }
 
 let letter_to_piece_type c : piece =
@@ -84,6 +85,7 @@ let state_from_fen (fen : string) =
     check = bool_of_tf (snd flag_pt_c);
     checkmate = bool_of_tf (fst flag_cm_sm);
     stalemate = bool_of_tf (snd flag_cm_sm);
+    piece_clicked = None;
   }
 
 (* let board_to_fen board = let rec helper row = match row with | [] ->
