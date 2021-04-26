@@ -7,6 +7,7 @@ type t = {
   checkmate : bool;
   stalemate : bool;
   piece_clicked : Piece.t option;
+  fen: string
 }
 
 let letter_to_piece_type c : piece =
@@ -57,6 +58,7 @@ let state_from_fen (fen : string) =
     checkmate = false;
     stalemate = false;
     piece_clicked = None;
+    fen = fen
   }
 
 let init_state () =
@@ -87,9 +89,6 @@ let piece_clicked st = st.piece_clicked
 
 let update_piece_clicked st pc = {st with piece_clicked = pc}
 
-let update_state board pt check cm sm pc = 
-  {board = board; player_turn = pt; check = check; checkmate = cm; stalemate = sm; piece_clicked = pc}
-
 (* [check_bounds grid loc] returns true if the given location is within
    the bounds of the given grid and false otherwise. *)
 let check_bounds (grid : 'a option list list) (loc : int * int) : bool =
@@ -102,21 +101,25 @@ let check_bounds (grid : 'a option list list) (loc : int * int) : bool =
 
 (* [get_elt grid x y] returns an option of element in the grid at (x, y)
    if that element exists and if x and y are within the bounds of the
-   grid. *)
+   grid. Precondition: (x, y) is a valid location in grid. *)
 let get_elt (grid : 'a list list) (loc : int * int) : 'a =
   let x = fst loc in
   let y = snd loc in
-  if check_bounds grid (x, y) then List.nth (List.nth grid x) y
-  else None
+  (* if check_bounds grid (x, y) then List.nth (List.nth grid x) y
+  else None *)
+  List.nth (List.nth grid x) y
 
 (* [check_empty grid clr loc] is true if the location at loc is empty
    otherwise false*)
 let check_empty (grid : 'a list list) (loc : int * int) : bool =
-  let p = get_elt grid loc in
-  match p with Some p -> false | None -> true
+  if check_bounds grid loc then
+    let p = get_elt grid loc in
+    match p with Some p -> false | None -> true
+  else false
 
 (* [march st direction loc] is a list of valid locations along a given
-   direction*)
+   direction. [march] recursively checks along a certain path until the path
+   is blocked by an enemy piece that can be captured or an allied piece. *)
 let rec march st clr direction loc acc =
   let i = fst direction in
   let j = snd direction in
@@ -124,11 +127,13 @@ let rec march st clr direction loc acc =
   let y = snd loc in
   let x' = x + i in
   let y' = y + j in
-  let loc_to_check = (x', y') in
+  (* let loc_to_check = (x', y') in *)
+  let loc_to_check = (fst direction + fst loc, snd direction + snd loc) in
   if not (check_bounds st.board loc_to_check) then acc
   else
-    let is_empty = check_empty st.board loc_to_check in
-    if is_empty then
+    (* let is_empty = check_empty st.board loc_to_check in *)
+    (* if is_empty then *)
+    if check_empty st.board loc_to_check then
       march st clr direction loc_to_check (loc_to_check :: acc)
     else
       let enemy_capture =
@@ -170,25 +175,29 @@ let pawn_locs st p loc =
            column. If so, then this location direciton is a piece
            capture. *)
         let check_loc = (fst h + fst loc, snd h + snd loc) in
-        if snd h == 1 || snd h == -1 then
-          pawn_locs_helper t scalable
-            (if check_pawn_capture st clr loc h then check_loc :: acc
-            else acc)
-        else if fst h == 2 || fst h == -2 then
-          if
-            (fst h == -2 && fst loc == 6 && check_empty board check_loc)
-            || fst h == 2
-               && fst loc == 1
-               && check_empty board check_loc
-          then pawn_locs_helper t scalable (check_loc :: acc)
-          else pawn_locs_helper t scalable acc
+        if check_bounds board check_loc then
+          if snd h == 1 || snd h == -1 then
+            pawn_locs_helper t scalable
+              (if check_pawn_capture st clr loc h then check_loc :: acc
+              else acc)
+          else if fst h == 2 || fst h == -2 then
+            let check_loc_prev = (fst check_loc - (fst h)/2, snd check_loc) in
+            if
+              (fst h == -2 && fst loc == 6 && check_empty board check_loc && check_empty board check_loc_prev)
+              || fst h == 2
+                && fst loc == 1
+                && check_empty board check_loc && check_empty board check_loc_prev
+            then pawn_locs_helper t scalable (check_loc :: acc)
+            else pawn_locs_helper t scalable acc
+          else
+            pawn_locs_helper t scalable
+              (if
+              (fst h == 1 && check_empty board check_loc)
+              || (fst h == -1 && check_empty board check_loc)
+              then check_loc :: acc
+              else acc)
         else
-          pawn_locs_helper t scalable
-            (if
-             (fst h == 1 && check_empty board check_loc)
-             || (fst h == -1 && check_empty board check_loc)
-            then check_loc :: acc
-            else acc)
+          pawn_locs_helper t scalable acc
   in
   (* Reverse directions if the player is using the black pieces. *)
   pawn_locs_helper
@@ -244,24 +253,29 @@ let locations st p =
   match piece with
   | Pawn ->
       let pl = pawn_locs st p (Piece.position p) in
-      pr pl;
+      (* pr pl; *)
       pl
   | Bishop ->
       let pl = bishop_locs st p (Piece.position p) in
-      pr pl;
+      (* pr pl; *)
       pl
   | Knight ->
       let pl = knight_locs st p (Piece.position p) in
-      pr pl;
+      (* pr pl; *)
       pl
   | Rook ->
       let pl = rook_locs st p (Piece.position p) in
-      pr pl;
+      (* pr pl; *)
       pl
   | Queen -> []
   | King -> []
 
 let valid_move st p loc = List.mem loc (locations st p)
+
+let move_piece st p pos =
+  (* "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/11111P1p/PPPPPPPP/pppppppp" *)
+  let fen = "" in
+  {st with board = make_board fen}
 
 (* let move st p loc =
   if not (valid_move st p loc) then failwith "Illegal Move" else st *)
