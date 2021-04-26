@@ -63,32 +63,40 @@ let init_state () =
   (* state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" *)
   (* state_from_fen "pppppppp/rnbqkbnr/8/8/8/8/RNBQKBNR/PPPPPPPP" *)
   (* state_from_fen "rnbqkbnr/RNBQKBNR/8/8/8/8/PPPPPPPP/pppppppp" *)
-  state_from_fen "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp"
+  (* state_from_fen "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp" *)
+  state_from_fen "1n11kb1r/1BQKNBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp"
 
 let board st = st.board
 
 let player_turn st = st.player_turn
 
-let update_player_turn st pt = {st with player_turn = pt}
+let update_player_turn st pt = { st with player_turn = pt }
 
 let check st = st.check
 
-let update_check st ch = {st with check = ch}
+let update_check st ch = { st with check = ch }
 
 let checkmate st = st.checkmate
 
-let update_checkmate st cm = {st with checkmate = cm}
+let update_checkmate st cm = { st with checkmate = cm }
 
 let stalemate st = st.stalemate
 
-let update_stalemate st sm = {st with stalemate = sm}
+let update_stalemate st sm = { st with stalemate = sm }
 
 let piece_clicked st = st.piece_clicked
 
-let update_piece_clicked st pc = {st with piece_clicked = pc}
+let update_piece_clicked st pc = { st with piece_clicked = pc }
 
-let update_state board pt check cm sm pc = 
-  {board = board; player_turn = pt; check = check; checkmate = cm; stalemate = sm; piece_clicked = pc}
+let update_state board pt check cm sm pc =
+  {
+    board;
+    player_turn = pt;
+    check;
+    checkmate = cm;
+    stalemate = sm;
+    piece_clicked = pc;
+  }
 
 (* [check_bounds grid loc] returns true if the given location is within
    the bounds of the given grid and false otherwise. *)
@@ -117,7 +125,7 @@ let check_empty (grid : 'a list list) (loc : int * int) : bool =
 
 (* [march st direction loc] is a list of valid locations along a given
    direction*)
-let rec march st clr direction loc acc =
+let rec march st scalable clr direction loc acc =
   let i = fst direction in
   let j = snd direction in
   let x = fst loc in
@@ -129,7 +137,10 @@ let rec march st clr direction loc acc =
   else
     let is_empty = check_empty st.board loc_to_check in
     if is_empty then
-      march st clr direction loc_to_check (loc_to_check :: acc)
+      if scalable then
+        march st scalable clr direction loc_to_check
+          (loc_to_check :: acc)
+      else loc_to_check :: acc
     else
       let enemy_capture =
         match get_elt st.board loc_to_check with
@@ -206,49 +217,15 @@ let pawn_locs st p loc =
     else List.map (fun (row, col) -> (-row, col)) base_moves.directions)
     base_moves.scalable []
 
-let bishop_locs st p loc =
-  let base_moves = Piece.base_moves (Piece.piece_type p) in
-  let rec bishop_locs_helper lst scalable acc =
-    match lst with
-    | [] -> acc
-    | h :: t ->
-        bishop_locs_helper t scalable (scalable_helper st p loc h acc)
-  in
-  bishop_locs_helper base_moves.directions base_moves.scalable []
-
-let knight_locs st p loc =
+let locs_helper st p loc =
   let clr = Piece.color p in
   let base_moves = Piece.base_moves (Piece.piece_type p) in
-  let rec knight_helper lst acc =
-    match lst with
+  let scalable = base_moves.scalable in
+  let rec helper acc = function
     | [] -> acc
-    | h :: t ->
-        if not (check_bounds st.board loc) then knight_helper t acc
-        else
-          let loc_to_check = (fst h + fst loc, snd h + snd loc) in
-          if not (check_bounds st.board loc_to_check) then
-            knight_helper t acc
-          else
-            let is_empty = check_empty st.board loc_to_check in
-            let enemy_capture =
-              match get_elt st.board loc_to_check with
-              | None -> false
-              | Some p_other -> Piece.color p_other <> clr
-            in
-            if is_empty || enemy_capture then
-              knight_helper t (loc_to_check :: acc)
-            else knight_helper t acc
+    | h :: t -> march st scalable clr h loc [] @ helper acc t
   in
-  knight_helper base_moves.directions []
-
-let rook_locs st p loc =
-  let clr = Piece.color p in
-  let base_moves = Piece.base_moves (Piece.piece_type p) in
-  let rec rook_helper acc = function
-    | [] -> acc
-    | h :: t -> march st clr h loc [] @ rook_helper acc t
-  in
-  rook_helper [] base_moves.directions
+  helper [] base_moves.directions
 
 let locations st p =
   let piece = Piece.piece_type p in
@@ -258,19 +235,25 @@ let locations st p =
       pr pl;
       pl
   | Bishop ->
-      let pl = bishop_locs st p (Piece.position p) in
+      let pl = locs_helper st p (Piece.position p) in
       pr pl;
       pl
   | Knight ->
-      let pl = knight_locs st p (Piece.position p) in
+      let pl = locs_helper st p (Piece.position p) in
       pr pl;
       pl
   | Rook ->
-      let pl = rook_locs st p (Piece.position p) in
+      let pl = locs_helper st p (Piece.position p) in
       pr pl;
       pl
-  | Queen -> []
-  | King -> []
+  | Queen ->
+      let pl = locs_helper st p (Piece.position p) in
+      pr pl;
+      pl
+  | King ->
+      let pl = locs_helper st p (Piece.position p) in
+      pr pl;
+      pl
 
 let valid_move st p loc = List.mem loc (locations st p)
 
