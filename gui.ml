@@ -60,20 +60,10 @@ let rec overlay_piece_icon = function
           let pos = position piece in
           let y = fst pos in
           let x = snd pos in
-          let symbol = print_piece_type piece in
+          let symbol = Printer.print_piece_type piece in
           moveto ((x * 100) + 20) ((y * 100) + 20);
           Graphics.draw_string symbol;
           overlay_piece_icon t)
-
-let rec string_flattened = function
-  | [] -> "]"
-  | h :: t -> (
-      match h with
-      | None -> "empty; " ^ string_flattened t
-      | Some p ->
-          Printer.print_piece p ^ ": "
-          ^ Printer.print_piece_position p
-          ^ "; " ^ string_flattened t)
 
 (* [gen_board_lst board player] gives the [board] as a flattened list*)
 let gen_board_lst board =
@@ -90,12 +80,6 @@ let draw st =
   gen_grid 0 0;
   set_text_size 50;
   overlay_piece_img player boardlst
-
-let draw_square st loc =
-  set_color yellow;
-  let x = fst loc in
-  let y = if State.player_turn st = 1 then 7 - snd loc else snd loc in
-  fill_rect y x 100 100
 
 let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 
@@ -115,20 +99,6 @@ let get_piece st ((x, y) : int * int) =
   in
   helper (gen_board_lst (State.board st))
 
-let highlight_squares st loc p =
-  match p with
-  | Some piece ->
-      let valid_locs = State.locations st piece in
-      let rec highlight_helper lst =
-        match lst with
-        | [] -> ()
-        | h :: t ->
-            draw_square st h;
-            highlight_helper t
-      in
-      highlight_helper valid_locs
-  | None -> ()
-
 let move st pos = 
   match State.piece_clicked st with
 | Some p ->
@@ -138,6 +108,46 @@ let move st pos =
   match pc with
   | Some p -> State.update_piece_clicked st pc
   | None -> st 
+
+let highlight_square clr loc =
+  set_color black;
+  fill_rect (fst loc) (snd loc) 100 100;
+  set_color clr;
+  fill_rect (fst loc + 5) (snd loc + 5) 90 90
+
+let draw_border clr (x, y) =
+  set_color clr;
+  set_line_width 2;
+  moveto (x+1) (y);
+  lineto (current_x () + 99) (current_y ());
+  lineto (current_x ()) (current_y () + 99);
+  lineto (current_x () - 99) (current_y ());
+  lineto (current_x ()) (current_y () - 99)
+
+let highlight_valid_locations st p_op =
+  match p_op with
+  | None -> ()
+  | Some piece ->
+      (* clear the board before highlighting again *)
+      draw st;
+      (* highlight the possible locations *)
+      let locations = State.locations st piece in
+      let locations_cartesian =
+        List.map
+          (fun (row, col) ->
+            let x = col in
+            let y = if State.player_turn st = 1 then 7 - row else row in
+            (x * 100, y * 100))
+          locations
+      in
+      List.iter (draw_border green) locations_cartesian;
+      (* draw a boarder around the clicked piece *)
+      let pos = Piece.position piece in
+      let x = snd pos in
+      let y =
+        if State.player_turn st = 1 then 7 - fst pos else fst pos
+      in
+      draw_border blue (x * 100, y * 100)
 
 let rec listen (f : int * int -> unit) =
   let st = wait_next_event [ Button_down ] in

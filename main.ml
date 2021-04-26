@@ -13,22 +13,16 @@ open State
    (x, y)) in (* let f (x, y) = print_endline (string_of_coordinate_pair
    (x, y)) in *) listen f done *)
 
-let move st pos = 
-  match State.piece_clicked st with
-  | Some p ->
-  let piece_pos = Piece.position p in
-  let valid_locs = State.locations in st
-  | None -> let pc = get_piece st pos in
-  match pc with
-  | Some p -> State.update_piece_clicked st pc
-  | None -> st 
-
 let play_game st =
   try
     while true do
       print_endline "listening for click...";
       (* let f pos = move st pos in *)
-      let f pos = highlight_squares st pos (get_piece st pos) in
+      let f pos =
+        let piece = Gui.get_piece st pos in
+        print_endline (Printer.print_piece_option piece);
+        Gui.highlight_valid_locations st piece
+      in
       listen f
     done
   with Exit -> ()

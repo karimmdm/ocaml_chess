@@ -19,9 +19,10 @@ val string_of_coordinate_pair : int * int -> string
    the current state. *)
 val move : State.t * int * int -> State.t
 
-(* [highlight_squares loc] highlights all the valid squares on the board
+(* highlight_valid_locations] highlights all the valid squares on the board
    that the selected piece can move to. *)
-val highlight_squares : State.t -> int * int -> Piece.t option -> unit
+val highlight_valid_locations
+   : State.t -> Piece.t option -> unit
 
 (* [listen f] will listen for a mouse click and pass the mouse location
    to [f] *)
