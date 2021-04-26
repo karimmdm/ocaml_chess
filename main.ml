@@ -27,6 +27,16 @@ let play_game st =
     done
   with Exit -> ()
 
+(* [move st pos]  *)
+(* let move st pos = 
+  match State.piece_clicked st with
+  | Some p ->
+    if State.valid_move st p pos then State.move_piece st p pos else st
+  | None -> let pc = get_piece st pos in
+    match pc with
+    | Some p -> State.update_piece_clicked st pc
+    | None -> st  *)
+
 let main () =
   let st = init_state () in
   init ();

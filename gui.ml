@@ -99,12 +99,6 @@ let get_piece st ((x, y) : int * int) =
   in
   helper (gen_board_lst (State.board st))
 
-let move st pos = failwith "unimplemented"
-(* match State.piece_clicked st with | Some p -> let piece_pos =
-   Piece.position p in let valid_locs = State.locations in st | None ->
-   let pc = get_piece st pos in match pc with | Some p ->
-   State.update_piece_clicked st pc | None -> st *)
-
 let highlight_square clr loc =
   set_color black;
   fill_rect (fst loc) (snd loc) 100 100;
