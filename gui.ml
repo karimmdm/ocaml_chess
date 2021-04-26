@@ -86,6 +86,29 @@ let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 let string_of_coordinate_pair tuple =
   string_of_int (fst tuple) ^ " " ^ string_of_int (snd tuple)
 
+let get_piece st ((x, y) : int * int) =
+  let y' = if State.player_turn st = 1 then 7 - y else y in
+  let pos = (y', x) in
+  let rec helper = function
+    | [] -> None
+    | h :: t -> (
+        match h with
+        | None -> helper t
+        | Some piece ->
+            if Piece.position piece = pos then h else helper t)
+  in
+  helper (gen_board_lst (State.board st))
+
+let move st pos = 
+  match State.piece_clicked st with
+| Some p ->
+  let piece_pos = Piece.position p in
+  let valid_locs = State.locations in st
+| None -> let pc = get_piece st pos in
+  match pc with
+  | Some p -> State.update_piece_clicked st pc
+  | None -> st 
+
 let highlight_square clr loc =
   set_color black;
   fill_rect (fst loc) (snd loc) 100 100;
@@ -129,16 +152,3 @@ let highlight_valid_locations st p_op =
 let rec listen (f : int * int -> unit) =
   let st = wait_next_event [ Button_down ] in
   if st.button then st |> coordinate_pair |> f else listen f
-
-let get_piece st ((x, y) : int * int) =
-  let y' = if State.player_turn st = 1 then 7 - y else y in
-  let pos = (y', x) in
-  let rec helper = function
-    | [] -> None
-    | h :: t -> (
-        match h with
-        | None -> helper t
-        | Some piece ->
-            if Piece.position piece = pos then h else helper t)
-  in
-  helper (gen_board_lst (State.board st))

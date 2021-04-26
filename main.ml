@@ -17,6 +17,7 @@ let play_game st =
   try
     while true do
       print_endline "listening for click...";
+      (* let f pos = move st pos in *)
       let f pos =
         let piece = Gui.get_piece st pos in
         print_endline (Printer.print_piece_option piece);
