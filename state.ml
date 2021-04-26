@@ -110,12 +110,11 @@ let get_elt (grid : 'a list list) (loc : int * int) : 'a =
   List.nth (List.nth grid x) y
 
 (* [check_empty grid clr loc] is true if the location at loc is empty
-   otherwise false*)
+   otherwise false. Precondition: loc is a valid location in grid. *)
 let check_empty (grid : 'a list list) (loc : int * int) : bool =
-  if check_bounds grid loc then
-    let p = get_elt grid loc in
-    match p with Some p -> false | None -> true
-  else false
+  print_endline ((string_of_int (fst loc)) ^ " " ^ (string_of_int (snd loc)) ^ " -> " ^ string_of_bool (check_bounds grid loc));
+  let p = get_elt grid loc in
+  match p with Some p -> false | None -> true
 
 (* [march st direction loc] is a list of valid locations along a given
    direction. [march] recursively checks along a certain path until the path
@@ -128,20 +127,19 @@ let rec march st clr direction loc acc =
   let x' = x + i in
   let y' = y + j in
   (* let loc_to_check = (x', y') in *)
-  let loc_to_check = (fst direction + fst loc, snd direction + snd loc) in
-  if not (check_bounds st.board loc_to_check) then acc
+  let check_loc = (fst direction + fst loc, snd direction + snd loc) in
+  if not (check_bounds st.board check_loc) then acc
   else
-    (* let is_empty = check_empty st.board loc_to_check in *)
-    (* if is_empty then *)
-    if check_empty st.board loc_to_check then
-      march st clr direction loc_to_check (loc_to_check :: acc)
+    let is_empty = check_empty st.board check_loc in
+    if is_empty then
+      march st clr direction check_loc (check_loc :: acc)
     else
       let enemy_capture =
-        match get_elt st.board loc_to_check with
+        match get_elt st.board check_loc with
         | None -> false
         | Some p_other -> Piece.color p_other <> clr
       in
-      if enemy_capture then loc_to_check :: acc else acc
+      if enemy_capture then check_loc :: acc else acc
 
 let rec pr l =
   match l with
@@ -223,18 +221,19 @@ let knight_locs st p loc =
     | h :: t ->
         if not (check_bounds st.board loc) then knight_helper t acc
         else
-          let loc_to_check = (fst h + fst loc, snd h + snd loc) in
-          if not (check_bounds st.board loc_to_check) then
+          let check_loc = (fst h + fst loc, snd h + snd loc) in
+          if not (check_bounds st.board check_loc) then
             knight_helper t acc
           else
-            let is_empty = check_empty st.board loc_to_check in
+            (* print_endline ((string_of_int (fst check_loc)) ^ " " ^ (string_of_int (snd check_loc))); *)
+            let is_empty = check_empty st.board check_loc in
             let enemy_capture =
-              match get_elt st.board loc_to_check with
+              match get_elt st.board check_loc with
               | None -> false
               | Some p_other -> Piece.color p_other <> clr
             in
             if is_empty || enemy_capture then
-              knight_helper t (loc_to_check :: acc)
+              knight_helper t (check_loc :: acc)
             else knight_helper t acc
   in
   knight_helper base_moves.directions []
