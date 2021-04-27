@@ -119,4 +119,4 @@ let from_letter c pos =
   let icon_str =
     "./images/" ^ Char.escaped color.[0] ^ Char.escaped c ^ ".png"
   in
-  { piece_type; color; icon; position }
+  { piece_type; color; icon_str; pos }
