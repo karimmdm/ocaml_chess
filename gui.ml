@@ -139,6 +139,6 @@ let highlight_valid_locations st p_op =
       in
       draw_border blue (x * 100, y * 100)
 
-let rec listen (f : int * int -> unit) =
+let rec listen (f : int * int -> State.t) =
   let st = wait_next_event [ Button_down ] in
   if st.button then st |> coordinate_pair |> f else listen f
