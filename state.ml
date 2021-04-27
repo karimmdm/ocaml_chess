@@ -106,6 +106,8 @@ let init_state () =
 
 let board st = st.board
 
+let update_board st board = { st with board = board }
+
 let player_turn st = st.player_turn
 
 let update_player_turn st pt = { st with player_turn = pt }
@@ -122,12 +124,12 @@ let stalemate st = st.stalemate
 
 let update_stalemate st sm = { st with stalemate = sm }
 
-(* let piece_clicked st = st.piece_clicked
+let piece_clicked st = st.piece_clicked
 
-   let update_piece_clicked st pc = { st with piece_clicked = pc } *)
+let update_piece_clicked st pc = { st with piece_clicked = pc }
 
-let update_state board pt check cm sm pc =
-  { board; player_turn = pt; check; checkmate = cm; stalemate = sm }
+(* let update_state board pt check cm sm pc =
+  { board; player_turn = pt; check; checkmate = cm; stalemate = sm } *)
 
 (* [check_bounds grid loc] returns true if the given location is within
    the bounds of the given grid and false otherwise. *)

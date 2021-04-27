@@ -27,15 +27,24 @@ let play_game st =
     done
   with Exit -> ()
 
-(* [move st pos]  *)
-(* let move st pos = 
+(* [generate_board st pos] returns a new state with an updated board that 
+  reflects piece [p] moving to location [pos]. *)
+let generate_board st p pos = failwith ""
+
+(* [piece_selection st pos] validates whether or not [pos] is a valid location
+  that contains a piece that the current player can move on their turn. *)
+let piece_selection st pos = failwith ""
+
+(* [move_selection st pos] validates whether or not [pos] is a valid location
+  that the current player can move the current piece selected to. *)
+let move_selection st pos = failwith ""
+
+(* [move st pos] checks the current state's piece_selected field to determine
+  which phase of the turn the player is in: piece selection or move selection. *)
+let move st pos = 
   match State.piece_clicked st with
-  | Some p ->
-    if State.valid_move st p pos then State.move_piece st p pos else st
-  | None -> let pc = get_piece st pos in
-    match pc with
-    | Some p -> State.update_piece_clicked st pc
-    | None -> st  *)
+  | Some p -> move_selection st pos
+  | None -> piece_selection st pos
 
 let main () =
   let st = init_state () in
