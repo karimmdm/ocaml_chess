@@ -71,17 +71,6 @@ let gen_board_lst board =
   let flattenedBoard = List.concat board in
   flattenedBoard
 
-let draw st =
-  let board = State.board st in
-  let player = State.player_turn st in
-  let boardlst = gen_board_lst board in
-  clear_graph ();
-  let grey = rgb 112 128 144 in
-  set_color grey;
-  gen_grid 0 0;
-  set_text_size 50;
-  overlay_piece_img player boardlst
-
 let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 
 let string_of_coordinate_pair tuple =
@@ -120,7 +109,7 @@ let highlight_valid_locations st p_op =
   | None -> ()
   | Some piece ->
       (* clear the board before highlighting again *)
-      draw st;
+      (* draw st; *)
       (* highlight the possible locations *)
       let locations = Logic.locations st piece in
       let locations_cartesian =
@@ -139,6 +128,18 @@ let highlight_valid_locations st p_op =
         if State.player_turn st = 1 then 7 - fst pos else fst pos
       in
       draw_border blue (x * 100, y * 100)
+
+let draw st =
+  let board = State.board st in
+  let player = State.player_turn st in
+  let boardlst = gen_board_lst board in
+  clear_graph ();
+  let grey = rgb 112 128 144 in
+  set_color grey;
+  gen_grid 0 0;
+  set_text_size 50;
+  overlay_piece_img player boardlst;
+  highlight_valid_locations st (State.piece_clicked st)
 
 let rec listen (f : int * int -> State.t) =
   let st = wait_next_event [ Button_down ] in

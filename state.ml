@@ -10,36 +10,13 @@ type t = {
   piece_clicked : Piece.t option;
 }
 
-let letter_to_piece_type c =
-  match c with
-  | 'P' -> Pawn
-  | 'B' -> Bishop
-  | 'N' -> Knight
-  | 'R' -> Rook
-  | 'Q' -> Queen
-  | _ -> King
-
-let piece_type_to_letter piece =
-  match piece with
-  | Pawn -> 'P'
-  | Bishop -> 'B'
-  | Knight -> 'N'
-  | Rook -> 'R'
-  | Queen -> 'Q'
-  | King -> 'K'
-
-let letter_to_piece c pos : Piece.t =
-  let color = if Char.code c - 97 < 0 then "white" else "black" in
-  let piece_type = letter_to_piece_type (Char.uppercase_ascii c) in
-  let prefix = if color = "white" then "w" else "b" in
-  let icon_str = "./images/" ^ prefix ^ Char.escaped c ^ ".png" in
-  Piece.make piece_type color icon_str pos
-
-let rec int_to_nones i : Piece.t option list =
-  if i = 0 then [] else None :: int_to_nones (i - 1)
-
+(* [string_to_list s i j] produces a list of piece options based on the
+   string [s] with the starting position at [i][j]*)
 let rec string_to_lst (s : string) (i : int) (j : int) :
     Piece.t option list =
+  let rec int_to_nones i : Piece.t option list =
+    if i = 0 then [] else None :: int_to_nones (i - 1)
+  in
   let length = String.length s in
   if length = 0 then []
   else
@@ -48,9 +25,9 @@ let rec string_to_lst (s : string) (i : int) (j : int) :
     if Char.code c < 58 then
       let n = int_of_string (Char.escaped c) in
       int_to_nones n @ string_to_lst rest i (j + n)
-    else Some (letter_to_piece c (i, j)) :: string_to_lst rest i (j + 1)
+    else Some (Piece.make c (i, j)) :: string_to_lst rest i (j + 1)
 
-let make_board (str : string) =
+let fen_to_board (str : string) =
   let row_lst = String.split_on_char '/' str in
   let rec board_helper lst i =
     match lst with
@@ -81,7 +58,7 @@ let state_from_fen (fen : string) =
     | _ -> failwith "not t or f"
   in
   {
-    board = make_board board_str;
+    board = fen_to_board board_str;
     player_turn = int_of_string (fst flag_pt_c);
     check = bool_of_tf (snd flag_pt_c);
     checkmate = bool_of_tf (fst flag_cm_sm);
@@ -89,8 +66,10 @@ let state_from_fen (fen : string) =
     piece_clicked = None;
   }
 
-(* let board_to_fen board = let rec helper row = match row with | [] ->
-   "/" | h :: t -> *)
+let board_to_fen board =
+  let rec helper row = match row with [] -> "/" | h :: t -> "1" in
+  5
+
 let to_fen t = failwith "unimplemented"
 
 let init_state () =
@@ -163,5 +142,7 @@ let stalemate st = st.stalemate
 let update_stalemate st sm = { st with stalemate = sm }
 
 let piece_clicked st = st.piece_clicked
+
+let update_piece_clicked st pc = { st with piece_clicked = pc }
 
 let update_piece_clicked st pc = { st with piece_clicked = pc }
