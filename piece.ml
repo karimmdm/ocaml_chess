@@ -81,8 +81,8 @@ let base_moves piece_type =
         scalable = false;
       }
 
-let make piece color icon position =
-  { piece_type = piece; color; icon; position }
+(* let make piece color icon position = { piece_type = piece; color;
+   icon; position } *)
 
 let piece_type p = p.piece_type
 
@@ -104,7 +104,7 @@ let to_string p =
   in
   if p.color = "black" then String.lowercase_ascii letter else letter
 
-let letter_to_piece c pos =
+let make c pos =
   let letter_to_piece_type c =
     match c with
     | 'P' -> Pawn
