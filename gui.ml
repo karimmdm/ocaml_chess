@@ -1,5 +1,6 @@
 open Piece
 open Graphics
+open Logic
 open Images
 open Graphic_image
 open Printer
@@ -121,7 +122,7 @@ let highlight_valid_locations st p_op =
       (* clear the board before highlighting again *)
       draw st;
       (* highlight the possible locations *)
-      let locations = State.locations st piece in
+      let locations = Logic.locations st piece in
       let locations_cartesian =
         List.map
           (fun (row, col) ->
@@ -131,7 +132,7 @@ let highlight_valid_locations st p_op =
           locations
       in
       List.iter (draw_border green) locations_cartesian;
-      (* draw a boarder around the clicked piece *)
+      (* draw a border around the clicked piece *)
       let pos = Piece.position piece in
       let x = snd pos in
       let y =

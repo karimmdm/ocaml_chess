@@ -160,7 +160,16 @@ let locations st p =
 
 let valid_move st piece loc = List.mem loc (locations st piece)
 
+let switch_turn st =
+  let player_turn_st =
+    State.update_player_turn st
+      (if State.player_turn st == 1 then 2 else 1)
+  in
+  let pc_st = State.update_piece_clicked player_turn_st None in
+  pc_st
+
 let move_piece st piece new_pos =
-  let locs = locations st piece in
-  if valid_move st piece new_pos then failwith "unimpl"
-  else failwith "unimpl"
+  if valid_move st piece new_pos then
+    let move_st = State.update_board st piece new_pos in
+    switch_turn move_st
+  else st

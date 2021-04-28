@@ -27,10 +27,11 @@ val base_moves : piece -> rule
 (* The abstract type of values representing a chess piece. *)
 type t
 
-(* [make c pos] is a piece with piece variant based on char [c] and
-   positon on a 2d array [position] requires: [positon] to be (i, j)
-   where i and j are elements of (0,8]) *)
-val make : char -> int * int -> t
+(* [make piece color icon position] is a piece with piece variant
+   [piece], color variant [color], icon path [icon] and positon on a 2d
+   array [position] requires: [positon] to be (i, j) where i and j are
+   elements of (0,8]) *)
+val make : piece -> string -> string -> int * int -> t
 
 (* [piece_type p] will return a variant of the piece type for piece [p]. *)
 val piece_type : t -> piece

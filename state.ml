@@ -33,7 +33,7 @@ let letter_to_piece c pos : Piece.t =
   let piece_type = letter_to_piece_type (Char.uppercase_ascii c) in
   let prefix = if color = "white" then "w" else "b" in
   let icon_str = "./images/" ^ prefix ^ Char.escaped c ^ ".png" in
-  make piece_type color icon_str pos
+  Piece.make piece_type color icon_str pos
 
 let rec int_to_nones i : Piece.t option list =
   if i = 0 then [] else None :: int_to_nones (i - 1)
@@ -123,9 +123,9 @@ let gen_board st move_to_pos =
   in
   let piece_clicked_row = fst piece_clicked_pos in
   let row_traversal i row_lst =
-    (* [column_traversal_a elem_option] sets the [st.piece_clicked]
-       piece a None type*)
-    let column_traversl_a = function
+    (* [column_traversal_a elt] sets the [st.piece_clicked] piece a None
+       type *)
+    let column_traversal_a = function
       | None ->
           failwith
             "gen_board should not be called if piece_clicked is none"
@@ -133,13 +133,13 @@ let gen_board st move_to_pos =
           if Piece.position piece = piece_clicked_pos then None
           else Some piece
     in
-    (* [column_traversal_b j elem_option] sets the element [elem_option]
-       to [st.piece_clicked]*)
-    let column_traversl_b j elem_option =
-      if j = move_col then st.piece_clicked else elem_option
+    (* [column_traversal_b j elt] sets the element [elem_option] to
+       [st.piece_clicked]*)
+    let column_traversal_b j elt =
+      if j = move_col then st.piece_clicked else elt
     in
-    if i = piece_clicked_row then List.map column_traversl_a row_lst
-    else if i = move_row then List.mapi column_traversl_b row_lst
+    if i = piece_clicked_row then List.map column_traversal_a row_lst
+    else if i = move_row then List.mapi column_traversal_b row_lst
     else row_lst
   in
   List.mapi row_traversal st.board

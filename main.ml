@@ -1,10 +1,11 @@
 open Graphics
 open Gui
 open State
+open Logic
 
-(* (* [generate_board st pos] returns a new state with an updated board
-   that reflects piece [p] moving to location [pos]. *) let
-   generate_board st p pos = let board = State.board in board *)
+let x st p =
+  Gui.highlight_valid_locations st p;
+  State.update_piece_clicked st p
 
 (* [piece_selection st pos] validates whether or not [pos] is a valid
    location that contains a piece that the current player can move on
@@ -16,7 +17,9 @@ let piece_selection st pos =
   match p with
   | None -> st
   | Some pce ->
-      if Piece.color pce == clr then State.update_piece_clicked st p
+      if Piece.color pce == clr then x st p
+        (* Gui.highlight_valid_locations st p;
+           State.update_piece_clicked st p *)
       else st
 
 (* [move_selection st pos] validates whether or not [pos] is a valid

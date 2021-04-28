@@ -104,7 +104,7 @@ let to_string p =
   in
   if p.color = "black" then String.lowercase_ascii letter else letter
 
-let from_letter c pos =
+let letter_to_piece c pos =
   let letter_to_piece_type c =
     match c with
     | 'P' -> Pawn
@@ -116,7 +116,7 @@ let from_letter c pos =
   in
   let color = if Char.code c - 97 < 0 then "white" else "black" in
   let piece_type = letter_to_piece_type (Char.uppercase_ascii c) in
-  let icon_str =
+  let icon =
     "./images/" ^ Char.escaped color.[0] ^ Char.escaped c ^ ".png"
   in
-  { piece_type; color; icon_str; pos }
+  { piece_type; color; icon; position = pos }
