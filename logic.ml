@@ -139,23 +139,23 @@ let locations st p =
       pl
   | Bishop ->
       let pl = locs_helper st p (Piece.position p) in
-      pr pl;
+      (* pr pl; *)
       pl
   | Knight ->
       let pl = locs_helper st p (Piece.position p) in
-      pr pl;
+      (* pr pl; *)
       pl
   | Rook ->
       let pl = locs_helper st p (Piece.position p) in
-      pr pl;
+      (* pr pl; *)
       pl
   | Queen ->
       let pl = locs_helper st p (Piece.position p) in
-      pr pl;
+      (* pr pl; *)
       pl
   | King ->
       let pl = locs_helper st p (Piece.position p) in
-      pr pl;
+      (* pr pl; *)
       pl
 
 let valid_move st piece loc = List.mem loc (locations st piece)
@@ -168,8 +168,7 @@ let switch_turn st =
   let pc_st = State.update_piece_clicked player_turn_st None in
   pc_st
 
-let move_piece st piece new_pos =
-  if valid_move st piece new_pos then
-    let move_st = State.update_board st piece new_pos in
-    switch_turn move_st
-  else st
+let move_piece st p new_pos =
+  let move_st = State.update_board st p new_pos in
+  move_st
+(* switch_turn move_st *)
