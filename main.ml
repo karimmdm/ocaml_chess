@@ -84,7 +84,7 @@ let play_game st =
         current_state := new_state;
         (* print_endline ("Piece clicked: " ^ Printer.print_piece_option
            (State.piece_clicked !current_state)); *)
-        print_endline (Printer.print_board !current_state);
+        (* print_endline (Printer.print_board !current_state); *)
         Gui.draw !current_state)
       else ()
     done
