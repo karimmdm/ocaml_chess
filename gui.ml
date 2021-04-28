@@ -76,16 +76,18 @@ let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 let string_of_coordinate_pair tuple =
   string_of_int (fst tuple) ^ " " ^ string_of_int (snd tuple)
 
-let get_piece st ((x, y) : int * int) =
+let invert_pos st (x, y) =
   let y' = if State.player_turn st = 1 then 7 - y else y in
-  let pos = (y', x) in
+  (y', x)
+
+let get_piece st ((x, y) : int * int) =
   let rec helper = function
     | [] -> None
     | h :: t -> (
         match h with
         | None -> helper t
         | Some piece ->
-            if Piece.position piece = pos then h else helper t)
+            if Piece.position piece = (x, y) then h else helper t)
   in
   helper (gen_board_lst (State.board st))
 

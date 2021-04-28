@@ -97,17 +97,16 @@ let gen_board st move_to_pos =
     match st.piece_clicked with
     | None ->
         failwith
-          "gen_board should not be called if piece_clicked is none"
+          "getting piece clicked pos: gen_board should not be called \
+           if piece_clicked is none"
     | Some piece -> Piece.position piece
   in
   let piece_clicked_row = fst piece_clicked_pos in
   let row_traversal i row_lst =
-    (* [column_traversal_a elt] sets the [st.piece_clicked] piece a None
-       type *)
+    (* [column_traversal_a elt] sets the [st.piece_clicked] piece to
+       None type *)
     let column_traversal_a = function
-      | None ->
-          failwith
-            "gen_board should not be called if piece_clicked is none"
+      | None -> None
       | Some piece ->
           if Piece.position piece = piece_clicked_pos then None
           else Some piece
