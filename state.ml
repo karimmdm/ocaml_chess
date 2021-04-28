@@ -107,31 +107,44 @@ let init_state () =
 
 let board st = st.board
 
-(* [gen_board st pos] returns a new board that reflects piece [p] moving
-   to location [pos] on the board. *)
-let gen_board st p pos =
-  let rec gen_row_helper acc row_lst col elt =
-    match row_lst with
-    | [] -> acc
-    | h :: t ->
-        if col == 0 then gen_row_helper (p :: acc) t (col - 1) elt
-        else gen_row_helper (h :: acc) t (col - 1) elt
+(* [gen_board st pos] returns a new board that reflects
+   [st.piece_clicked] moving to location [pos] on the board. requires:
+   [st.piece_clicked] to be Some piece [pos] to be the position of a
+   valid move location for [st.piece_clicked]*)
+let gen_board st move_to_pos =
+  let move_row = fst move_to_pos in
+  let move_col = snd move_to_pos in
+  let piece_clicked_pos =
+    match st.piece_clicked with
+    | None ->
+        failwith
+          "gen_board should not be called if piece_clicked is none"
+    | Some piece -> Piece.position piece
   in
-  let rec gen_board_helper grid acc row col elt =
-    match grid with [] -> acc | h :: t -> gen_row_helper [] h col elt
+  let piece_clicked_row = fst piece_clicked_pos in
+  let row_traversal i row_lst =
+    (* [column_traversal_a elem_option] sets the [st.piece_clicked]
+       piece a None type*)
+    let column_traversl_a = function
+      | None ->
+          failwith
+            "gen_board should not be called if piece_clicked is none"
+      | Some piece ->
+          if Piece.position piece = piece_clicked_pos then None
+          else Some piece
+    in
+    (* [column_traversal_b j elem_option] sets the element [elem_option]
+       to [st.piece_clicked]*)
+    let column_traversl_b j elem_option =
+      if j = move_col then st.piece_clicked else elem_option
+    in
+    if i = piece_clicked_row then List.map column_traversl_a row_lst
+    else if i = move_row then List.mapi column_traversl_b row_lst
+    else row_lst
   in
-  let orig_pos = Piece.position p in
-  let orig_row = fst orig_pos in
-  let orig_col = snd orig_pos in
-  let new_row = fst pos in
-  let new_col = snd pos in
-  let board = st.board in
-  (* let target_pos = Piece.pos p in let row_f = function | None -> let
-     f row = List.map ( fun elem -> ) row List.map (fun r -> i) *)
-  let board' = gen_board_helper board [] orig_row orig_col None in
-  gen_board_helper board' [] new_row new_col p
+  List.mapi row_traversal st.board
 
-let update_board st p pos = { st with board = gen_board st p pos }
+let update_board st p pos = { st with board = gen_board st pos }
 
 let player_turn st = st.player_turn
 
