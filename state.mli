@@ -16,6 +16,9 @@ val init_state : unit -> t
    placement of the fen notation [s] *)
 val state_from_fen : string -> t
 
+(* [to_fen t] returns the fen notation of state [t]*)
+val to_fen : t -> string
+
 (* [fen_from_state st] is the string representation of the state [st]
    val fen_from_state : t -> string *)
 

@@ -13,18 +13,20 @@ let init_state_test name expected =
 let piece_test
     (name : string)
     (expected : string)
-    (piece : piece)
-    (color : string)
-    (icon : string)
+    (c : char)
     (posn : int * int) =
   name >:: fun _ ->
-  let p = make piece color icon posn in
+  let p = make c posn in
   assert_equal expected (print_piece p) ~printer:(fun x -> x)
 
 let state_test (name : string) (expected : string) (state : State.t) =
   name >:: fun _ ->
   assert_equal expected (Printer.print_board state) ~printer:(fun x ->
       x)
+
+let to_fen_test (name : string) (expected : string) (state : State.t) =
+  name >:: fun _ ->
+  assert_equal expected (State.to_fen state) ~printer:(fun x -> x)
 
 let empty_board_string =
   "\n\
@@ -65,19 +67,25 @@ let starting_string_e4 =
 
 let piece_tests =
   [
-    piece_test "test Wlack pawn in 0,0 should be BP (0,0)" "BP" Pawn
-      "black" "" (0, 0);
-    piece_test "test white king in 7,3 should be WK (7,3)" "WK" King
-      "white" "" (7, 3);
+    piece_test "test Wlack pawn in 0,0 should be BP (0,0)" "BP" 'p'
+      (0, 0);
+    piece_test "test white king in 7,3 should be WK (7,3)" "WK" 'K'
+      (7, 3);
   ]
 
 let state_tests =
   [
-    state_test "empty" empty_board_string (init_state ());
+    (* state_test "empty" empty_board_string (init_state ()); *)
     state_test "starting" starting_string
-      (state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+      (state_from_fen
+         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f");
     state_test "e4" starting_string_e4
-      (state_from_fen "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR");
+      (state_from_fen
+         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR:1,f,f,f");
+    to_fen_test "starting board to fen"
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+      (state_from_fen
+         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f");
   ]
 
 let gui_tests = []
