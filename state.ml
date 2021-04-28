@@ -27,6 +27,16 @@ let rec string_to_lst (s : string) (i : int) (j : int) :
       int_to_nones n @ string_to_lst rest i (j + n)
     else Some (Piece.make c (i, j)) :: string_to_lst rest i (j + 1)
 
+let rec lst_to_string (lst : Piece.t option list) (none_count : int) :
+    string =
+  match lst with
+  | [] -> if none_count = 0 then "" else string_of_int none_count
+  | Some p :: t ->
+      if none_count = 0 then Piece.to_string p ^ lst_to_string t 0
+      else
+        string_of_int none_count ^ Piece.to_string p ^ lst_to_string t 0
+  | None :: t -> lst_to_string t (none_count + 1)
+
 let fen_to_board (str : string) =
   let row_lst = String.split_on_char '/' str in
   let rec board_helper lst i =
@@ -66,11 +76,13 @@ let state_from_fen (fen : string) =
     piece_clicked = None;
   }
 
-let board_to_fen board =
-  let rec helper row = match row with [] -> "/" | h :: t -> "1" in
-  5
+let rec board_to_fen board =
+  match board with
+  | [] -> ""
+  | [ h ] -> lst_to_string h 0
+  | h :: t -> lst_to_string h 0 ^ "/" ^ board_to_fen t
 
-let to_fen t = failwith "unimplemented"
+let to_fen t = board_to_fen t.board
 
 let init_state () =
   (* state_from_fen
