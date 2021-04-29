@@ -53,28 +53,32 @@ let get_status_flags (str : string) =
   | [ pt; c; cm; sm ] -> ((pt, c), (cm, sm))
   | h :: t -> failwith "flag statuses were not appropriately entered"
 
-let state_from_fen (fen : string) =
+let state_from_fen fen st_option =
   let fen_split_lst = String.split_on_char ':' fen in
   let board_str = List.hd fen_split_lst in
-  let flag_status_str = List.hd (List.tl fen_split_lst) in
-  let flag_statuses = get_status_flags flag_status_str in
-  (* player_turn, check*)
-  let flag_pt_c = fst flag_statuses in
-  (*checkmate, stalemate*)
-  let flag_cm_sm = snd flag_statuses in
-  let bool_of_tf = function
-    | "t" -> true
-    | "f" -> false
-    | _ -> failwith "not t or f"
-  in
-  {
-    board = fen_to_board board_str;
-    player_turn = int_of_string (fst flag_pt_c);
-    check = bool_of_tf (snd flag_pt_c);
-    checkmate = bool_of_tf (fst flag_cm_sm);
-    stalemate = bool_of_tf (snd flag_cm_sm);
-    piece_clicked = None;
-  }
+  let new_board = fen_to_board board_str in
+  match st_option with
+  | None ->
+      let flag_status_str = List.hd (List.tl fen_split_lst) in
+      let flag_statuses = get_status_flags flag_status_str in
+      (* player_turn, check*)
+      let flag_pt_c = fst flag_statuses in
+      (*checkmate, stalemate*)
+      let flag_cm_sm = snd flag_statuses in
+      let bool_of_tf = function
+        | "t" -> true
+        | "f" -> false
+        | _ -> failwith "not t or f"
+      in
+      {
+        board = new_board;
+        player_turn = int_of_string (fst flag_pt_c);
+        check = bool_of_tf (snd flag_pt_c);
+        checkmate = bool_of_tf (fst flag_cm_sm);
+        stalemate = bool_of_tf (snd flag_cm_sm);
+        piece_clicked = None;
+      }
+  | Some st -> { st with board = new_board }
 
 let rec board_to_fen board =
   match board with
@@ -94,7 +98,7 @@ let init_state () =
   (* state_from_fen
      "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp:1,f,f,f" *)
   state_from_fen
-    "1n11kb1r/1BQKNBNR/r7/2qRn3/4b2P/8/PPPPPPP1/pppppppp:1,f,f,f"
+    "1n11kb1r/1BQKNBNR/r7/2qRn3/4b2P/8/PPPPPPP1/pppppppp:1,f,f,f" None
 
 let board st = st.board
 
@@ -163,7 +167,5 @@ let stalemate st = st.stalemate
 let update_stalemate st sm = { st with stalemate = sm }
 
 let piece_clicked st = st.piece_clicked
-
-let update_piece_clicked st pc = { st with piece_clicked = pc }
 
 let update_piece_clicked st pc = { st with piece_clicked = pc }

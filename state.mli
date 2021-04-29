@@ -12,9 +12,10 @@ type t
    sets the player turn to 1 and all the booleans to false. *)
 val init_state : unit -> t
 
-(* [state_from_fen s] initializes a new state based on the piece
-   placement of the fen notation [s] *)
-val state_from_fen : string -> t
+(* [state_from_fen fen st_option] returns a state with a new board based
+   on the fen notation or initializes a new state based on the piece
+   placement of the fen notation if [st_option] is None. *)
+val state_from_fen : string -> t option -> t
 
 (* [to_fen t] returns the fen notation of state [t]*)
 val to_fen : t -> string

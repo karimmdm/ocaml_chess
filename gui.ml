@@ -142,7 +142,10 @@ let draw st =
   gen_grid 0 0;
   set_text_size 50;
   overlay_piece_img player boardlst;
-  highlight_valid_locations st (State.piece_clicked st)
+  let piece_clicked = State.piece_clicked st in
+  match piece_clicked with
+  | None -> ()
+  | Some p -> highlight_valid_locations st piece_clicked
 
 let rec listen (f : int * int -> State.t) =
   let st = wait_next_event [ Button_down ] in
