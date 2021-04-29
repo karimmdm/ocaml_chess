@@ -33,7 +33,6 @@ let move_selection st pos =
   | Some p ->
       if Logic.valid_move st p pos then Logic.move_piece st p pos
       else deselect st
-(* else st *)
 
 (* [move st pos] checks the current state's piece_selected field to
    determine which phase of the turn the player is in: piece selection
@@ -63,10 +62,15 @@ let play_game st =
     let current_player = ref 1 in
     while !game_running do
       print_endline "Loop start";
-      if !current_player = my_player then (
+      (* if !current_player = my_player then ( *)
+      if !current_player = !current_player then (
         print_endline ("Player turn " ^ string_of_int !current_player);
         let new_state = Gui.listen (move !current_state) in
-        game_running := not (State.checkmate new_state);
+        print_endline
+          ("Piece selected: "
+          ^ Printer.print_piece_option (State.piece_clicked new_state));
+        game_running :=
+          not (State.checkmate new_state || State.stalemate new_state);
         current_player := State.player_turn new_state;
         current_state := new_state;
         Gui.draw !current_state)
@@ -74,14 +78,8 @@ let play_game st =
     done
   with Exit -> ()
 
-let play_game' st =
-  try
-    while true do
-      print_endline "Listening for click...";
-      let f pos = move st pos in
-      listen f
-    done
-  with Exit -> ()
+(* let play_game' st = try while true do print_endline "Listening for
+   click..."; let f pos = move st pos in listen f done with Exit -> () *)
 
 let main () =
   let st = init_state () in

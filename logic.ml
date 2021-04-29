@@ -135,7 +135,7 @@ let locations st p =
   match piece with
   | Pawn ->
       let pl = pawn_locs st p (Piece.position p) in
-      pr pl;
+      (* pr pl; *)
       pl
   | Bishop ->
       let pl = locs_helper st p (Piece.position p) in
@@ -160,16 +160,25 @@ let locations st p =
 
 let valid_move st piece loc = List.mem loc (locations st piece)
 
+let invert_fen st =
+  let rec rev_string str ind =
+    if ind >= String.length str then ""
+    else rev_string str (ind + 1) ^ String.make 1 str.[ind]
+  in
+  rev_string (State.to_fen st) 0
+
 let switch_turn st =
   let player_turn_st =
     State.update_player_turn st
       (if State.player_turn st == 1 then 2 else 1)
   in
   let pc_st = State.update_piece_clicked player_turn_st None in
-  pc_st
+  let inv_fen = invert_fen pc_st in
+  let inv_st = State.state_from_fen inv_fen (Some pc_st) in
+  inv_st
+(* pc_st *)
 
 let move_piece st p new_pos =
   let move_st = State.update_board st p new_pos in
-  let pc_st = State.update_piece_clicked move_st None in
-  pc_st
-(* switch_turn move_st *)
+  (* let pc_st = State.update_piece_clicked move_st None in pc_st *)
+  switch_turn move_st
