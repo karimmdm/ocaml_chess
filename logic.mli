@@ -1,7 +1,7 @@
 open State
 open Piece
 
-(* val move_piece : State.t -> State.t
+(* 
 
    val is_check : State.t -> bool
 
@@ -20,6 +20,10 @@ val locations : State.t -> Piece.t -> (int * int) list
    if that location is not occupied, and and if the given location is
    within the bounds of the board. *)
 val valid_move : State.t -> Piece.t -> int * int -> bool
+
+(* [is_check st] determines if the current player's king is in check
+   based on the current state. *)
+val is_check : State.t -> bool
 
 (* [move_piece st piece loc] is the new state after piece has moved to
    locaion [loc]*)

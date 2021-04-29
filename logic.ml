@@ -160,13 +160,50 @@ let locations st p =
 
 let valid_move st piece loc = List.mem loc (locations st piece)
 
+let is_check st = failwith ""
+
+(* 1n11kb1r/1BQKNBNR/r7/2qRn3/4b2P/8/PPPPPPP1/pppppppp *)
 let invert_fen st =
   let rec rev_string str ind =
     if ind >= String.length str then ""
     else rev_string str (ind + 1) ^ String.make 1 str.[ind]
   in
-  rev_string (State.to_fen st) 0
+  let rec rev_section str ind =
+    let fen_substr = String.sub str 0 ind in
+    rev_string fen_substr 0
+  in
+  let rec build_invert_fen fen ind acc =
+    try
+      let paren_ind = String.index_from fen ind '/' in
+      let fen_len = String.length fen in
+      let rev_str = rev_section fen (paren_ind - 1) in
+      let rev_str_len = String.length rev_str in
+      print_endline fen;
+      print_endline (string_of_int (paren_ind + 1));
+      print_endline (string_of_int (fen_len - rev_str_len - 2));
+      print_endline (string_of_int fen_len);
+      let fen_str =
+        String.sub fen (paren_ind + 1) (fen_len - rev_str_len - 2)
+      in
+      build_invert_fen fen_str (paren_ind + 1) (acc ^ rev_str ^ "/")
+    with Not_found -> String.sub acc 0 (String.length acc - 1)
+  in
+  let fen = State.to_fen st in
+  let final = build_invert_fen fen 0 "" in
+  print_endline fen;
+  print_endline final;
+  final
+(* let fen = ref (State.to_fen st) in let new_fen = ref "" in let
+   paren_exists = ref true in while !paren_exists do try let fen_paren =
+   String.index !fen '/' in !new_fen ^ rev_fen_section (String.sub !fen
+   0 (fen_paren - 1)) ^ "/"; fen := String.sub !fen (fen_paren + 1)
+   (String.length !fen - fen_paren + 1); () with Not_found ->
+   paren_exists := false; () done; let final = rev_string !new_fen 0 in
+   print_endline !fen; print_endline final; final *)
 
+(* [switch_turn st] returns a new State switching the appropriate fields
+   when the player turn changes. This new state updates the player turn,
+   updates the piece clicked, and updates the fen. *)
 let switch_turn st =
   let player_turn_st =
     State.update_player_turn st
@@ -176,9 +213,7 @@ let switch_turn st =
   let inv_fen = invert_fen pc_st in
   let inv_st = State.state_from_fen inv_fen (Some pc_st) in
   inv_st
-(* pc_st *)
 
 let move_piece st p new_pos =
   let move_st = State.update_board st p new_pos in
-  (* let pc_st = State.update_piece_clicked move_st None in pc_st *)
   switch_turn move_st
