@@ -132,6 +132,7 @@ let highlight_valid_locations st p_op =
       draw_border blue (x * 100, y * 100)
 
 let draw st =
+  print_endline (Printer.print_board st);
   let board = State.board st in
   let player = State.player_turn st in
   let boardlst = gen_board_lst board in
