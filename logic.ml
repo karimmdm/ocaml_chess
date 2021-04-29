@@ -172,4 +172,6 @@ let move_piece st p new_pos =
   let move_st = State.update_board st p new_pos in
   let pc_st = State.update_piece_clicked move_st None in
   pc_st
+(* State.state_from_fen
+   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f" *)
 (* switch_turn move_st *)

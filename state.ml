@@ -126,9 +126,19 @@ let gen_board st move_to_pos =
     (* [column_traversal_b j elt] sets the element [elem_option] to
        [st.piece_clicked]*)
     let column_traversal_b j elt =
-      if j = move_col then st.piece_clicked else elt
+      let pc =
+        match st.piece_clicked with
+        | None ->
+            failwith "piece_clicked should not be none when moving"
+        | Some p -> p
+      in
+      if j = move_col then
+        Some (Piece.update_position pc (move_row, move_col))
+      else elt
     in
-    if i = piece_clicked_row then List.map column_traversal_a row_lst
+    if i = piece_clicked_row then
+      let lst1 = List.map column_traversal_a row_lst in
+      if i = move_row then List.mapi column_traversal_b lst1 else lst1
     else if i = move_row then List.mapi column_traversal_b row_lst
     else row_lst
   in

@@ -92,6 +92,8 @@ let icon p = p.icon
 
 let position p = p.position
 
+let update_position p new_pos = { p with position = new_pos }
+
 let to_string p =
   let letter =
     match p.piece_type with

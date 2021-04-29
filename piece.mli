@@ -45,6 +45,9 @@ val icon : t -> string
    position. *)
 val position : t -> int * int
 
+(* [update_position piece new_pos] is the same [piece] with new position [new_pos] *)
+val update_position : t -> int*int -> t
+
 (* [to_string p] will return a string representation of a piece. Black
    pieces are represented in lowercase while white pieces are in
    uppercase*)

@@ -8,18 +8,18 @@ open Logic
    their turn. *)
 let piece_selection st pos =
   print_endline "Piece selection";
-  print_endline
+  (* print_endline
     ("Piece clicked: "
-    ^ Printer.print_piece_option (State.piece_clicked st));
+    ^ Printer.print_piece_option (State.piece_clicked st)); *)
   let p_turn = State.player_turn st in
   let clr = if p_turn = 1 then "white" else "black" in
   let p = Gui.get_piece st pos in
-  print_endline
+  (* print_endline
     ("Clicked on ("
     ^ string_of_int (fst pos)
     ^ ", "
     ^ string_of_int (snd pos)
-    ^ ")");
+    ^ ")"); *)
   match p with
   | None -> st
   | Some pce ->
@@ -31,19 +31,19 @@ let piece_selection st pos =
    to. *)
 let move_selection st pos =
   print_endline "Move selection";
-  print_endline
+  (* print_endline
     ("Piece clicked: "
-    ^ Printer.print_piece_option (State.piece_clicked st));
+    ^ Printer.print_piece_option (State.piece_clicked st)); *)
   match State.piece_clicked st with
   | None ->
       failwith "Move selection shouldn't be called when None piece"
   | Some p ->
-      print_endline
+      (* print_endline
         ("Clicked on ("
         ^ string_of_int (fst pos)
         ^ ", "
         ^ string_of_int (snd pos)
-        ^ ")");
+        ^ ")"); *)
       if Logic.valid_move st p pos then Logic.move_piece st p pos
       else st
 
