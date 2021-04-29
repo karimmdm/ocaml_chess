@@ -210,9 +210,9 @@ let switch_turn st =
       (if State.player_turn st == 1 then 2 else 1)
   in
   let pc_st = State.update_piece_clicked player_turn_st None in
-  let inv_fen = invert_fen pc_st in
-  let inv_st = State.state_from_fen inv_fen (Some pc_st) in
-  inv_st
+  (* let inv_fen = invert_fen pc_st in let inv_st = State.state_from_fen
+     inv_fen (Some pc_st) in inv_st *)
+  pc_st
 
 let move_piece st p new_pos =
   let move_st = State.update_board st p new_pos in

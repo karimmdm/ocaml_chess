@@ -10,21 +10,31 @@ let init () =
   set_window_title "Chess";
   ()
 
-(* [gen_grid_horizontal] x y draws horizonally *)
-let rec gen_grid_horizontal x y =
+let invert_pos my_player (x, y) =
+  let y' = if my_player = 1 then 7 - y else y in
+  (y', x)
+
+(* [gen_grid_horizontal x y] draws a specific row *)
+let rec gen_grid_horizontal x y my_player =
   if x >= 800 then ()
+  else if my_player = 1 then (
+    if (x + y) mod 200 = 0 then fill_rect x y 100 100;
+    gen_grid_horizontal (x + 100) y my_player)
   else (
-    if (x + y) mod 200 == 0 then fill_rect x y 100 100;
-    gen_grid_horizontal (x + 100) y)
+    if (x + y) mod 200 <> 0 then fill_rect x y 100 100;
+    gen_grid_horizontal (x + 100) y my_player)
 
 (* [gen_grid x y pieces] draws either a black or white square starting
    at ([x],[y]). If there is a piece at that location according to
    [pieces] then the image of the piece is drawn over the square *)
-let rec gen_grid x y =
+let rec gen_grid x y my_player =
+  let grey = rgb 112 128 144 in
+  set_color grey;
   if y >= 800 then ()
-  else (
-    gen_grid_horizontal x y;
-    gen_grid x (y + 100))
+  else
+    (gen_grid_horizontal x y my_player;
+     gen_grid x (y + 100))
+      my_player
 
 (* [open_img path x y] is the image found at [path] with resolution
    ([x], [y])*)
@@ -38,33 +48,18 @@ let open_img path x y =
   make_image color_arr
 
 (* [overlay_piece_icon lst] draws the image of the piece *)
-let rec overlay_piece_img player = function
+let rec overlay_piece_img my_player = function
   | [] -> ()
   | h :: t -> (
       match h with
-      | None -> overlay_piece_img player t
+      | None -> overlay_piece_img my_player t
       | Some piece ->
           let pos = position piece in
-          let y = if player = 1 then 7 - fst pos else fst pos in
+          let y = if my_player = 1 then 7 - fst pos else fst pos in
           let x = snd pos in
           let img = open_img (icon piece) 80. 80. in
           Graphics.draw_image img ((x * 100) + 20) ((y * 100) + 20);
-          overlay_piece_img player t)
-
-(* [overlay_piece_icon lst] draws the letter of the piece *)
-let rec overlay_piece_icon = function
-  | [] -> ()
-  | h :: t -> (
-      match h with
-      | None -> overlay_piece_icon t
-      | Some piece ->
-          let pos = position piece in
-          let y = fst pos in
-          let x = snd pos in
-          let symbol = Printer.print_piece_type piece in
-          moveto ((x * 100) + 20) ((y * 100) + 20);
-          Graphics.draw_string symbol;
-          overlay_piece_icon t)
+          overlay_piece_img my_player t)
 
 (* [gen_board_lst board player] gives the [board] as a flattened list*)
 let gen_board_lst board =
@@ -75,10 +70,6 @@ let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 
 let string_of_coordinate_pair tuple =
   string_of_int (fst tuple) ^ " " ^ string_of_int (snd tuple)
-
-let invert_pos st (x, y) =
-  let y' = if State.player_turn st = 1 then 7 - y else y in
-  (y', x)
 
 let get_piece st ((x, y) : int * int) =
   let rec helper = function
@@ -106,19 +97,18 @@ let draw_border clr (x, y) =
   lineto (current_x () - 99) (current_y ());
   lineto (current_x ()) (current_y () - 99)
 
-let highlight_valid_locations st p_op =
+let highlight_valid_locations st p_op my_player =
   match p_op with
   | None -> ()
   | Some piece ->
       (* clear the board before highlighting again *)
-      (* draw st; *)
       (* highlight the possible locations *)
       let locations = Logic.locations st piece in
       let locations_cartesian =
         List.map
           (fun (row, col) ->
             let x = col in
-            let y = if State.player_turn st = 1 then 7 - row else row in
+            let y = if my_player = 1 then 7 - row else row in
             (x * 100, y * 100))
           locations
       in
@@ -126,26 +116,18 @@ let highlight_valid_locations st p_op =
       (* draw a border around the clicked piece *)
       let pos = Piece.position piece in
       let x = snd pos in
-      let y =
-        if State.player_turn st = 1 then 7 - fst pos else fst pos
-      in
+      let y = if my_player = 1 then 7 - fst pos else fst pos in
       draw_border blue (x * 100, y * 100)
 
-let draw st =
+let draw st my_player =
   print_endline (Printer.print_board st);
   let board = State.board st in
-  let player = State.player_turn st in
   let boardlst = gen_board_lst board in
   clear_graph ();
-  let grey = rgb 112 128 144 in
-  set_color grey;
-  gen_grid 0 0;
+  gen_grid 0 0 my_player;
   set_text_size 50;
-  overlay_piece_img player boardlst;
-  let piece_clicked = State.piece_clicked st in
-  match piece_clicked with
-  | None -> ()
-  | Some p -> highlight_valid_locations st piece_clicked
+  overlay_piece_img my_player boardlst;
+  highlight_valid_locations st (State.piece_clicked st) my_player
 
 let rec listen (f : int * int -> State.t) =
   let st = wait_next_event [ Button_down ] in

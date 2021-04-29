@@ -1,9 +1,9 @@
 (* Module to handle gui changes such as listening for mouse events and
    drawing graphics from state. *)
 
-(* [draw st] will draw the chess board according to the state of the
-   board [state] *)
-val draw : State.t -> unit
+(* [draw st my_player] will draw the chess board according to the state
+   of the board [state] and based on which player's point of view it is. *)
+val draw : State.t -> int -> unit
 
 (* [init ()] opens a new window and sets up the gui with size 800x800*)
 val init : unit -> unit
@@ -18,12 +18,12 @@ val string_of_coordinate_pair : int * int -> string
    already. If there is no piece selected, then [move st pos] updates
    the current state. *)
 
-(* [invert_pos st pos] is the inverted position *)
-val invert_pos : State.t -> int * int -> int * int
+(* [invert_pos my_player pos] is the inverted position *)
+val invert_pos : int -> int * int -> int * int
 
-(* highlight_valid_locations] highlights all the valid squares on the
-   board that the selected piece can move to. *)
-val highlight_valid_locations : State.t -> Piece.t option -> unit
+(* highlight_valid_locations st p_op my_player] highlights all the valid
+   squares on the board that the [p_op] can move to. *)
+val highlight_valid_locations : State.t -> Piece.t option -> int -> unit
 
 (* [listen f] will listen for a mouse click and pass the mouse location
    to [f] *)

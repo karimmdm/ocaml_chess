@@ -34,11 +34,11 @@ let move_selection st pos =
       if Logic.valid_move st p pos then Logic.move_piece st p pos
       else deselect st
 
-(* [move st pos] checks the current state's piece_selected field to
-   determine which phase of the turn the player is in: piece selection
-   or move selection. *)
-let move st pos =
-  let pos = Gui.invert_pos st pos in
+(* [move my_player pos] checks the current state's piece_selected field
+   to determine which phase of the turn the player is in: piece
+   selection or move selection. *)
+let move st my_player pos =
+  let pos = Gui.invert_pos my_player pos in
   match State.piece_clicked st with
   | None -> piece_selection st pos
   | Some p -> (
@@ -54,18 +54,22 @@ let move st pos =
           then piece_selection st pos
           else move_selection st pos)
 
-let play_game st =
+let play_game () =
   try
     let my_player = 1 in
+    let st = init_state () in
+    Gui.init ();
+    Gui.draw st my_player;
     let current_state = ref st in
     let game_running = ref true in
     let current_player = ref 1 in
     while !game_running do
       print_endline "Loop start";
       (* if !current_player = my_player then ( *)
+      (* !cp = !cp for testing purposes only *)
       if !current_player = !current_player then (
         print_endline ("Player turn " ^ string_of_int !current_player);
-        let new_state = Gui.listen (move !current_state) in
+        let new_state = Gui.listen (move !current_state my_player) in
         print_endline
           ("Piece selected: "
           ^ Printer.print_piece_option (State.piece_clicked new_state));
@@ -73,7 +77,7 @@ let play_game st =
           not (State.checkmate new_state || State.stalemate new_state);
         current_player := State.player_turn new_state;
         current_state := new_state;
-        Gui.draw !current_state)
+        Gui.draw !current_state my_player)
       else ()
     done
   with Exit -> ()
@@ -81,10 +85,6 @@ let play_game st =
 (* let play_game' st = try while true do print_endline "Listening for
    click..."; let f pos = move st pos in listen f done with Exit -> () *)
 
-let main () =
-  let st = init_state () in
-  Gui.init ();
-  Gui.draw st;
-  play_game st
+let main () = play_game ()
 
 let () = main ()
