@@ -89,16 +89,17 @@ let rec board_to_fen board =
 let to_fen t = board_to_fen t.board
 
 let init_state () =
-  (* state_from_fen
-     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f" *)
-  (* state_from_fen
-     "pppppppp/rnbqkbnr/8/8/8/8/RNBQKBNR/PPPPPPPP:1,f,f,f" *)
-  (* state_from_fen
-     "rnbqkbnr/RNBQKBNR/8/8/8/8/PPPPPPPP/pppppppp:1,f,f,f" *)
-  (* state_from_fen
-     "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp:1,f,f,f" *)
-  state_from_fen
-    "1n11kb1r/1BQKNBNR/r7/2qRn3/4b2P/8/PPPPPPP1/pppppppp:1,f,f,f" None
+  state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f"
+    None
+(* state_from_fen "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr:1,f,f,f"
+   None *)
+
+(* state_from_fen "pppppppp/rnbqkbnr/8/8/8/8/RNBQKBNR/PPPPPPPP:1,f,f,f" *)
+(* state_from_fen "rnbqkbnr/RNBQKBNR/8/8/8/8/PPPPPPPP/pppppppp:1,f,f,f" *)
+(* state_from_fen
+   "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp:1,f,f,f" *)
+(* state_from_fen
+   "1n11kb1r/1BQKNBNR/r7/2qRn3/4b2P/8/PPPPPPP1/pppppppp:1,f,f,f" None *)
 
 let board st = st.board
 
