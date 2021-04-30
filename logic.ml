@@ -213,22 +213,9 @@ let is_check st =
   diag_threat || vert_threat || hor_threat || pawn_threat
   || knight_threat
 
-(* [switch_turn st] returns a new State switching the appropriate fields
-   when the player turn changes. This new state updates the player turn,
-   updates the piece clicked, and updates the fen. *)
-let switch_turn st =
-  let player_turn_st =
-    State.update_player_turn st
-      (if State.player_turn st == 1 then 2 else 1)
-  in
-  let pc_st = State.update_piece_clicked player_turn_st None in
-  pc_st
-
-let move_piece st p new_pos =
+let sample_move_piece st p new_pos =
   let move_st = State.update_board st p new_pos in
-  let check_st = State.update_check move_st (is_check move_st) in
-  let switch_turn_st = switch_turn check_st in
-  switch_turn_st
+  State.update_check move_st (is_check move_st)
 
 (* [filter_check st p locs acc] filters out [locs], a list of valid
    moves for [p] that causes the current player's king to be in check. *)
@@ -236,7 +223,9 @@ let rec filter_check st p locs acc =
   match locs with
   | [] -> acc
   | h :: t ->
-      let sample_st = move_piece st p h in
+      let sample_st =
+        sample_move_piece (State.update_piece_clicked st (Some p)) p h
+      in
       if State.check sample_st then filter_check st p t acc
       else filter_check st p t (h :: acc)
 
@@ -261,43 +250,64 @@ let locations st p =
       filter_check st p bishop_moves []
   | Knight ->
       let knight_moves = locs_helper st p (Piece.position p) in
-      (* pr pl; *)
       filter_check st p knight_moves []
   | Rook ->
       let rook_moves = locs_helper st p (Piece.position p) in
-      (* pr pl; *)
       filter_check st p rook_moves []
   | Queen ->
       let queen_moves = locs_helper st p (Piece.position p) in
-      (* pr pl; *)
       filter_check st p queen_moves []
   | King ->
       let king_moves = locs_helper st p (Piece.position p) in
-      (* pr pl; *)
       filter_check st p king_moves []
 
-(* 1n11kb1r/1BQKNBNR/r7/2qRn3/4b2P/8/PPPPPPP1/pppppppp *)
-(* let invert_fen st = let rec rev_string str ind = if ind >=
-   String.length str then "" else rev_string str (ind + 1) ^ String.make
-   1 str.[ind] in let rec rev_section str ind = let fen_substr =
-   String.sub str 0 ind in rev_string fen_substr 0 in let rec
-   build_invert_fen fen ind acc = try let paren_ind = String.index_from
-   fen ind '/' in let fen_len = String.length fen in let rev_str =
-   rev_section fen (paren_ind - 1) in let rev_str_len = String.length
-   rev_str in print_endline fen; print_endline (string_of_int (paren_ind
-   + 1)); print_endline (string_of_int (fen_len - rev_str_len - 2));
-   print_endline (string_of_int fen_len); let fen_str = String.sub fen
-   (paren_ind + 1) (fen_len - rev_str_len - 2) in build_invert_fen
-   fen_str (paren_ind + 1) (acc ^ rev_str ^ "/") with Not_found ->
-   String.sub acc 0 (String.length acc - 1) in let fen = State.to_fen st
-   in let final = build_invert_fen fen 0 "" in print_endline fen;
-   print_endline final; final *)
-(* let fen = ref (State.to_fen st) in let new_fen = ref "" in let
-   paren_exists = ref true in while !paren_exists do try let fen_paren =
-   String.index !fen '/' in !new_fen ^ rev_fen_section (String.sub !fen
-   0 (fen_paren - 1)) ^ "/"; fen := String.sub !fen (fen_paren + 1)
-   (String.length !fen - fen_paren + 1); () with Not_found ->
-   paren_exists := false; () done; let final = rev_string !new_fen 0 in
-   print_endline !fen; print_endline final; final *)
+let find_allied_pieces clr grid =
+  find_pieces clr King grid []
+  @ find_pieces clr Queen grid []
+  @ find_pieces clr Bishop grid []
+  @ find_pieces clr King grid []
+  @ find_pieces clr Knight grid []
+  @ find_pieces clr Pawn grid []
+
+let is_checkmate st clr =
+  let rec helper acc = function
+    | [] -> acc
+    | h :: t -> locations st h :: helper acc t
+  in
+  let allied_moves =
+    helper [] (find_allied_pieces clr (State.board st))
+  in
+  print_endline
+    (clr ^ " moves avaliable: "
+    ^ string_of_int (List.length allied_moves));
+  let no_moves_left = List.length allied_moves in
+  is_check st && no_moves_left = 0
+
+(* [switch_turn st] returns a new State switching the appropriate fields
+   when the player turn changes. This new state updates the player turn,
+   updates the piece clicked, and updates the fen. *)
+let switch_turn st =
+  let player_turn_st =
+    State.update_player_turn st
+      (if State.player_turn st == 1 then 2 else 1)
+  in
+  let pc_st = State.update_piece_clicked player_turn_st None in
+  pc_st
+
+let move_piece st p new_pos =
+  let move_st = State.update_board st p new_pos in
+  let check_st = State.update_check move_st (is_check move_st) in
+  let switch_turn_st = switch_turn check_st in
+  print_endline
+    ("piece_clicked after switch_turn: "
+    ^ Printer.print_piece_option (State.piece_clicked switch_turn_st));
+  let clr =
+    if State.player_turn switch_turn_st = 1 then "black" else "white"
+  in
+  let checkmate_st =
+    State.update_checkmate switch_turn_st
+      (* (is_checkmate switch_turn_st clr) *) false
+  in
+  checkmate_st
 
 let valid_move st piece loc = List.mem loc (locations st piece)

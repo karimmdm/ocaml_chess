@@ -77,7 +77,8 @@ let play_game () =
         current_player := State.player_turn new_state;
         current_state := new_state;
         Gui.draw !current_state my_player)
-      else ()
+      else print_endline "Game Over";
+      ()
     done
   with Exit -> ()
 
