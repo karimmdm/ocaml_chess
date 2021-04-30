@@ -121,30 +121,27 @@ let is_pinned st clr pos dir = failwith "TODO: optional optimization"
    true clr dir pos [] in let rec check_marc_locs lst = match lst with |
    [] -> false | h::t -> false *)
 
-(* [find_king clr grid] returns the King in that grid that matches that
-   [clr]. *)
-let rec find_king clr grid =
-  (* [find_king_in_row row] searches the row and returns the [clr] King
-     if it is found and None otherwise. *)
-  let rec find_king_in_row row =
+(* [find_pieces clr grid] returns the King in that grid that matches
+   that [clr]. *)
+let rec find_pieces clr piece_type grid acc =
+  (* [find_pieces_in_row row acc ] searches the row and returns the
+     [clr] pieces if it is found and None otherwise. *)
+  let rec find_pieces_in_row row acc =
     match row with
-    | [] -> None
+    | [] -> acc
     | h :: t -> (
         match h with
-        | None -> find_king_in_row t
+        | None -> find_pieces_in_row t acc
         | Some p ->
             if
-              Piece.piece_type p = Piece.King
+              Piece.piece_type p = piece_type
               && String.equal (Piece.color p) clr
-            then Some p
-            else find_king_in_row t)
+            then find_pieces_in_row t (p :: acc)
+            else find_pieces_in_row t acc)
   in
   match grid with
-  | [] -> failwith "King not found on board"
-  | h :: t -> (
-      match find_king_in_row h with
-      | Some p -> p
-      | None -> find_king clr t)
+  | [] -> acc
+  | h :: t -> find_pieces clr piece_type t (find_pieces_in_row h acc)
 
 let rec scan_for_enemy st scalable loc dir clr piece_type_lst =
   let loc_to_check = (fst loc + fst dir, snd loc + snd dir) in
@@ -177,29 +174,52 @@ let threat st scalable king dirs piece_type_lst =
   in
   threat_helper dirs
 
+let knight_threat_helper st king locs =
+  let board = State.board st in
+  let enemy_clr =
+    if Piece.color king = "white" then "black" else "white"
+  in
+  let enemy_knight_lst = find_pieces enemy_clr Knight board [] in
+  []
+
 let is_check st =
   let board = State.board st in
   let player_turn = State.player_turn st in
   let king_clr = if player_turn = 1 then "white" else "black" in
-  let king = find_king king_clr board in
+  let king = List.hd (find_pieces king_clr King board []) in
   let diag_threat =
     threat st true king
       [ (1, 1); (-1, 1); (1, -1); (-1, -1) ]
-      [ Piece.Bishop; Piece.Queen ]
+      [ Bishop; Queen ]
   in
   let pawn_threat =
     threat st false king
       (if king_clr = "white" then [ (-1, 1); (-1, -1) ]
       else [ (1, 1); (1, -1) ])
-      [ Piece.Pawn ]
+      [ Pawn ]
+  in
+  let knight_threat =
+    threat st false king
+      [
+        (2, 1);
+        (2, -1);
+        (-2, 1);
+        (-2, -1);
+        (1, 2);
+        (1, -2);
+        (-1, 2);
+        (-1, -2);
+      ]
+      [ Knight ]
   in
   let vert_threat =
-    threat st true king [ (-1, 0); (1, 0) ] [ Piece.Queen; Piece.Rook ]
+    threat st true king [ (-1, 0); (1, 0) ] [ Queen; Rook ]
   in
   let hor_threat =
-    threat st true king [ (0, 1); (0, -1) ] [ Piece.Queen; Piece.Rook ]
+    threat st true king [ (0, 1); (0, -1) ] [ Queen; Rook ]
   in
   diag_threat || vert_threat || hor_threat || pawn_threat
+  || knight_threat
 
 (* [switch_turn st] returns a new State switching the appropriate fields
    when the player turn changes. This new state updates the player turn,
