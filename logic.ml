@@ -146,12 +146,15 @@ let rec find_king clr grid =
       | Some p -> p
       | None -> find_king clr t)
 
-let rec scan_for_enemy st loc dir clr piece_type_lst =
+let rec scan_for_enemy st scalable loc dir clr piece_type_lst =
   let loc_to_check = (fst loc + fst dir, snd loc + snd dir) in
   if not (check_bounds (State.board st) loc_to_check) then false
   else
     match get_elt (State.board st) loc_to_check with
-    | None -> scan_for_enemy st loc_to_check dir clr piece_type_lst
+    | None ->
+        if scalable then
+          scan_for_enemy st scalable loc_to_check dir clr piece_type_lst
+        else false
     | Some p ->
         if
           String.equal (Piece.color p) clr
@@ -159,14 +162,8 @@ let rec scan_for_enemy st loc dir clr piece_type_lst =
         then true
         else false
 
-let threat st king dirs piece_type_lst =
+let threat st scalable king dirs piece_type_lst =
   let loc = Piece.position king in
-  print_endline
-    (Piece.color king ^ " King at ("
-    ^ string_of_int (fst loc)
-    ^ ", "
-    ^ string_of_int (snd loc)
-    ^ ")");
   let enemy_clr =
     if Piece.color king <> "white" then "white" else "black"
   in
@@ -174,7 +171,8 @@ let threat st king dirs piece_type_lst =
     match lst with
     | [] -> false
     | h :: t ->
-        if scan_for_enemy st loc h enemy_clr piece_type_lst then true
+        if scan_for_enemy st scalable loc h enemy_clr piece_type_lst
+        then true
         else threat_helper t
   in
   threat_helper dirs
@@ -182,20 +180,26 @@ let threat st king dirs piece_type_lst =
 let is_check st =
   let board = State.board st in
   let player_turn = State.player_turn st in
-  let clr = if player_turn = 1 then "white" else "black" in
-  let king = find_king clr board in
+  let king_clr = if player_turn = 1 then "white" else "black" in
+  let king = find_king king_clr board in
   let diag_threat =
-    threat st king
+    threat st true king
       [ (1, 1); (-1, 1); (1, -1); (-1, -1) ]
       [ Piece.Bishop; Piece.Queen ]
   in
+  let pawn_threat =
+    threat st false king
+      (if king_clr = "white" then [ (-1, 1); (-1, -1) ]
+      else [ (1, 1); (1, -1) ])
+      [ Piece.Pawn ]
+  in
   let vert_threat =
-    threat st king [ (-1, 0); (1, 0) ] [ Piece.Queen; Piece.Rook ]
+    threat st true king [ (-1, 0); (1, 0) ] [ Piece.Queen; Piece.Rook ]
   in
   let hor_threat =
-    threat st king [ (0, 1); (0, -1) ] [ Piece.Queen; Piece.Rook ]
+    threat st true king [ (0, 1); (0, -1) ] [ Piece.Queen; Piece.Rook ]
   in
-  diag_threat || vert_threat || hor_threat
+  diag_threat || vert_threat || hor_threat || pawn_threat
 
 (* [switch_turn st] returns a new State switching the appropriate fields
    when the player turn changes. This new state updates the player turn,
