@@ -174,14 +174,6 @@ let threat st scalable king dirs piece_type_lst =
   in
   threat_helper dirs
 
-let knight_threat_helper st king locs =
-  let board = State.board st in
-  let enemy_clr =
-    if Piece.color king = "white" then "black" else "white"
-  in
-  let enemy_knight_lst = find_pieces enemy_clr Knight board [] in
-  []
-
 let is_check st =
   let board = State.board st in
   let player_turn = State.player_turn st in
@@ -232,9 +224,6 @@ let switch_turn st =
   let pc_st = State.update_piece_clicked player_turn_st None in
   pc_st
 
-(* let sample_move_piece st p new_pos = let move_st = State.update_board
-   st p new_pos in let switch_turn_st = switch_turn move_st in
-   switch_turn_st *)
 let move_piece st p new_pos =
   let move_st = State.update_board st p new_pos in
   let check_st = State.update_check move_st (is_check move_st) in
