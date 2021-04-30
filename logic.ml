@@ -214,7 +214,6 @@ let switch_turn st =
 let move_piece st p new_pos =
   let move_st = State.update_board st p new_pos in
   let check_st = State.update_check move_st (is_check move_st) in
-  print_endline (string_of_bool (State.check check_st));
   let switch_turn_st = switch_turn check_st in
   switch_turn_st
 
@@ -262,7 +261,7 @@ let locations st p =
   | King ->
       let king_moves = locs_helper st p (Piece.position p) in
       (* pr pl; *)
-      king_moves
+      filter_check st p king_moves []
 
 (* 1n11kb1r/1BQKNBNR/r7/2qRn3/4b2P/8/PPPPPPP1/pppppppp *)
 (* let invert_fen st = let rec rev_string str ind = if ind >=
