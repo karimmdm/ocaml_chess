@@ -78,14 +78,14 @@ let state_tests =
     (* state_test "empty" empty_board_string (init_state ()); *)
     state_test "starting" starting_string
       (state_from_fen
-         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f");
+         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f" None);
     state_test "e4" starting_string_e4
       (state_from_fen
-         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR:1,f,f,f");
+         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR:1,f,f,f" None);
     to_fen_test "starting board to fen"
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
       (state_from_fen
-         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f");
+         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f" None);
   ]
 
 let gui_tests = []
