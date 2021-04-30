@@ -64,15 +64,14 @@ let play_game () =
     let game_running = ref true in
     let current_player = ref 1 in
     while !game_running do
-      print_endline "Loop start";
+      (* print_endline "Loop start"; *)
       (* if !current_player = my_player then ( *)
       (* !cp = !cp for testing purposes only *)
       if !current_player = !current_player then (
         print_endline ("Player turn " ^ string_of_int !current_player);
         let new_state = Gui.listen (move !current_state my_player) in
-        print_endline
-          ("Piece selected: "
-          ^ Printer.print_piece_option (State.piece_clicked new_state));
+        (* print_endline ("Piece selected: " ^
+           Printer.print_piece_option (State.piece_clicked new_state)); *)
         game_running :=
           not (State.checkmate new_state || State.stalemate new_state);
         current_player := State.player_turn new_state;
