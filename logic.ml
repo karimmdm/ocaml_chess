@@ -294,21 +294,7 @@ let find_allied_pieces clr grid =
   @ find_pieces clr Knight grid []
   @ find_pieces clr Pawn grid []
 
-let is_checkmate st clr =
-  let rec helper lst acc =
-    match lst with
-    | [] -> acc
-    | h :: t ->
-        (* print_string (Printer.print_piece h ^ ": "); *)
-        (* pr (locations st h); *)
-        helper t (locations st h @ acc)
-  in
-  let board = State.board st in
-  let allied_moves = helper (find_allied_pieces clr board) [] in
-  let moves_left = List.length allied_moves in
-  is_check st && moves_left = 0
-
-let is_stalemate st clr =
+let is_mate st clr mate_type =
   let rec helper lst acc =
     match lst with
     | [] -> acc
@@ -317,7 +303,12 @@ let is_stalemate st clr =
   let board = State.board st in
   let allied_moves = helper (find_allied_pieces clr board) [] in
   let moves_left = List.length allied_moves in
-  moves_left = 0
+  if mate_type = "checkmate" then is_check st && moves_left = 0
+  else moves_left = 0
+
+let is_checkmate st clr = is_mate st clr "checkmate"
+
+let is_stalemate st clr = is_mate st clr "stalemate"
 
 (* [switch_turn st] returns a new State switching the player turn. *)
 let switch_turn st =
