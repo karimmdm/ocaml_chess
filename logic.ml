@@ -306,8 +306,8 @@ let is_checkmate st clr =
   let board = State.board st in
   let allied_moves = helper (find_allied_pieces clr board) [] in
   let moves_left = List.length allied_moves in
-  (* is_check st && moves_left = 0 *)
-  moves_left = 0
+  is_check st && moves_left = 0
+(* moves_left = 0 *)
 
 (* [switch_turn st] returns a new State switching the appropriate fields
    when the player turn changes. This new state updates the player turn,
@@ -329,6 +329,7 @@ let move_piece st p new_pos =
     State.update_checkmate switch_turn_st
       (is_checkmate switch_turn_st clr)
   in
+  print_endline (string_of_bool (State.check checkmate_st));
   checkmate_st
 
 let valid_move st piece loc = List.mem loc (locations st piece)
