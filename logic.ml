@@ -49,9 +49,11 @@ let rec march st scalable clr direction loc acc =
 
 let rec pr l =
   match l with
-  | [] -> print_endline "End of valid possible move locations"
+  | [] ->
+      print_endline;
+      print_endline "End of valid possible move locations"
   | h :: t ->
-      print_endline
+      print_string
         ("("
         ^ string_of_int (fst h)
         ^ ", "
@@ -133,9 +135,7 @@ let rec find_pieces clr piece_type grid acc =
         match h with
         | None -> find_pieces_in_row t acc
         | Some p ->
-            if
-              Piece.piece_type p = piece_type
-              && String.equal (Piece.color p) clr
+            if Piece.piece_type p = piece_type && Piece.color p = clr
             then find_pieces_in_row t (p :: acc)
             else find_pieces_in_row t acc)
   in
@@ -145,22 +145,23 @@ let rec find_pieces clr piece_type grid acc =
 
 let rec scan_for_enemy st scalable loc dir clr piece_type_lst =
   let loc_to_check = (fst loc + fst dir, snd loc + snd dir) in
-  if not (check_bounds (State.board st) loc_to_check) then false
+  let board = State.board st in
+  if not (check_bounds board loc_to_check) then false
   else
-    match get_elt (State.board st) loc_to_check with
+    match get_elt board loc_to_check with
     | None ->
         if scalable then
           scan_for_enemy st scalable loc_to_check dir clr piece_type_lst
         else false
     | Some p ->
         if
-          String.equal (Piece.color p) clr
+          Piece.color p = clr
           && List.mem (Piece.piece_type p) piece_type_lst
         then true
         else false
 
 let threat st scalable king dirs piece_type_lst =
-  let loc = Piece.position king in
+  let king_pos = Piece.position king in
   let enemy_clr =
     if Piece.color king <> "white" then "white" else "black"
   in
@@ -168,12 +169,15 @@ let threat st scalable king dirs piece_type_lst =
     match lst with
     | [] -> false
     | h :: t ->
-        if scan_for_enemy st scalable loc h enemy_clr piece_type_lst
+        if
+          scan_for_enemy st scalable king_pos h enemy_clr piece_type_lst
         then true
         else threat_helper t
   in
   threat_helper dirs
 
+(* [is_check st] returns true if the current player's king is in check
+   given the board in [st], and false otherwise. *)
 let is_check st =
   let board = State.board st in
   let player_turn = State.player_turn st in
@@ -213,21 +217,26 @@ let is_check st =
   diag_threat || vert_threat || hor_threat || pawn_threat
   || knight_threat
 
+(* [sample_move_piece st p new_pos] returns a new State that reflects
+   [p] moving to [new_pos] in the given board. This state is an example
+   of what would happen if the given move was made. *)
 let sample_move_piece st p new_pos =
   let move_st = State.update_board st p new_pos in
-  State.update_check move_st (is_check move_st)
+  let check_st = State.update_check move_st (is_check move_st) in
+  check_st
 
-(* [filter_check st p locs acc] filters out [locs], a list of valid
-   moves for [p] that causes the current player's king to be in check. *)
-let rec filter_check st p locs acc =
+(* [filter_illegal_moves st p locs acc] filters out [locs], a list of
+   valid moves for [p], removing moves that cause the current player's
+   king to be in check. *)
+let rec filter_illegal_moves st p locs acc =
   match locs with
   | [] -> acc
   | h :: t ->
       let sample_st =
         sample_move_piece (State.update_piece_clicked st (Some p)) p h
       in
-      if State.check sample_st then filter_check st p t acc
-      else filter_check st p t (h :: acc)
+      if State.check sample_st then filter_illegal_moves st p t acc
+      else filter_illegal_moves st p t (h :: acc)
 
 let locations st p =
   let locs_helper st p loc =
@@ -244,22 +253,38 @@ let locations st p =
   match piece with
   | Pawn ->
       let pawn_moves = pawn_locs st p (Piece.position p) in
-      filter_check st p pawn_moves []
+      (* pr (filter_check st p pawn_moves []); *)
+      filter_illegal_moves st p pawn_moves []
   | Bishop ->
       let bishop_moves = locs_helper st p (Piece.position p) in
-      filter_check st p bishop_moves []
+      (* pr (filter_check st p bishop_moves []); *)
+      filter_illegal_moves st p bishop_moves []
   | Knight ->
       let knight_moves = locs_helper st p (Piece.position p) in
-      filter_check st p knight_moves []
+      (* pr (filter_check st p knight_moves []); *)
+      filter_illegal_moves st p knight_moves []
   | Rook ->
       let rook_moves = locs_helper st p (Piece.position p) in
-      filter_check st p rook_moves []
+      (* pr (filter_check st p rook_moves []); *)
+      filter_illegal_moves st p rook_moves []
   | Queen ->
       let queen_moves = locs_helper st p (Piece.position p) in
-      filter_check st p queen_moves []
+      (* pr (filter_check st p queen_moves []); *)
+      filter_illegal_moves st p queen_moves []
   | King ->
       let king_moves = locs_helper st p (Piece.position p) in
-      filter_check st p king_moves []
+      (* pr (filter_check st p king_moves []); *)
+      filter_illegal_moves st p king_moves []
+
+let enemy_check st piece_moved =
+  let new_locs = locations st piece_moved in
+  let enemy_clr =
+    if State.player_turn st = 1 then "black" else "white"
+  in
+  let board = State.board st in
+  let enemy_king = List.hd (find_pieces enemy_clr King board []) in
+  let enemy_king_pos = Piece.position enemy_king in
+  List.mem enemy_king_pos new_locs
 
 let find_allied_pieces clr grid =
   find_pieces clr King grid []
@@ -270,18 +295,19 @@ let find_allied_pieces clr grid =
   @ find_pieces clr Pawn grid []
 
 let is_checkmate st clr =
-  let rec helper acc = function
+  let rec helper lst acc =
+    match lst with
     | [] -> acc
-    | h :: t -> locations st h :: helper acc t
+    | h :: t ->
+        (* print_string (Printer.print_piece h ^ ": "); *)
+        (* pr (locations st h); *)
+        helper t (locations st h @ acc)
   in
-  let allied_moves =
-    helper [] (find_allied_pieces clr (State.board st))
-  in
-  print_endline
-    (clr ^ " moves avaliable: "
-    ^ string_of_int (List.length allied_moves));
-  let no_moves_left = List.length allied_moves in
-  is_check st && no_moves_left = 0
+  let board = State.board st in
+  let allied_moves = helper (find_allied_pieces clr board) [] in
+  let moves_left = List.length allied_moves in
+  (* is_check st && moves_left = 0 *)
+  moves_left = 0
 
 (* [switch_turn st] returns a new State switching the appropriate fields
    when the player turn changes. This new state updates the player turn,
@@ -296,17 +322,12 @@ let switch_turn st =
 
 let move_piece st p new_pos =
   let move_st = State.update_board st p new_pos in
-  let check_st = State.update_check move_st (is_check move_st) in
-  let switch_turn_st = switch_turn check_st in
-  print_endline
-    ("piece_clicked after switch_turn: "
-    ^ Printer.print_piece_option (State.piece_clicked switch_turn_st));
-  let clr =
-    if State.player_turn switch_turn_st = 1 then "black" else "white"
-  in
+  (* let check_st = State.update_check move_st (is_check move_st) in *)
+  let switch_turn_st = switch_turn move_st in
+  let clr = if State.player_turn st = 1 then "black" else "white" in
   let checkmate_st =
     State.update_checkmate switch_turn_st
-      (* (is_checkmate switch_turn_st clr) *) false
+      (is_checkmate switch_turn_st clr)
   in
   checkmate_st
 

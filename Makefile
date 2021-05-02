@@ -29,7 +29,7 @@ finalcheck:
 	@bash check.sh final
 
 zip:
-	zip chess_engine.zip *.md *.ml* *.json *.sh _tags .merlin .ocamlformat .ocamlinit Makefile images/ -r 
+	zip chess_engine.zip *mli *.md *.ml* *.json *.sh _tags .merlin .ocamlformat .ocamlinit Makefile images/ -r 
 	
 docs: docs-public docs-private
 	
