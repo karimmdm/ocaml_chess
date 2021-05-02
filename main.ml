@@ -73,8 +73,6 @@ let play_game () =
         let new_state = Gui.listen (move !current_state my_player) in
         game_running :=
           not (State.checkmate new_state || State.stalemate new_state);
-        (* print_endline ("Current state checkmate: " ^ string_of_bool
-           (State.checkmate new_state)); *)
         current_player := State.player_turn new_state;
         current_state := new_state;
         Gui.draw !current_state my_player img_dict)
