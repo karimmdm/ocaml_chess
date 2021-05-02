@@ -307,18 +307,24 @@ let is_checkmate st clr =
   let allied_moves = helper (find_allied_pieces clr board) [] in
   let moves_left = List.length allied_moves in
   is_check st && moves_left = 0
-(* moves_left = 0 *)
 
-(* [switch_turn st] returns a new State switching the appropriate fields
-   when the player turn changes. This new state updates the player turn,
-   updates the piece clicked, and updates the fen. *)
-let switch_turn st =
-  let player_turn_st =
-    State.update_player_turn st
-      (if State.player_turn st == 1 then 2 else 1)
+let is_stalemate st clr =
+  let rec helper lst acc =
+    match lst with
+    | [] -> acc
+    | h :: t -> helper t (locations st h @ acc)
   in
-  let pc_st = State.update_piece_clicked player_turn_st None in
-  pc_st
+  let board = State.board st in
+  let allied_moves = helper (find_allied_pieces clr board) [] in
+  let moves_left = List.length allied_moves in
+  moves_left = 0
+
+(* [switch_turn st] returns a new State switching the player turn. *)
+let switch_turn st =
+  State.update_player_turn st
+    (if State.player_turn st == 1 then 2 else 1)
+
+let reset_piece_clicked st = State.update_piece_clicked st None
 
 let move_piece st p new_pos =
   let move_st = State.update_board st p new_pos in
@@ -329,7 +335,10 @@ let move_piece st p new_pos =
     State.update_checkmate switch_turn_st
       (is_checkmate switch_turn_st clr)
   in
-  print_endline (string_of_bool (State.check checkmate_st));
-  checkmate_st
+  let stalemate_st =
+    State.update_stalemate checkmate_st (is_stalemate checkmate_st clr)
+  in
+  let reset_st = reset_piece_clicked stalemate_st in
+  reset_st
 
 let valid_move st piece loc = List.mem loc (locations st piece)

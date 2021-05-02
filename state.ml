@@ -91,6 +91,8 @@ let to_fen t = board_to_fen t.board
 let init_state () =
   state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f"
     None
+(* state_from_fen
+   "1p1k4/pPpPpPPP/P1P1P1P1/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f" None *)
 
 (* state_from_fen
    "rnbqkbnr/pppp2pp/8/4pp2/3PP3/BP6/P1P2PPP/RN1QKBNR:1,f,f,f" None *)
