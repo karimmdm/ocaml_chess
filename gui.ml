@@ -47,24 +47,17 @@ let open_img path x y =
   in
   make_image color_arr
 
-(* [overlay_piece_icon lst] draws the image of the piece *)
-let rec overlay_piece_img my_player = function
-  | [] -> ()
-  | h :: t -> (
-      match h with
-      | None -> overlay_piece_img my_player t
-      | Some piece ->
-          let pos = position piece in
-          let y = if my_player = 1 then 7 - fst pos else fst pos in
-          let x = snd pos in
-          let img = open_img (icon piece) 80. 80. in
-          Graphics.draw_image img ((x * 100) + 20) ((y * 100) + 20);
-          overlay_piece_img my_player t)
-
-(* [gen_board_lst board player] gives the [board] as a flattened list*)
-let gen_board_lst board =
-  let flattenedBoard = List.concat board in
-  flattenedBoard
+let images_dict st =
+  let board = State.board st in
+  let tbl = Hashtbl.create 32 in
+  let add_to_board = function
+    | None -> ()
+    | Some p ->
+        let path = Piece.icon p in
+        Hashtbl.add tbl path (open_img path 80. 80.)
+  in
+  List.iter add_to_board (State.gen_falttened_board board);
+  tbl
 
 let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
 
@@ -80,7 +73,7 @@ let get_piece st ((x, y) : int * int) =
         | Some piece ->
             if Piece.position piece = (x, y) then h else helper t)
   in
-  helper (gen_board_lst (State.board st))
+  helper (State.gen_falttened_board (State.board st))
 
 let highlight_square clr loc =
   set_color black;
@@ -119,13 +112,26 @@ let highlight_valid_locations st p_op my_player =
       let y = if my_player = 1 then 7 - fst pos else fst pos in
       draw_border blue (x * 100, y * 100)
 
-let draw st my_player =
+let draw st my_player img_tbl =
   (* print_endline (Printer.print_board st); *)
   let board = State.board st in
-  let boardlst = gen_board_lst board in
+  let boardlst = State.gen_falttened_board board in
   clear_graph ();
   gen_grid 0 0 my_player;
   set_text_size 50;
+  let rec overlay_piece_img my_player = function
+    | [] -> ()
+    | h :: t -> (
+        match h with
+        | None -> overlay_piece_img my_player t
+        | Some piece ->
+            let pos = position piece in
+            let y = if my_player = 1 then 7 - fst pos else fst pos in
+            let x = snd pos in
+            let img = Hashtbl.find img_tbl (Piece.icon piece) in
+            Graphics.draw_image img ((x * 100) + 20) ((y * 100) + 20);
+            overlay_piece_img my_player t)
+  in
   overlay_piece_img my_player boardlst;
   highlight_valid_locations st (State.piece_clicked st) my_player
 

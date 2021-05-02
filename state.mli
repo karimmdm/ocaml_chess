@@ -30,6 +30,9 @@ val board : t -> Piece.t option list list
    field. *)
 val update_board : t -> Piece.t -> int * int -> t
 
+(* [gen_falttened_board board] gives the [board] as a flattened list*)
+val gen_falttened_board : Piece.t option list list -> Piece.t option list 
+
 (* [player_turn st] will return an int representing whose turn it is, 1
    for player 1 (white) and 2 for player 2 (black). *)
 val player_turn : t -> int
