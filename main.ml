@@ -70,10 +70,10 @@ let play_game () =
       if !current_player = !current_player then (
         print_endline ("Player turn " ^ string_of_int !current_player);
         let new_state = Gui.listen (move !current_state my_player) in
-        (* print_endline ("Piece selected: " ^
-           Printer.print_piece_option (State.piece_clicked new_state)); *)
         game_running :=
           not (State.checkmate new_state || State.stalemate new_state);
+        (* print_endline ("Current state checkmate: " ^ string_of_bool
+           (State.checkmate new_state)); *)
         current_player := State.player_turn new_state;
         current_state := new_state;
         Gui.draw !current_state my_player)
@@ -81,9 +81,6 @@ let play_game () =
       ()
     done
   with Exit -> ()
-
-(* let play_game' st = try while true do print_endline "Listening for
-   click..."; let f pos = move st pos in listen f done with Exit -> () *)
 
 let main () = play_game ()
 
