@@ -57,9 +57,10 @@ let move st my_player pos =
 let play_game () =
   try
     let my_player = 1 in
-    let st = init_state () in
+    let st = State.init_state () in
     Gui.init ();
-    Gui.draw st my_player;
+    let img_dict = Gui.images_dict st in
+    Gui.draw st my_player img_dict;
     let current_state = ref st in
     let game_running = ref true in
     let current_player = ref 1 in
@@ -76,7 +77,7 @@ let play_game () =
            (State.checkmate new_state)); *)
         current_player := State.player_turn new_state;
         current_state := new_state;
-        Gui.draw !current_state my_player)
+        Gui.draw !current_state my_player img_dict)
       else print_endline "Game Over";
       ()
     done

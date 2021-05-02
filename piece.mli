@@ -38,10 +38,10 @@ val piece_type : t -> piece
 (* [color p] will return a string of the piece's color, white or black. *)
 val color : t -> string
 
-(* [icon p] will return the image file for the current piece. *)
+(* [icon p] will return the image file path for the piece [p]. *)
 val icon : t -> string
 
-(* [position p] will return a tuple containing the current piece's
+(* [position p] will return a tuple containing piece [p]'s
    position. *)
 val position : t -> int * int
 

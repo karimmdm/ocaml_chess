@@ -50,7 +50,7 @@ let rec march st scalable clr direction loc acc =
 let rec pr l =
   match l with
   | [] ->
-      print_endline;
+      print_endline "";
       print_endline "End of valid possible move locations"
   | h :: t ->
       print_string

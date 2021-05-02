@@ -1,12 +1,17 @@
 (* Module to handle gui changes such as listening for mouse events and
    drawing graphics from state. *)
 
-(* [draw st my_player] will draw the chess board according to the state
-   of the board [state] and based on which player's point of view it is. *)
-val draw : State.t -> int -> unit
+(* [draw st my_player img_tabl] will draw the chess board according to the state
+   of the board [state] and based on which player's point of view it is.
+   requires: [img_tbl] = images_dict State.init_state () *)
+val draw : State.t -> int -> (string, Graphics.image)Hashtbl.t -> unit
 
 (* [init ()] opens a new window and sets up the gui with size 800x800*)
 val init : unit -> unit
+
+(* [images_dict st] is the dictionary of images of the chess pieces currently 
+in the baord of state [st]*)
+val images_dict : State.t -> (string, Graphics.image)Hashtbl.t
 
 (* [coordinate_pair st] is the coordinate positions (x,y) of the mouse*)
 val coordinate_pair : Graphics.status -> int * int
