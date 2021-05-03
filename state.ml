@@ -6,7 +6,8 @@ type t = {
   check : bool;
   checkmate : bool;
   stalemate : bool;
-  (* can_castle : bool list; *)
+  castle_kingside : bool list;
+  castle_queenside : bool list;
   piece_clicked : Piece.t option;
 }
 
@@ -76,6 +77,8 @@ let state_from_fen fen st_option =
         check = bool_of_tf (snd flag_pt_c);
         checkmate = bool_of_tf (fst flag_cm_sm);
         stalemate = bool_of_tf (snd flag_cm_sm);
+        castle_kingside = [ true; true ];
+        castle_queenside = [ true; true ];
         piece_clicked = None;
       }
   | Some st -> { st with board = new_board }
@@ -177,3 +180,13 @@ let update_stalemate st sm = { st with stalemate = sm }
 let piece_clicked st = st.piece_clicked
 
 let update_piece_clicked st pc = { st with piece_clicked = pc }
+
+let castle_kingside st = st.castle_kingside
+
+let update_castle_kingside st castle =
+  { st with castle_kingside = castle }
+
+let castle_queenside st = st.castle_queenside
+
+let update_castle_queenside st castle =
+  { st with castle_queenside = castle }

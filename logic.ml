@@ -47,20 +47,6 @@ let rec march st scalable clr direction loc acc =
       in
       if enemy_capture then loc_to_check :: acc else acc
 
-let rec pr l =
-  match l with
-  | [] ->
-      print_endline "";
-      print_endline "End of valid possible move locations"
-  | h :: t ->
-      print_string
-        ("("
-        ^ string_of_int (fst h)
-        ^ ", "
-        ^ string_of_int (snd h)
-        ^ ")");
-      pr t
-
 let check_pawn_capture st clr loc dir =
   let board = State.board st in
   let check_loc = (fst loc + fst dir, snd loc + snd dir) in
@@ -142,6 +128,60 @@ let rec find_pieces clr piece_type grid acc =
   match grid with
   | [] -> acc
   | h :: t -> find_pieces clr piece_type t (find_pieces_in_row h acc)
+
+(* [check_kingside_castle st] returns true if the king and kingside rook
+   are valid to castle kingside and if there are no pieces blocking the
+   path, and false otherwise. *)
+let check_kingside_castle st =
+  let p_turn = State.player_turn st in
+  let board = State.board st in
+  let castle_kingside_lst = State.castle_kingside st in
+  let castle_kingside =
+    if p_turn = 1 then List.hd castle_kingside_lst
+    else List.hd (List.rev castle_kingside_lst)
+  in
+  let king_right_sq1 =
+    get_elt board (if p_turn = 1 then (0, 5) else (7, 5))
+  in
+  let king_right_sq2 =
+    get_elt board (if p_turn = 1 then (0, 6) else (7, 6))
+  in
+  match king_right_sq1 with
+  | Some _ -> false
+  | None -> (
+      match king_right_sq2 with
+      | Some _ -> false
+      | None -> true && castle_kingside)
+
+(* [check_queenside_castle st] returns true if the king and queenside
+   rook are valid to castle queenside and if there are no pieces
+   blocking the path, and false otherwise. *)
+let check_queenside_castle st =
+  let p_turn = State.player_turn st in
+  let board = State.board st in
+  let castle_queenside_lst = State.castle_queenside st in
+  let castle_queenside =
+    if p_turn = 1 then List.hd castle_queenside_lst
+    else List.hd (List.rev castle_queenside_lst)
+  in
+  let king_left_sq1 =
+    get_elt board (if p_turn = 1 then (0, 3) else (7, 3))
+  in
+  let king_left_sq2 =
+    get_elt board (if p_turn = 1 then (0, 2) else (7, 2))
+  in
+  let king_left_sq3 =
+    get_elt board (if p_turn = 1 then (0, 1) else (7, 1))
+  in
+  match king_left_sq1 with
+  | Some _ -> false
+  | None -> (
+      match king_left_sq2 with
+      | Some _ -> false
+      | None -> (
+          match king_left_sq3 with
+          | Some _ -> false
+          | None -> true && castle_queenside))
 
 let rec scan_for_enemy st scalable loc dir clr piece_type_lst =
   let loc_to_check = (fst loc + fst dir, snd loc + snd dir) in
@@ -253,27 +293,21 @@ let locations st p =
   match piece with
   | Pawn ->
       let pawn_moves = pawn_locs st p (Piece.position p) in
-      (* pr (filter_check st p pawn_moves []); *)
       filter_illegal_moves st p pawn_moves []
   | Bishop ->
       let bishop_moves = locs_helper st p (Piece.position p) in
-      (* pr (filter_check st p bishop_moves []); *)
       filter_illegal_moves st p bishop_moves []
   | Knight ->
       let knight_moves = locs_helper st p (Piece.position p) in
-      (* pr (filter_check st p knight_moves []); *)
       filter_illegal_moves st p knight_moves []
   | Rook ->
       let rook_moves = locs_helper st p (Piece.position p) in
-      (* pr (filter_check st p rook_moves []); *)
       filter_illegal_moves st p rook_moves []
   | Queen ->
       let queen_moves = locs_helper st p (Piece.position p) in
-      (* pr (filter_check st p queen_moves []); *)
       filter_illegal_moves st p queen_moves []
   | King ->
       let king_moves = locs_helper st p (Piece.position p) in
-      (* pr (filter_check st p king_moves []); *)
       filter_illegal_moves st p king_moves []
 
 let enemy_check st piece_moved =
@@ -295,13 +329,15 @@ let find_allied_pieces clr grid =
   @ find_pieces clr Pawn grid []
 
 let is_mate st clr mate_type =
-  let rec helper lst acc =
+  let rec find_locs_helper lst acc =
     match lst with
     | [] -> acc
-    | h :: t -> helper t (locations st h @ acc)
+    | h :: t -> find_locs_helper t (locations st h @ acc)
   in
   let board = State.board st in
-  let allied_moves = helper (find_allied_pieces clr board) [] in
+  let allied_moves =
+    find_locs_helper (find_allied_pieces clr board) []
+  in
   let moves_left = List.length allied_moves in
   if mate_type = "checkmate" then is_check st && moves_left = 0
   else moves_left = 0
@@ -309,6 +345,44 @@ let is_mate st clr mate_type =
 let is_checkmate st clr = is_mate st clr "checkmate"
 
 let is_stalemate st clr = is_mate st clr "stalemate"
+
+(* [update_castle st p] returns a new State updating the castle_kingside
+   and castle_queenside lists to false if either the king or rooks have
+   moved, thus making castling illegal. *)
+let update_castle st p =
+  let p_turn = State.player_turn st in
+  let castle_kingside_lst = State.castle_kingside st in
+  let castle_queenside_lst = State.castle_queenside st in
+  if Piece.piece_type p = King then
+    if p_turn = 1 then
+      State.update_castle_queenside
+        (State.update_castle_kingside st
+           [ false; List.hd (List.rev castle_kingside_lst) ])
+        [ false; List.hd (List.rev castle_queenside_lst) ]
+    else
+      State.update_castle_queenside
+        (State.update_castle_kingside st
+           [ List.hd castle_kingside_lst; false ])
+        [ List.hd castle_queenside_lst; false ]
+  else if Piece.piece_type p = Rook then
+    let rook_pos = Piece.position p in
+    let rook_col = snd rook_pos in
+    if p_turn = 1 then
+      if rook_col = 0 then
+        State.update_castle_queenside st
+          [ false; List.hd (List.rev castle_queenside_lst) ]
+      else if rook_col = 7 then
+        State.update_castle_kingside st
+          [ false; List.hd (List.rev castle_kingside_lst) ]
+      else st
+    else if rook_col = 0 then
+      State.update_castle_queenside st
+        [ List.hd castle_queenside_lst; false ]
+    else if rook_col = 7 then
+      State.update_castle_kingside st
+        [ List.hd castle_queenside_lst; false ]
+    else st
+  else st
 
 (* [switch_turn st] returns a new State switching the player turn. *)
 let switch_turn st =
@@ -318,7 +392,8 @@ let switch_turn st =
 let reset_piece_clicked st = State.update_piece_clicked st None
 
 let move_piece st p new_pos =
-  let move_st = State.update_board st p new_pos in
+  let castle_st = update_castle st p in
+  let move_st = State.update_board castle_st p new_pos in
   (* let check_st = State.update_check move_st (is_check move_st) in *)
   let switch_turn_st = switch_turn move_st in
   let clr = if State.player_turn st = 1 then "black" else "white" in

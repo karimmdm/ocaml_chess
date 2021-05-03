@@ -113,7 +113,6 @@ let highlight_valid_locations st p_op my_player =
       draw_border blue (x * 100, y * 100)
 
 let draw st my_player img_tbl =
-  (* print_endline (Printer.print_board st); *)
   let board = State.board st in
   let boardlst = State.gen_falttened_board board in
   clear_graph ();
