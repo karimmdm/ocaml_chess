@@ -179,3 +179,36 @@ let castle_queenside st = st.castle_queenside
 
 let update_castle_queenside st castle =
   { st with castle_queenside = castle }
+
+let update_castle st p =
+  let p_turn = st.player_turn in
+  let castle_kingside_lst = st.castle_kingside in
+  let castle_queenside_lst = st.castle_queenside in
+  if Piece.piece_type p = King then
+    if p_turn = 1 then
+      update_castle_queenside
+        (update_castle_kingside st
+           [ false; List.hd (List.rev castle_kingside_lst) ])
+        [ false; List.hd (List.rev castle_queenside_lst) ]
+    else
+      update_castle_queenside
+        (update_castle_kingside st
+           [ List.hd castle_kingside_lst; false ])
+        [ List.hd castle_queenside_lst; false ]
+  else if Piece.piece_type p = Rook then
+    let rook_pos = Piece.position p in
+    let rook_col = snd rook_pos in
+    if p_turn = 1 then
+      if rook_col = 0 then
+        update_castle_queenside st
+          [ false; List.hd (List.rev castle_queenside_lst) ]
+      else if rook_col = 7 then
+        update_castle_kingside st
+          [ false; List.hd (List.rev castle_kingside_lst) ]
+      else st
+    else if rook_col = 0 then
+      update_castle_queenside st [ List.hd castle_queenside_lst; false ]
+    else if rook_col = 7 then
+      update_castle_kingside st [ List.hd castle_queenside_lst; false ]
+    else st
+  else st
