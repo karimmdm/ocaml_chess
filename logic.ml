@@ -278,6 +278,21 @@ let is_check st =
       else [ (1, 1); (1, -1) ])
       [ Pawn ]
   in
+  let king_threat =
+    threat st false king
+      [
+        (1, -1);
+        (0, 1);
+        (1, 1);
+        (0, 1);
+        (1, 0);
+        (-1, 1);
+        (-1, 0);
+        (-1, -1);
+        (0, -1);
+      ]
+      [ King ]
+  in
   let knight_threat =
     threat st false king
       [
@@ -299,7 +314,7 @@ let is_check st =
     threat st true king [ (0, 1); (0, -1) ] [ Queen; Rook ]
   in
   diag_threat || vert_threat || hor_threat || pawn_threat
-  || knight_threat
+  || knight_threat || king_threat
 
 (* [sample_move_piece st p new_pos] returns a new State that reflects
    [p] moving to [new_pos] in the given board. This state is an example
