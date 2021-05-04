@@ -117,17 +117,10 @@ let board st = st.board
    [st.piece_clicked] moving to location [pos] on the board. requires:
    [st.piece_clicked] to be Some piece [pos] to be the position of a
    valid move location for [st.piece_clicked]*)
-let gen_board st move_to_pos =
+let gen_board st p move_to_pos =
   let move_row = fst move_to_pos in
   let move_col = snd move_to_pos in
-  let piece_clicked_pos =
-    match st.piece_clicked with
-    | None ->
-        failwith
-          "getting piece clicked pos: gen_board should not be called \
-           if piece_clicked is none"
-    | Some piece -> Piece.position piece
-  in
+  let piece_clicked_pos = Piece.position p in
   let piece_clicked_row = fst piece_clicked_pos in
   let row_traversal i row_lst =
     (* [column_traversal_a elt] sets the [st.piece_clicked] piece to
@@ -141,14 +134,8 @@ let gen_board st move_to_pos =
     (* [column_traversal_b j elt] sets the element [elem_option] to
        [st.piece_clicked]*)
     let column_traversal_b j elt =
-      let pc =
-        match st.piece_clicked with
-        | None ->
-            failwith "piece_clicked should not be none when moving"
-        | Some p -> p
-      in
       if j = move_col then
-        Some (Piece.update_position pc (move_row, move_col))
+        Some (Piece.update_position p (move_row, move_col))
       else elt
     in
     if i = piece_clicked_row then
@@ -159,7 +146,7 @@ let gen_board st move_to_pos =
   in
   List.mapi row_traversal st.board
 
-let update_board st p pos = { st with board = gen_board st pos }
+let update_board st p pos = { st with board = gen_board st p pos }
 
 let gen_falttened_board board = List.concat board
 

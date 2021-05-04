@@ -219,12 +219,12 @@ let castle_move st king new_pos =
     | None -> failwith "Rook must exist"
     | Some r -> r
   in
-  print_endline (Printer.print_piece rook);
   if king_col = 4 && new_king_col = 6 then
     let move_king_st = State.update_board st king new_pos in
-    State.update_board st rook new_rook_pos
-    (* else if king_col = 4 && new_king_col = 2 then State.update_board
-       (State.update_board st king new_pos) rook new_rook_pos *)
+    State.update_board move_king_st rook new_rook_pos
+  else if king_col = 4 && new_king_col = 2 then
+    let move_king_st = State.update_board st king new_pos in
+    State.update_board move_king_st rook new_rook_pos
   else st
 
 let rec scan_for_enemy st scalable loc dir clr piece_type_lst =
