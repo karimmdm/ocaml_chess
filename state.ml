@@ -92,10 +92,10 @@ let rec board_to_fen board =
 let to_fen t = board_to_fen t.board
 
 let init_state () =
-  (* state_from_fen
-     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f" None *)
-  state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPP2PPP/RNBQK2R:1,f,f,f"
+  state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f"
     None
+
+(* state_from_fen "r3k2r/pppppppp/8/8/8/8/PPP2PPP/R3K2R:1,f,f,f" None *)
 (* state_from_fen
    "1p1k4/pPpPpPPP/P1P1P1P1/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f" None *)
 

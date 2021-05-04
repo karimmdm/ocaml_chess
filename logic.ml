@@ -208,7 +208,7 @@ let castle_queenside_move st locs =
    rook. *)
 let castle_move st king new_pos =
   let board = State.board st in
-  let king_col = snd (Piece.position king) in
+  (* let king_col = snd (Piece.position king) in *)
   let new_king_col = snd new_pos in
   let rook_pos = (fst new_pos, if new_king_col = 6 then 7 else 0) in
   let new_rook_pos =
@@ -219,13 +219,13 @@ let castle_move st king new_pos =
     | None -> failwith "Rook must exist"
     | Some r -> r
   in
-  if king_col = 4 && new_king_col = 6 then
-    let move_king_st = State.update_board st king new_pos in
-    State.update_board move_king_st rook new_rook_pos
-  else if king_col = 4 && new_king_col = 2 then
-    let move_king_st = State.update_board st king new_pos in
-    State.update_board move_king_st rook new_rook_pos
-  else st
+  let move_king_st = State.update_board st king new_pos in
+  State.update_board move_king_st rook new_rook_pos
+(* if king_col = 4 && new_king_col = 6 then let move_king_st =
+   State.update_board st king new_pos in State.update_board move_king_st
+   rook new_rook_pos else if king_col = 4 && new_king_col = 2 then let
+   move_king_st = State.update_board st king new_pos in
+   State.update_board move_king_st rook new_rook_pos else st *)
 
 let rec scan_for_enemy st scalable loc dir clr piece_type_lst =
   let loc_to_check = (fst loc + fst dir, snd loc + snd dir) in
