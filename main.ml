@@ -11,7 +11,7 @@ let deselect st = State.update_piece_clicked st None
    location that contains a piece that the current player can move on
    their turn. *)
 let piece_selection st pos =
-  print_endline "Piece selection";
+  (* print_endline "Piece selection"; *)
   let p_turn = State.player_turn st in
   let clr = if p_turn = 1 then "white" else "black" in
   let p = Gui.get_piece st pos in
@@ -25,7 +25,7 @@ let piece_selection st pos =
    location that the current player can move the current piece selected
    to. *)
 let move_selection st pos =
-  print_endline "Move selection";
+  (* print_endline "Move selection"; *)
   match State.piece_clicked st with
   | None ->
       failwith
@@ -65,7 +65,6 @@ let play_game () =
     let game_running = ref true in
     let current_player = ref 1 in
     while !game_running do
-      (* print_endline "Loop start"; *)
       (* if !current_player = my_player then ( *)
       (* !cp = !cp for testing purposes only *)
       if !current_player = !current_player then (

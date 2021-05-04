@@ -31,7 +31,8 @@ val board : t -> Piece.t option list list
 val update_board : t -> Piece.t -> int * int -> t
 
 (* [gen_falttened_board board] gives the [board] as a flattened list*)
-val gen_falttened_board : Piece.t option list list -> Piece.t option list 
+val gen_falttened_board :
+  Piece.t option list list -> Piece.t option list
 
 (* [player_turn st] will return an int representing whose turn it is, 1
    for player 1 (white) and 2 for player 2 (black). *)
@@ -72,3 +73,19 @@ val piece_clicked : t -> Piece.t option
 (* [update_player_turn st pt] returns a new State with the updated
    piece_clicked field. *)
 val update_piece_clicked : t -> Piece.t option -> t
+
+(* [castle_kingside st] will return a bool list of whether or not the
+   king can castle kingside. *)
+val castle_kingside : t -> bool list
+
+(* [update_castle_kingside st castle] returns a new State with the
+   updated castle_kingside field. *)
+val update_castle_kingside : t -> bool list -> t
+
+(* [castle_queenside st] will return a bool list of whether or not the
+   king can castle queenside. *)
+val castle_queenside : t -> bool list
+
+(* [update_castle_queenside st castle] returns a new State with the
+   updated castle_queenside field. *)
+val update_castle_queenside : t -> bool list -> t
