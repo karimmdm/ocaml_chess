@@ -89,3 +89,8 @@ val castle_queenside : t -> bool list
 (* [update_castle_queenside st castle] returns a new State with the
    updated castle_queenside field. *)
 val update_castle_queenside : t -> bool list -> t
+
+(* [update_castle st p] returns a new State updating the castle_kingside
+   and castle_queenside lists to false if either the king or rooks have
+   moved, thus making castling illegal. *)
+val update_castle : t -> Piece.t -> t

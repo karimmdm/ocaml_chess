@@ -137,8 +137,7 @@ let check_kingside_castle st =
   let board = State.board st in
   let castle_kingside_lst = State.castle_kingside st in
   let castle_kingside = List.nth castle_kingside_lst (p_turn - 1) in
-  (* let castle_kingside = if p_turn = 1 then List.hd
-     castle_kingside_lst else List.hd (List.rev castle_kingside_lst) in *)
+  let is_check = State.check st in
   let king_right_sq1 =
     get_elt board (if p_turn = 1 then (7, 5) else (0, 5))
   in
@@ -146,7 +145,7 @@ let check_kingside_castle st =
     get_elt board (if p_turn = 1 then (7, 6) else (0, 6))
   in
   match (king_right_sq1, king_right_sq2) with
-  | None, None -> true && castle_kingside
+  | None, None -> true && castle_kingside && not is_check
   | _ -> false
 
 (* [check_queenside_castle st] returns true if the king and queenside
@@ -157,9 +156,7 @@ let check_queenside_castle st =
   let board = State.board st in
   let castle_queenside_lst = State.castle_queenside st in
   let castle_queenside = List.nth castle_queenside_lst (p_turn - 1) in
-  (* let castle_queenside = if p_turn = 1 then List.hd
-     castle_queenside_lst else List.hd (List.rev castle_queenside_lst)
-     in *)
+  let is_check = State.check st in
   let king_left_sq1 =
     get_elt board (if p_turn = 1 then (7, 3) else (0, 3))
   in
@@ -170,7 +167,7 @@ let check_queenside_castle st =
     get_elt board (if p_turn = 1 then (7, 1) else (0, 1))
   in
   match (king_left_sq1, king_left_sq2, king_left_sq3) with
-  | None, None, None -> true && castle_queenside
+  | None, None, None -> true && castle_queenside && not is_check
   | _ -> false
 
 (* [castle_kingside_move st locs] checks the current State's
@@ -208,7 +205,6 @@ let castle_queenside_move st locs =
    rook. *)
 let castle_move st king new_pos =
   let board = State.board st in
-  (* let king_col = snd (Piece.position king) in *)
   let new_king_col = snd new_pos in
   let rook_pos = (fst new_pos, if new_king_col = 6 then 7 else 0) in
   let new_rook_pos =
@@ -221,11 +217,6 @@ let castle_move st king new_pos =
   in
   let move_king_st = State.update_board st king new_pos in
   State.update_board move_king_st rook new_rook_pos
-(* if king_col = 4 && new_king_col = 6 then let move_king_st =
-   State.update_board st king new_pos in State.update_board move_king_st
-   rook new_rook_pos else if king_col = 4 && new_king_col = 2 then let
-   move_king_st = State.update_board st king new_pos in
-   State.update_board move_king_st rook new_rook_pos else st *)
 
 let rec scan_for_enemy st scalable loc dir clr piece_type_lst =
   let loc_to_check = (fst loc + fst dir, snd loc + snd dir) in
@@ -278,6 +269,21 @@ let is_check st =
       else [ (1, 1); (1, -1) ])
       [ Pawn ]
   in
+  let king_threat =
+    threat st false king
+      [
+        (1, -1);
+        (0, 1);
+        (1, 1);
+        (0, 1);
+        (1, 0);
+        (-1, 1);
+        (-1, 0);
+        (-1, -1);
+        (0, -1);
+      ]
+      [ King ]
+  in
   let knight_threat =
     threat st false king
       [
@@ -299,7 +305,7 @@ let is_check st =
     threat st true king [ (0, 1); (0, -1) ] [ Queen; Rook ]
   in
   diag_threat || vert_threat || hor_threat || pawn_threat
-  || knight_threat
+  || knight_threat || king_threat
 
 (* [sample_move_piece st p new_pos] returns a new State that reflects
    [p] moving to [new_pos] in the given board. This state is an example
@@ -392,44 +398,6 @@ let is_checkmate st clr = is_mate st clr "checkmate"
 
 let is_stalemate st clr = is_mate st clr "stalemate"
 
-(* [update_castle st p] returns a new State updating the castle_kingside
-   and castle_queenside lists to false if either the king or rooks have
-   moved, thus making castling illegal. *)
-let update_castle st p =
-  let p_turn = State.player_turn st in
-  let castle_kingside_lst = State.castle_kingside st in
-  let castle_queenside_lst = State.castle_queenside st in
-  if Piece.piece_type p = King then
-    if p_turn = 1 then
-      State.update_castle_queenside
-        (State.update_castle_kingside st
-           [ false; List.hd (List.rev castle_kingside_lst) ])
-        [ false; List.hd (List.rev castle_queenside_lst) ]
-    else
-      State.update_castle_queenside
-        (State.update_castle_kingside st
-           [ List.hd castle_kingside_lst; false ])
-        [ List.hd castle_queenside_lst; false ]
-  else if Piece.piece_type p = Rook then
-    let rook_pos = Piece.position p in
-    let rook_col = snd rook_pos in
-    if p_turn = 1 then
-      if rook_col = 0 then
-        State.update_castle_queenside st
-          [ false; List.hd (List.rev castle_queenside_lst) ]
-      else if rook_col = 7 then
-        State.update_castle_kingside st
-          [ false; List.hd (List.rev castle_kingside_lst) ]
-      else st
-    else if rook_col = 0 then
-      State.update_castle_queenside st
-        [ List.hd castle_queenside_lst; false ]
-    else if rook_col = 7 then
-      State.update_castle_kingside st
-        [ List.hd castle_queenside_lst; false ]
-    else st
-  else st
-
 (* [switch_turn st] returns a new State switching the player turn. *)
 let switch_turn st =
   State.update_player_turn st
@@ -441,7 +409,7 @@ let reset_piece_clicked st = State.update_piece_clicked st None
    State.update_board st king *)
 
 let move_piece st p new_pos =
-  let castle_st = update_castle st p in
+  let castle_st = State.update_castle st p in
   (* let p_turn = State.player_turn st in *)
   let is_castle =
     Piece.piece_type p = King
@@ -451,13 +419,13 @@ let move_piece st p new_pos =
     if is_castle then castle_move st p new_pos
     else State.update_board castle_st p new_pos
   in
-  (* let move_st = State.update_board castle_st p new_pos in *)
-  (* let check_st = State.update_check move_st (is_check move_st) in *)
   let switch_turn_st = switch_turn move_st in
+  let check_st =
+    State.update_check switch_turn_st (is_check switch_turn_st)
+  in
   let clr = if State.player_turn st = 1 then "black" else "white" in
   let checkmate_st =
-    State.update_checkmate switch_turn_st
-      (is_checkmate switch_turn_st clr)
+    State.update_checkmate check_st (is_checkmate check_st clr)
   in
   let stalemate_st =
     State.update_stalemate checkmate_st (is_stalemate checkmate_st clr)
