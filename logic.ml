@@ -205,7 +205,6 @@ let castle_queenside_move st locs =
    rook. *)
 let castle_move st king new_pos =
   let board = State.board st in
-  (* let king_col = snd (Piece.position king) in *)
   let new_king_col = snd new_pos in
   let rook_pos = (fst new_pos, if new_king_col = 6 then 7 else 0) in
   let new_rook_pos =
@@ -218,11 +217,6 @@ let castle_move st king new_pos =
   in
   let move_king_st = State.update_board st king new_pos in
   State.update_board move_king_st rook new_rook_pos
-(* if king_col = 4 && new_king_col = 6 then let move_king_st =
-   State.update_board st king new_pos in State.update_board move_king_st
-   rook new_rook_pos else if king_col = 4 && new_king_col = 2 then let
-   move_king_st = State.update_board st king new_pos in
-   State.update_board move_king_st rook new_rook_pos else st *)
 
 let rec scan_for_enemy st scalable loc dir clr piece_type_lst =
   let loc_to_check = (fst loc + fst dir, snd loc + snd dir) in
@@ -425,13 +419,13 @@ let move_piece st p new_pos =
     if is_castle then castle_move st p new_pos
     else State.update_board castle_st p new_pos
   in
-  (* let move_st = State.update_board castle_st p new_pos in *)
-  (* let check_st = State.update_check move_st (is_check move_st) in *)
   let switch_turn_st = switch_turn move_st in
+  let check_st =
+    State.update_check switch_turn_st (is_check switch_turn_st)
+  in
   let clr = if State.player_turn st = 1 then "black" else "white" in
   let checkmate_st =
-    State.update_checkmate switch_turn_st
-      (is_checkmate switch_turn_st clr)
+    State.update_checkmate check_st (is_checkmate check_st clr)
   in
   let stalemate_st =
     State.update_stalemate checkmate_st (is_stalemate checkmate_st clr)
