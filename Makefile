@@ -1,4 +1,4 @@
-MODULES=frame state piece gui logic printer authors
+MODULES= state piece gui logic printer authors
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
