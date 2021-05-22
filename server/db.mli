@@ -4,7 +4,6 @@ type room = {
 }
 [@@deriving yojson]
 
-
 (* [view_all_rooms ()] is Lwt.t promise containing all the rooms *)
 val view_all_rooms : unit -> room list Lwt.t
 
