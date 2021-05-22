@@ -3,9 +3,9 @@ let rec on_menu_click pos =
   State.init_state ()
 
 let main () =
-  let create_game = Clickables.Text ((20, 150), 500, "Create Game") in
-  let join_game = Clickables.Text ((20, 100), 100, "Join Game") in
-  let local_game = Clickables.Text ((20, 50), 100, "Local Game") in
+  let create_game = Clickables.Text ((10, 200), 50, "Create Game") in
+  let join_game = Clickables.Text ((10, 100), 50, "Join Game") in
+  let local_game = Clickables.Text ((10, 0), 50, "Local Game") in
   Gui.init ();
   Gui.draw_start_screen () [ create_game; join_game; local_game ];
   while true do

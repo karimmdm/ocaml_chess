@@ -6,7 +6,16 @@ open Graphics
 let draw_clickable_text color (x, y) font_size text =
   moveto x y;
   set_color color;
-  set_text_size font_size;
+  set_font
+    ("-*-fixed-medium-r-semicondensed--" ^ string_of_int font_size
+   ^ "-*-*-*-*-*-iso8859-1");
+  let str =
+    match text_size text with
+    | a, b ->
+        "text size of " ^ text ^ string_of_int a ^ ", "
+        ^ string_of_int b
+  in
+  print_endline str;
   draw_string text
 
 let draw_start_screen () clickable_lst =
