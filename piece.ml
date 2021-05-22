@@ -52,7 +52,7 @@ let base_moves piece_type =
     let dir_lst =
       match directions_json with
       | `List a -> extract_directions a
-      | _ -> failwith "Invalid Argument Error"
+      | _ -> failwith "Invalid base_moves.json (directions)"
     in
     { directions = dir_lst; scalable = scalable_bool }
   with err -> raise err
