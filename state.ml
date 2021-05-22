@@ -95,22 +95,6 @@ let init_state () =
   state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f"
     None
 
-(* state_from_fen "r3k2r/pppppppp/8/8/8/8/PPP2PPP/R3K2R:1,f,f,f" None *)
-(* state_from_fen
-   "1p1k4/pPpPpPPP/P1P1P1P1/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f" None *)
-
-(* state_from_fen
-   "rnbqkbnr/pppp2pp/8/4pp2/3PP3/BP6/P1P2PPP/RN1QKBNR:1,f,f,f" None *)
-(* state_from_fen "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr:1,f,f,f"
-   None *)
-
-(* state_from_fen "pppppppp/rnbqkbnr/8/8/8/8/RNBQKBNR/PPPPPPPP:1,f,f,f" *)
-(* state_from_fen "rnbqkbnr/RNBQKBNR/8/8/8/8/PPPPPPPP/pppppppp:1,f,f,f" *)
-(* state_from_fen
-   "1n11kb1r/1NBQKBNR/r7/2qRn2/4b3/8/PPPPPPPP/pppppppp:1,f,f,f" *)
-(* state_from_fen
-   "1n11kb1r/1BQKNBNR/r7/2qRn3/4b2P/8/PPPPPPP1/pppppppp:1,f,f,f" None *)
-
 let board st = st.board
 
 (* [gen_board st pos] returns a new board that reflects

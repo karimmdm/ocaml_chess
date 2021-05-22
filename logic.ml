@@ -47,13 +47,45 @@ let rec march st scalable clr direction loc acc =
       in
       if enemy_capture then loc_to_check :: acc else acc
 
-let check_pawn_capture st clr loc dir =
-  let board = State.board st in
+let check_pawn_capture board clr loc dir =
   let check_loc = (fst loc + fst dir, snd loc + snd dir) in
   let p = get_elt board check_loc in
   match p with
   | Some p -> if String.equal clr (Piece.color p) then false else true
   | None -> false
+
+(* Check if the direction involves moving to the right or left
+  column. If so, then this location direciton is a piece
+  capture. *)
+let pawn_locs_capture_helper board clr loc dir check_loc =
+  if check_pawn_capture board clr loc dir then true else false
+
+let pawn_locs_move_two_helper st loc dir check_loc = 
+  let board = State.board st in
+  if check_bounds board check_loc then
+    if fst dir == 2 || fst dir == -2 then
+      let check_loc_front = (fst check_loc - (fst dir / 2), snd check_loc) in
+      if
+        fst dir == -2
+        && fst loc == 6
+        && check_empty board check_loc
+        && check_empty board check_loc_front
+        || fst dir == 2
+           && fst loc == 1
+           && check_empty board check_loc
+           && check_empty board check_loc_front
+      then true 
+      else false
+    else false
+  else false
+
+let pawn_locs_move_one_helper st loc dir check_loc =
+  let board = State.board st in
+  (if
+    (fst dir == 1 && check_empty board check_loc)
+    || (fst dir == -1 && check_empty board check_loc)
+   then true
+   else false)
 
 let pawn_locs st p loc =
   let board = State.board st in
@@ -63,37 +95,22 @@ let pawn_locs st p loc =
     match lst with
     | [] -> acc
     | h :: t ->
-        (* Check if the direction involves moving to the right or left
-           column. If so, then this location direciton is a piece
-           capture. *)
         let check_loc = (fst h + fst loc, snd h + snd loc) in
         if check_bounds board check_loc then
-          if snd h == 1 || snd h == -1 then
-            pawn_locs_helper t scalable
-              (if check_pawn_capture st clr loc h then check_loc :: acc
-              else acc)
-          else if fst h == 2 || fst h == -2 then
-            let check_loc_prev =
-              (fst check_loc - (fst h / 2), snd check_loc)
-            in
-            if
-              fst h == -2
-              && fst loc == 6
-              && check_empty board check_loc
-              && check_empty board check_loc_prev
-              || fst h == 2
-                 && fst loc == 1
-                 && check_empty board check_loc
-                 && check_empty board check_loc_prev
-            then pawn_locs_helper t scalable (check_loc :: acc)
-            else pawn_locs_helper t scalable acc
-          else
-            pawn_locs_helper t scalable
-              (if
-               (fst h == 1 && check_empty board check_loc)
-               || (fst h == -1 && check_empty board check_loc)
-              then check_loc :: acc
-              else acc)
+          if (snd h == 1 || snd h == -1) then
+              pawn_locs_helper t scalable (
+                if (pawn_locs_capture_helper board clr loc h check_loc) 
+                  then check_loc :: acc else acc)
+          else if (fst h == 2 || fst h == -2) then
+            pawn_locs_helper t scalable (
+              if pawn_locs_move_two_helper st loc h check_loc then check_loc :: acc
+              else acc
+              )
+          else if (fst h == 1 || fst h == -1) then
+            pawn_locs_helper t scalable (if
+              pawn_locs_move_one_helper st loc h check_loc then 
+              (check_loc :: acc) else acc)
+          else pawn_locs_helper t scalable acc
         else pawn_locs_helper t scalable acc
   in
   (* Reverse directions if the player is using the black pieces. *)
@@ -101,13 +118,6 @@ let pawn_locs st p loc =
     (if String.equal clr "white" then base_moves.directions
     else List.map (fun (row, col) -> (-row, col)) base_moves.directions)
     base_moves.scalable []
-
-(* [is_pinned st clr pos dir] checks a given piece to see if it's pinned
-   down. If it's pinned down, then we restrict its valid moves *)
-let is_pinned st clr pos dir = failwith "TODO: optional optimization"
-(* let dir_to_check = (-fst dir, -snd dir) in let march_locs = march st
-   true clr dir pos [] in let rec check_marc_locs lst = match lst with |
-   [] -> false | h::t -> false *)
 
 (* [find_pieces clr grid] returns the King in that grid that matches
    that [clr]. *)
