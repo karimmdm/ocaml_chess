@@ -21,7 +21,7 @@ type rule = {
 }
 
 (* [base_moves p] is the basic directinal rule that the piece [p] abides
-   by*)
+   by *)
 val base_moves : piece -> rule
 
 (* The abstract type of values representing a chess piece. *)
@@ -41,12 +41,12 @@ val color : t -> string
 (* [icon p] will return the image file path for the piece [p]. *)
 val icon : t -> string
 
-(* [position p] will return a tuple containing piece [p]'s
-   position. *)
+(* [position p] will return a tuple containing piece [p]'s position. *)
 val position : t -> int * int
 
-(* [update_position piece new_pos] is the same [piece] with new position [new_pos] *)
-val update_position : t -> int*int -> t
+(* [update_position piece new_pos] is the same [piece] with new position
+   [new_pos] *)
+val update_position : t -> int * int -> t
 
 (* [to_string p] will return a string representation of a piece. Black
    pieces are represented in lowercase while white pieces are in
