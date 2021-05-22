@@ -3,3 +3,4 @@ PKG ounit2
 PKG graphics
 PKG camlimages.png
 PKG camlimages.graphics
+PKG yojson

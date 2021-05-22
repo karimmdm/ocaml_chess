@@ -1,6 +1,7 @@
 #require "ounit2";;
 #require "graphics";;
 #require "camlimages";;
+#require "yojson";;
 #directory "_build";;
 #load "state.cmo";;
 #load "gui.cmo";;
