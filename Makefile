@@ -19,9 +19,6 @@ test:
 play:
 	$(OCAMLBUILD) -tag 'debug' $(MAIN) && OCAMLRUNPARAM=b ./$(MAIN)
 
-frame: 
-	$(OCAMLBUILD) -tag 'debug' $(FRAME) && OCAMLRUNPARAM=b ./$(FRAME)
-
 check:
 	@bash check.sh
 	
