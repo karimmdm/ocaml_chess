@@ -1,4 +1,4 @@
-MODULES=frame state piece gui logic printer authors
+MODULES= state piece gui logic printer authors
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
@@ -18,9 +18,6 @@ test:
 
 play:
 	$(OCAMLBUILD) -tag 'debug' $(MAIN) && OCAMLRUNPARAM=b ./$(MAIN)
-
-frame: 
-	$(OCAMLBUILD) -tag 'debug' $(FRAME) && OCAMLRUNPARAM=b ./$(FRAME)
 
 check:
 	@bash check.sh
