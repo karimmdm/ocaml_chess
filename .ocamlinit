@@ -6,3 +6,4 @@
 #load "state.cmo";;
 #load "gui.cmo";;
 #load "piece.cmo";;
+
