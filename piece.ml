@@ -20,20 +20,45 @@ type t = {
   position : int * int;
 }
 
-let rec convert_json_directions lst acc =
-  match lst with
-  | [] -> acc
-  | h::t -> 
-    let h = h |> to_list in
-    convert_json_directions t ((List.hd h, List.hd (List.tl h))::acc)
+let extract_directions json piece =
+  [ json ] |> filter_member piece |> flatten
+  |> filter_member "directions"
+  |> filter_string
+
+let piece_type_to_string piece_type =
+  match piece_type with
+  | Pawn -> "Pawn"
+  | Bishop -> "Bishop"
+  | Knight -> "Knight"
+  | Rook -> "Rook"
+  | Queen -> "Queen"
+  | King -> "King"
+
+let extract_directions lst =
+  List.map
+    (fun pair_lst ->
+      match pair_lst with
+      | `List [ `Int a; `Int b ] -> (a, b)
+      | _ -> failwith "Invalid base_moves.json (directions)")
+    lst
 
 let base_moves piece_type =
-  let j = Yojson.Basic.from_file "base_moves.json" in
-  let piece_str = Printer.print_piece_type piece_type in
-  let piece_json = j |> to_assoc |> List.assoc piece_str in
-  let directions = convert_json_directions (piece_json |> to_assoc |> List.assoc "directions" |> to_list) [] in
-  let scalable = piece_json |> to_assoc |> List.assoc "scalable" |> to_string |> bool_of_string in
-  { directions = directions; scalable = scalable }  
+  try
+    let json = Yojson.Basic.from_file "base_moves.json" in
+    let piece_json = json |> member (piece_type_to_string piece_type) in
+    let scalable_bool =
+      piece_json |> member "scalable" |> function
+      | `Bool b -> b
+      | _ -> failwith "Invalid base_move.json (scalable)"
+    in
+    let directions_json = piece_json |> member "directions" in
+    let dir_lst =
+      match directions_json with
+      | `List a -> extract_directions a
+      | _ -> failwith "Invalid Argument Error"
+    in
+    { directions = dir_lst; scalable = scalable_bool }
+  with err -> raise err
 
 let piece_type p = p.piece_type
 
@@ -45,7 +70,7 @@ let position p = p.position
 
 let update_position p new_pos = { p with position = new_pos }
 
-let to_string p =
+let to_letter p =
   let letter =
     match p.piece_type with
     | Pawn -> "P"

@@ -33,9 +33,9 @@ let rec lst_to_string (lst : Piece.t option list) (none_count : int) :
   match lst with
   | [] -> if none_count = 0 then "" else string_of_int none_count
   | Some p :: t ->
-      if none_count = 0 then Piece.to_string p ^ lst_to_string t 0
+      if none_count = 0 then Piece.to_letter p ^ lst_to_string t 0
       else
-        string_of_int none_count ^ Piece.to_string p ^ lst_to_string t 0
+        string_of_int none_count ^ Piece.to_letter p ^ lst_to_string t 0
   | None :: t -> lst_to_string t (none_count + 1)
 
 let fen_to_board (str : string) =
