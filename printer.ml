@@ -1,15 +1,20 @@
 open Piece
 open State
 
+(* [print_piece_type_from_piece p] is the string of the type of piece
+   archetype [p] *)
+let piece_type_to_string (piece_type : Piece.piece) : string =
+  Piece.piece_type_to_string piece_type
+
 (* [print_piece_type p] is the string of the type of piece of [p] *)
 let print_piece_type (piece : Piece.t) : string =
   match piece_type piece with
-  | Pawn -> "P"
-  | Bishop -> "B"
-  | Knight -> "N"
-  | Rook -> "R"
-  | Queen -> "Q"
-  | King -> "K"
+  | Pawn -> "Pawn"
+  | Bishop -> "Bishop"
+  | Knight -> "Knight"
+  | Rook -> "Rook"
+  | Queen -> "Queen"
+  | King -> "King"
 
 (* [print_piece_color p] is the string of the color of piece of [p] *)
 let print_piece_color (piece : Piece.t) : string =

@@ -13,6 +13,9 @@ type piece =
   | Queen
   | King
 
+(* [piece_type_to_string piece_type] is the string representation of [piece_type] *)
+val piece_type_to_string : piece -> string
+
 (* The rule type specifying the general direction a piece can move and
    if that piece can move multiple squares in that direction. *)
 type rule = {
@@ -20,12 +23,12 @@ type rule = {
   scalable : bool;
 }
 
-(* [base_moves p] is the basic directinal rule that the piece [p] abides
-   by*)
-val base_moves : piece -> rule
-
 (* The abstract type of values representing a chess piece. *)
 type t
+
+(* [base_moves p] is the basic directinal rule that the piece [p] abides
+   by *)
+val base_moves : piece -> rule
 
 (* [make c position] is a piece with piece variant based on char [c] and
    positon on a 2d array [position] requires: [positon] to be (i, j)
@@ -41,14 +44,14 @@ val color : t -> string
 (* [icon p] will return the image file path for the piece [p]. *)
 val icon : t -> string
 
-(* [position p] will return a tuple containing piece [p]'s
-   position. *)
+(* [position p] will return a tuple containing piece [p]'s position. *)
 val position : t -> int * int
 
-(* [update_position piece new_pos] is the same [piece] with new position [new_pos] *)
-val update_position : t -> int*int -> t
+(* [update_position piece new_pos] is the same [piece] with new position
+   [new_pos] *)
+val update_position : t -> int * int -> t
 
 (* [to_string p] will return a string representation of a piece. Black
    pieces are represented in lowercase while white pieces are in
    uppercase*)
-val to_string : t -> string
+val to_letter : t -> string
