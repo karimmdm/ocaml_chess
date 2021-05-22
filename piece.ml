@@ -20,11 +20,6 @@ type t = {
   position : int * int;
 }
 
-let extract_directions json piece =
-  [ json ] |> filter_member piece |> flatten
-  |> filter_member "directions"
-  |> filter_string
-
 let piece_type_to_string piece_type =
   match piece_type with
   | Pawn -> "Pawn"
@@ -34,6 +29,8 @@ let piece_type_to_string piece_type =
   | Queen -> "Queen"
   | King -> "King"
 
+(* [extract_directions lst] returns the the json list [lst] into a
+   [rule] compatible directions list *)
 let extract_directions lst =
   List.map
     (fun pair_lst ->
