@@ -14,6 +14,8 @@ let get_all_rooms () =
       let json = [%to_yojson: Db.room list] rooms in
       Lwt.return (Response.of_json json))
 
+let get_by_room_id () = failwith ""
+
 (* [post_room ()] is POST /rooms *)
 let post_room () =
   App.post "/rooms" (fun request ->
@@ -25,6 +27,8 @@ let post_room () =
       in
       let* () = Db.create_room input_room in
       Lwt.return (Response.make ~status:`OK ()))
+
+let update_room () = failwith ""
 
 let () =
   App.empty |> welcome () |> get_all_rooms () |> post_room ()
