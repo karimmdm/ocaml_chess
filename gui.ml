@@ -1,12 +1,38 @@
-open Piece
 open Graphics
-open Logic
-open Images
-open Graphic_image
-open Printer
+
+(* [draw_clickable_text x y] draws a rectangle button of color [color]
+   of size [w] * [h] at coordinate location ([x], [y]) with text [text]
+   at the center*)
+let draw_clickable_text color (x, y) font_size text =
+  moveto x y;
+  set_color color;
+  set_font
+    ("-*-fixed-medium-r-semicondensed--" ^ string_of_int font_size
+   ^ "-*-*-*-*-*-iso8859-1");
+  let str =
+    match text_size text with
+    | a, b ->
+        "text size of " ^ text ^ string_of_int a ^ ", "
+        ^ string_of_int b
+  in
+  print_endline str;
+  draw_string text
+
+let draw_start_screen () clickable_lst =
+  let rec helper = function
+    | h :: t ->
+        draw_clickable_text black
+          (Interactive.get_clickable_pos h)
+          (Interactive.get_clickable_font_size h)
+          (Interactive.get_clickable_text h);
+        helper t
+    | [] -> ()
+  in
+
+  helper clickable_lst
 
 let init () =
-  open_graph " 800x800";
+  open_graph " 800x840";
   set_window_title "Chess";
   ()
 
@@ -36,10 +62,8 @@ let rec gen_grid x y my_player =
      gen_grid x (y + 100))
       my_player
 
-(* [open_img path x y] is the image found at [path] with resolution
-   ([x], [y])*)
-let open_img path x y =
-  let img = Png.load_as_rgb24 path [ Load_Resolution (x, y) ] in
+let open_img path w h =
+  let img = Png.load_as_rgb24 path [ Load_Resolution (w, h) ] in
   let img' = Graphic_image.of_image img in
   let to_transp ele = if ele = white then transp else ele in
   let color_arr =
@@ -59,7 +83,10 @@ let images_dict st =
   List.iter add_to_board (State.gen_falttened_board board);
   tbl
 
-let coordinate_pair status = (status.mouse_x / 100, status.mouse_y / 100)
+let coordinate_pair_bound status =
+  (status.mouse_x / 100, status.mouse_y / 100)
+
+let coordinate_pair status = (status.mouse_x, status.mouse_y)
 
 let string_of_coordinate_pair tuple =
   string_of_int (fst tuple) ^ " " ^ string_of_int (snd tuple)
@@ -112,7 +139,7 @@ let highlight_valid_locations st p_op my_player =
       let y = if my_player = 1 then 7 - fst pos else fst pos in
       draw_border blue (x * 100, y * 100)
 
-let draw st my_player img_tbl =
+let draw_game st my_player img_tbl =
   let board = State.board st in
   let boardlst = State.gen_falttened_board board in
   clear_graph ();
@@ -124,16 +151,20 @@ let draw st my_player img_tbl =
         match h with
         | None -> overlay_piece_img my_player t
         | Some piece ->
-            let pos = position piece in
+            let pos = Piece.position piece in
             let y = if my_player = 1 then 7 - fst pos else fst pos in
             let x = snd pos in
             let img = Hashtbl.find img_tbl (Piece.icon piece) in
-            Graphics.draw_image img ((x * 100) + 20) ((y * 100) + 20);
+            draw_image img ((x * 100) + 20) ((y * 100) + 20);
             overlay_piece_img my_player t)
   in
   overlay_piece_img my_player boardlst;
   highlight_valid_locations st (State.piece_clicked st) my_player
 
-let rec listen (f : int * int -> State.t) =
+let rec listen bound (f : int * int -> State.t) =
   let st = wait_next_event [ Button_down ] in
-  if st.button then st |> coordinate_pair |> f else listen f
+  if st.button then
+    st
+    |> (if bound then coordinate_pair_bound else coordinate_pair)
+    |> f
+  else listen bound f

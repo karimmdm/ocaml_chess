@@ -1,10 +1,9 @@
-MODULES= state piece gui logic printer authors
+MODULES= game interactive state piece gui logic printer authors
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
 TEST=test.byte
 MAIN=main.byte
-FRAME=frame.byte
 OCAMLBUILD=ocamlbuild -use-ocamlfind
 
 default: build
