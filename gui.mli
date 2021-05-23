@@ -2,7 +2,7 @@
    drawing graphics from state. *)
 
 (* [draw_start_screen ()] draws the start screen*)
-val draw_start_screen : unit -> Clickables.clickable list -> unit
+val draw_start_screen : unit -> Interactive.clickable list -> unit
 
 (* [draw st my_player img_tabl] will draw the chess board according to the state
    of the board [state] and based on which player's point of view it is.
@@ -11,6 +11,10 @@ val draw_game : State.t -> int -> (string, Graphics.image)Hashtbl.t -> unit
 
 (* [init ()] opens a new window and sets up the gui with size 800x800*)
 val init : unit -> unit
+
+(* [open_img path w h] is the image found at [path] with resolution
+   ([w], [h])*)
+val open_img : string -> float -> float -> Graphics.image
 
 (* [images_dict st] is the dictionary of images of the chess pieces currently 
 in the baord of state [st]*)

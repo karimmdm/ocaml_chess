@@ -22,16 +22,17 @@ let draw_start_screen () clickable_lst =
   let rec helper = function
     | h :: t ->
         draw_clickable_text black
-          (Clickables.get_clickable_pos h)
-          (Clickables.get_clickable_font_size h)
-          (Clickables.get_clickable_text h);
+          (Interactive.get_clickable_pos h)
+          (Interactive.get_clickable_font_size h)
+          (Interactive.get_clickable_text h);
         helper t
     | [] -> ()
   in
+
   helper clickable_lst
 
 let init () =
-  open_graph " 800x800";
+  open_graph " 800x840";
   set_window_title "Chess";
   ()
 
@@ -61,10 +62,8 @@ let rec gen_grid x y my_player =
      gen_grid x (y + 100))
       my_player
 
-(* [open_img path x y] is the image found at [path] with resolution
-   ([x], [y])*)
-let open_img path x y =
-  let img = Png.load_as_rgb24 path [ Load_Resolution (x, y) ] in
+let open_img path w h =
+  let img = Png.load_as_rgb24 path [ Load_Resolution (w, h) ] in
   let img' = Graphic_image.of_image img in
   let to_transp ele = if ele = white then transp else ele in
   let color_arr =

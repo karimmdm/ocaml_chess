@@ -53,7 +53,6 @@ let play_game () =
   try
     let my_player = 1 in
     let st = State.init_state () in
-    Gui.init ();
     let img_dict = Gui.images_dict st in
     Gui.draw_game st my_player img_dict;
     let current_state = ref st in
