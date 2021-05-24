@@ -15,4 +15,4 @@ match read_line () with
       body |> Cohttp_lwt.Body.to_string >|= fun body ->
       Printf.printf "Body of length: %d\n" (String.length body);
       body in
-    let bd = Lwt_main.run body in print_endline ("Received body\n " ^ bd)
+    let run_body = Lwt_main.run body in print_endline ("Received body\n" ^ run_body)
