@@ -47,40 +47,30 @@ let fen_to_board (str : string) =
   in
   board_helper row_lst 0
 
-let get_status_flags (str : string) =
-  let flags_lst = String.split_on_char ',' str in
-  match flags_lst with
-  | [] -> failwith "flag statuses needed"
-  | [ pt; c; cm; sm ] -> ((pt, c), (cm, sm))
-  | h :: t -> failwith "flag statuses were not appropriately entered"
+let castle_to_list s =
+  s |> String.split_on_char ';' |> List.map bool_of_string
 
 let state_from_fen fen st_option =
   let fen_split_lst = String.split_on_char ':' fen in
   let board_str = List.hd fen_split_lst in
   let new_board = fen_to_board board_str in
   match st_option with
-  | None ->
+  | None -> (
       let flag_status_str = List.hd (List.tl fen_split_lst) in
-      let flag_statuses = get_status_flags flag_status_str in
-      (* player_turn, check*)
-      let flag_pt_c = fst flag_statuses in
-      (*checkmate, stalemate*)
-      let flag_cm_sm = snd flag_statuses in
-      let bool_of_tf = function
-        | "t" -> true
-        | "f" -> false
-        | _ -> failwith "not t or f"
-      in
-      {
-        board = new_board;
-        player_turn = int_of_string (fst flag_pt_c);
-        check = bool_of_tf (snd flag_pt_c);
-        checkmate = bool_of_tf (fst flag_cm_sm);
-        stalemate = bool_of_tf (snd flag_cm_sm);
-        castle_kingside = [ true; true ];
-        castle_queenside = [ true; true ];
-        piece_clicked = None;
-      }
+      match String.split_on_char ',' flag_status_str with
+      | [] -> failwith "flag statuses needed"
+      | [ pt; c; cm; sm; ck; cq ] ->
+          {
+            board = new_board;
+            player_turn = int_of_string pt;
+            check = bool_of_string c;
+            checkmate = bool_of_string cm;
+            stalemate = bool_of_string sm;
+            castle_kingside = castle_to_list ck;
+            castle_queenside = castle_to_list cq;
+            piece_clicked = None;
+          }
+      | _ -> failwith "flag statuses were not appropriately entered")
   | Some st -> { st with board = new_board }
 
 let rec board_to_fen board =
@@ -89,10 +79,25 @@ let rec board_to_fen board =
   | [ h ] -> lst_to_string h 0
   | h :: t -> lst_to_string h 0 ^ "/" ^ board_to_fen t
 
-let to_fen t = board_to_fen t.board
+let to_fen t =
+  board_to_fen t.board ^ ":"
+  ^ string_of_int t.player_turn
+  ^ "," ^ string_of_bool t.check ^ ","
+  ^ string_of_bool t.checkmate
+  ^ ","
+  ^ string_of_bool t.stalemate
+  ^ ","
+  ^ string_of_bool (List.nth t.castle_kingside 0)
+  ^ ";"
+  ^ string_of_bool (List.nth t.castle_kingside 1)
+  ^ ","
+  ^ string_of_bool (List.nth t.castle_queenside 0)
+  ^ ";"
+  ^ string_of_bool (List.nth t.castle_queenside 1)
 
 let init_state () =
-  state_from_fen "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f"
+  state_from_fen
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
     None
 
 let board st = st.board

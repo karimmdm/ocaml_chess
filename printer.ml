@@ -9,7 +9,7 @@ let piece_type_to_string (piece_type : Piece.piece) : string =
 (* [print_piece_type p] is the string of the type of piece of [p] *)
 let print_piece_type (piece : Piece.t) : string =
   match piece_type piece with
-  | Pawn -> "Pawn"
+  | Pawn -> "P"
   | Bishop -> "Bishop"
   | Knight -> "Knight"
   | Rook -> "Rook"
