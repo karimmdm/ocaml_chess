@@ -3,8 +3,10 @@
 #require "camlimages";;
 #require "yojson";;
 #require "ANSITerminal";;
+#require "opium";;
 #directory "_build";;
 #load "state.cmo";;
 #load "gui.cmo";;
 #load "piece.cmo";;
-
+#load "client.cmo";;
+#load "interactive.cmo";;

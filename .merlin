@@ -4,4 +4,8 @@ PKG graphics
 PKG camlimages.png
 PKG camlimages.graphics
 PKG yojson
+PKG opium
+PKG cohttp-lwt
+PKG cohttp-lwt-unix
+PKG mutex
 PKG ANSITerminal

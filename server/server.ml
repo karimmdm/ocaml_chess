@@ -14,6 +14,7 @@ let get_all_rooms () =
       let json = [%to_yojson: Db.room list] rooms in
       Lwt.return (Response.of_json json))
 
+(* [get_room_id () is GET /room_id] *)
 let get_by_room_id () = failwith ""
 
 (* [post_room ()] is POST /rooms *)

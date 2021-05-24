@@ -7,7 +7,8 @@ let create_game =
 
 let join_game =
   Interactive.make_text (10, 100) 50 216 "Join Game" (fun () ->
-      print_endline "Joining a game")
+      print_endline "Joining a game";
+      Client.join_game ())
 
 let local_game =
   Interactive.make_text (10, 0) 50 240 "Local Game" (fun () ->

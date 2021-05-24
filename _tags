@@ -1,1 +1,1 @@
-true: package(ounit2),package(graphics), package(camlimages.png), package(camlimages.jpeg), package(camlimages.graphics), package(yojson), package(ANSITerminal)
+true: package(ounit2),package(graphics), package(camlimages.png), package(camlimages.jpeg), package(camlimages.graphics), package(yojson), package(ANSITerminal), package(opium), package(cohttp-lwt), package(cohttp-lwt-unix)
