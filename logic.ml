@@ -54,17 +54,18 @@ let check_pawn_capture board clr loc dir =
   | Some p -> if String.equal clr (Piece.color p) then false else true
   | None -> false
 
-(* Check if the direction involves moving to the right or left
-  column. If so, then this location direciton is a piece
-  capture. *)
+(* Check if the direction involves moving to the right or left column.
+   If so, then this location direciton is a piece capture. *)
 let pawn_locs_capture_helper board clr loc dir check_loc =
   if check_pawn_capture board clr loc dir then true else false
 
-let pawn_locs_move_two_helper st loc dir check_loc = 
+let pawn_locs_move_two_helper st loc dir check_loc =
   let board = State.board st in
   if check_bounds board check_loc then
     if fst dir == 2 || fst dir == -2 then
-      let check_loc_front = (fst check_loc - (fst dir / 2), snd check_loc) in
+      let check_loc_front =
+        (fst check_loc - (fst dir / 2), snd check_loc)
+      in
       if
         fst dir == -2
         && fst loc == 6
@@ -74,18 +75,18 @@ let pawn_locs_move_two_helper st loc dir check_loc =
            && fst loc == 1
            && check_empty board check_loc
            && check_empty board check_loc_front
-      then true 
+      then true
       else false
     else false
   else false
 
 let pawn_locs_move_one_helper st loc dir check_loc =
   let board = State.board st in
-  (if
+  if
     (fst dir == 1 && check_empty board check_loc)
     || (fst dir == -1 && check_empty board check_loc)
-   then true
-   else false)
+  then true
+  else false
 
 let pawn_locs st p loc =
   let board = State.board st in
@@ -97,19 +98,21 @@ let pawn_locs st p loc =
     | h :: t ->
         let check_loc = (fst h + fst loc, snd h + snd loc) in
         if check_bounds board check_loc then
-          if (snd h == 1 || snd h == -1) then
-              pawn_locs_helper t scalable (
-                if (pawn_locs_capture_helper board clr loc h check_loc) 
-                  then check_loc :: acc else acc)
-          else if (fst h == 2 || fst h == -2) then
-            pawn_locs_helper t scalable (
-              if pawn_locs_move_two_helper st loc h check_loc then check_loc :: acc
-              else acc
-              )
-          else if (fst h == 1 || fst h == -1) then
-            pawn_locs_helper t scalable (if
-              pawn_locs_move_one_helper st loc h check_loc then 
-              (check_loc :: acc) else acc)
+          if snd h == 1 || snd h == -1 then
+            pawn_locs_helper t scalable
+              (if pawn_locs_capture_helper board clr loc h check_loc
+              then check_loc :: acc
+              else acc)
+          else if fst h == 2 || fst h == -2 then
+            pawn_locs_helper t scalable
+              (if pawn_locs_move_two_helper st loc h check_loc then
+               check_loc :: acc
+              else acc)
+          else if fst h == 1 || fst h == -1 then
+            pawn_locs_helper t scalable
+              (if pawn_locs_move_one_helper st loc h check_loc then
+               check_loc :: acc
+              else acc)
           else pawn_locs_helper t scalable acc
         else pawn_locs_helper t scalable acc
   in
@@ -145,8 +148,11 @@ let rec find_pieces clr piece_type grid acc =
 let check_kingside_castle st =
   let p_turn = State.player_turn st in
   let board = State.board st in
-  let castle_kingside_lst = State.castle_kingside st in
-  let castle_kingside = List.nth castle_kingside_lst (p_turn - 1) in
+  let castle_kingside_pair = State.castle_kingside st in
+  let castle_kingside =
+    if p_turn = 1 then fst castle_kingside_pair
+    else snd castle_kingside_pair
+  in
   let is_check = State.check st in
   let king_right_sq1 =
     get_elt board (if p_turn = 1 then (7, 5) else (0, 5))
@@ -164,8 +170,11 @@ let check_kingside_castle st =
 let check_queenside_castle st =
   let p_turn = State.player_turn st in
   let board = State.board st in
-  let castle_queenside_lst = State.castle_queenside st in
-  let castle_queenside = List.nth castle_queenside_lst (p_turn - 1) in
+  let castle_queenside_pair = State.castle_queenside st in
+  let castle_queenside =
+    if p_turn = 1 then fst castle_queenside_pair
+    else snd castle_queenside_pair
+  in
   let is_check = State.check st in
   let king_left_sq1 =
     get_elt board (if p_turn = 1 then (7, 3) else (0, 3))
@@ -185,12 +194,12 @@ let check_queenside_castle st =
    list of valid locations for the king if the king can castle kingside. *)
 let castle_kingside_move st locs =
   let p_turn = State.player_turn st in
-  let castle_kingside_lst = State.castle_kingside st in
+  let castle_kingside_pair = State.castle_kingside st in
   if p_turn = 1 then
-    if List.hd castle_kingside_lst && check_kingside_castle st then
+    if fst castle_kingside_pair && check_kingside_castle st then
       (7, 6) :: locs
     else locs
-  else if List.hd castle_kingside_lst && check_kingside_castle st then
+  else if fst castle_kingside_pair && check_kingside_castle st then
     (0, 6) :: locs
   else locs
 
@@ -200,12 +209,12 @@ let castle_kingside_move st locs =
    queenside. *)
 let castle_queenside_move st locs =
   let p_turn = State.player_turn st in
-  let castle_queenside_lst = State.castle_queenside st in
+  let castle_queenside_pair = State.castle_queenside st in
   if p_turn = 1 then
-    if List.hd castle_queenside_lst && check_queenside_castle st then
+    if fst castle_queenside_pair && check_queenside_castle st then
       (7, 2) :: locs
     else locs
-  else if List.hd castle_queenside_lst && check_queenside_castle st then
+  else if fst castle_queenside_pair && check_queenside_castle st then
     (0, 2) :: locs
   else locs
 

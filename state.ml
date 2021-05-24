@@ -6,8 +6,9 @@ type t = {
   check : bool;
   checkmate : bool;
   stalemate : bool;
-  castle_kingside : bool list;
-  castle_queenside : bool list;
+  (* castle_kingside : bool list; castle_queenside : bool list; *)
+  castle_kingside : bool * bool;
+  castle_queenside : bool * bool;
   piece_clicked : Piece.t option;
 }
 
@@ -47,8 +48,10 @@ let fen_to_board (str : string) =
   in
   board_helper row_lst 0
 
-let castle_to_list s =
-  s |> String.split_on_char ';' |> List.map bool_of_string
+let castle_to_pair s =
+  match String.split_on_char ';' s with
+  | [ c1; c2 ] -> (bool_of_string c1, bool_of_string c2)
+  | _ -> failwith "never reach here"
 
 let state_from_fen fen st_option =
   let fen_split_lst = String.split_on_char ':' fen in
@@ -66,8 +69,8 @@ let state_from_fen fen st_option =
             check = bool_of_string c;
             checkmate = bool_of_string cm;
             stalemate = bool_of_string sm;
-            castle_kingside = castle_to_list ck;
-            castle_queenside = castle_to_list cq;
+            castle_kingside = castle_to_pair ck;
+            castle_queenside = castle_to_pair cq;
             piece_clicked = None;
           }
       | _ -> failwith "flag statuses were not appropriately entered")
@@ -87,13 +90,13 @@ let to_fen t =
   ^ ","
   ^ string_of_bool t.stalemate
   ^ ","
-  ^ string_of_bool (List.nth t.castle_kingside 0)
+  ^ string_of_bool (fst t.castle_kingside)
   ^ ";"
-  ^ string_of_bool (List.nth t.castle_kingside 1)
+  ^ string_of_bool (snd t.castle_kingside)
   ^ ","
-  ^ string_of_bool (List.nth t.castle_queenside 0)
+  ^ string_of_bool (fst t.castle_queenside)
   ^ ";"
-  ^ string_of_bool (List.nth t.castle_queenside 1)
+  ^ string_of_bool (snd t.castle_queenside)
 
 let init_state () =
   state_from_fen
@@ -171,33 +174,27 @@ let update_castle_queenside st castle =
 
 let update_castle st p =
   let p_turn = st.player_turn in
-  let castle_kingside_lst = st.castle_kingside in
-  let castle_queenside_lst = st.castle_queenside in
   if Piece.piece_type p = King then
     if p_turn = 1 then
       update_castle_queenside
-        (update_castle_kingside st
-           [ false; List.hd (List.rev castle_kingside_lst) ])
-        [ false; List.hd (List.rev castle_queenside_lst) ]
+        (update_castle_kingside st (false, snd st.castle_kingside))
+        (false, snd st.castle_queenside)
     else
       update_castle_queenside
-        (update_castle_kingside st
-           [ List.hd castle_kingside_lst; false ])
-        [ List.hd castle_queenside_lst; false ]
+        (update_castle_kingside st (fst st.castle_kingside, false))
+        (fst st.castle_queenside, false)
   else if Piece.piece_type p = Rook then
     let rook_pos = Piece.position p in
     let rook_col = snd rook_pos in
     if p_turn = 1 then
       if rook_col = 0 then
-        update_castle_queenside st
-          [ false; List.hd (List.rev castle_queenside_lst) ]
+        update_castle_queenside st (false, snd st.castle_kingside)
       else if rook_col = 7 then
-        update_castle_kingside st
-          [ false; List.hd (List.rev castle_kingside_lst) ]
+        update_castle_kingside st (false, snd st.castle_kingside)
       else st
     else if rook_col = 0 then
-      update_castle_queenside st [ List.hd castle_queenside_lst; false ]
+      update_castle_queenside st (fst st.castle_queenside, false)
     else if rook_col = 7 then
-      update_castle_kingside st [ List.hd castle_queenside_lst; false ]
+      update_castle_kingside st (fst st.castle_queenside, false)
     else st
   else st

@@ -43,3 +43,15 @@ let print_row (lst : Piece.t option list) : string =
 let print_board (state : State.t) : string =
   let board = board state in
   "\n" ^ String.concat "\n" (List.map print_row board)
+
+let print_rule (rule : Piece.rule) : string =
+  List.fold_right
+    (fun x acc ->
+      "["
+      ^ string_of_int (fst x)
+      ^ ","
+      ^ string_of_int (snd x)
+      ^ "]" ^ acc)
+    rule.directions ""
+  ^ " "
+  ^ string_of_bool rule.scalable

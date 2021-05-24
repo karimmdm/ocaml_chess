@@ -4,19 +4,35 @@ open State
 open Printer
 open Gui
 
-(********************************************************************
-   Here are some helper functions for your testing. 
- ********************************************************************)
-let init_state_test name expected =
-  name >:: fun _ -> assert_equal expected (State.board (init_state ()))
+(*TEST PLAN*)
+(* We decided to test changes in the GUI manually because we were able
+   to visually ensure that the GUI behaved as expected. We tested by
+   checking if the GUI board was being made properly with each of the
+   pairs and that it correctly updated with each players move. We also
+   tested the functionality of the server manually through Postman. We
+   made sure the json file was updating properly with each change. We
+   decided this was the best method of testing to handle all the
+   requests in the backend. On the other hand, we decided to test the
+   piece, state, and logic modules by OUnit because they were not as
+   visible from the GUI and to make sure all aspects were entirely
+   accounted for.BLACK BOX???????????*)
 
-let piece_test
+let piece_base_moves_test
+    (name : string)
+    (expected : string)
+    (p : Piece.piece) =
+  name >:: fun _ ->
+  assert_equal expected
+    (p |> Piece.base_moves |> Printer.print_rule)
+    ~printer:(fun x -> x)
+
+let piece_to_letter_test
     (name : string)
     (expected : string)
     (c : char)
-    (posn : int * int) =
+    (pos : int * int) =
   name >:: fun _ ->
-  let p = make c posn in
+  let p = make c pos in
   assert_equal expected (Piece.to_letter p) ~printer:(fun x -> x)
 
 let state_test (name : string) (expected : string) (state : State.t) =
@@ -27,6 +43,22 @@ let state_test (name : string) (expected : string) (state : State.t) =
 let to_fen_test (name : string) (expected : string) (state : State.t) =
   name >:: fun _ ->
   assert_equal expected (State.to_fen state) ~printer:(fun x -> x)
+
+let state_kingside_castle_test = failwith ""
+
+let state_queenside_castle_test = failwith ""
+
+let logic_locations_test = failwith ""
+
+let logic_valid_move_test = failwith ""
+
+let logic_is_check_test = failwith ""
+
+let logic_is_checkmate_test = failwith ""
+
+let logic_is_stalemate_test = failwith ""
+
+let logic_move_piece_test = failwith ""
 
 let empty_board_string =
   "\n\
@@ -66,9 +98,26 @@ let starting_string_e4 =
   ********************************************************************)
 
 let piece_tests =
-  [ (* piece_test "test black pawn in 0,0 should be BP (0,0)" "BP" 'p'
-       (0, 0); piece_test "test white king in 7,3 should be WK (7,3)"
-       "WK" 'K' (7, 3); *) ]
+  [
+    piece_base_moves_test "Base moves of pawn"
+      "[-1,0][-2,0][-1,1][-1,-1] false" Pawn;
+    piece_base_moves_test "Base moves of knight"
+      "[-2,-1][-2,1][2,-1][2,1][-1,-2][-1,2][1,-2][1,2] false" Knight;
+    piece_base_moves_test "Base moves of bishop"
+      "[-1,-1][-1,1][1,-1][1,1] true" Bishop;
+    piece_base_moves_test "Base moves of rook"
+      "[-1,0][1,0][0,1][0,-1] true" Rook;
+    piece_base_moves_test "Base moves of queen"
+      "[-1,-1][-1,1][1,-1][1,1][1,0][-1,0][0,1][0,-1] true" Queen;
+    piece_base_moves_test "Base moves of king"
+      "[-1,-1][-1,0][-1,1][0,-1][0,1][1,-1][1,0][1,1] false" King;
+    piece_to_letter_test "Letter for white pawn" "P" 'P' (2, 4);
+    piece_to_letter_test "Letter for white knight" "N" 'N' (2, 4);
+    piece_to_letter_test "Letter for black bishop" "b" 'b' (2, 4);
+    piece_to_letter_test "Letter for white queen" "Q" 'Q' (2, 4);
+    piece_to_letter_test "Letter for black king" "k" 'k' (2, 4);
+    piece_to_letter_test "Letter for white rook" "R" 'R' (2, 4);
+  ]
 
 let state_tests =
   [
@@ -87,10 +136,10 @@ let state_tests =
         ~printer:(fun x -> x) );
   ]
 
-let gui_tests = []
+let logic_tests = []
 
 let suite =
-  "test suite for A2"
-  >::: List.flatten [ piece_tests; state_tests; gui_tests ]
+  "test suite for chess game"
+  >::: List.flatten [ piece_tests; state_tests; logic_tests ]
 
 let _ = run_test_tt_main suite

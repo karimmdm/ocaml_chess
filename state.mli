@@ -74,21 +74,21 @@ val piece_clicked : t -> Piece.t option
    piece_clicked field. *)
 val update_piece_clicked : t -> Piece.t option -> t
 
-(* [castle_kingside st] will return a bool list of whether or not the
+(* [castle_kingside st] will return a bool pair of whether or not the
    king can castle kingside. *)
-val castle_kingside : t -> bool list
+val castle_kingside : t -> bool * bool
 
 (* [update_castle_kingside st castle] returns a new State with the
    updated castle_kingside field. *)
-val update_castle_kingside : t -> bool list -> t
+val update_castle_kingside : t -> bool * bool -> t
 
-(* [castle_queenside st] will return a bool list of whether or not the
+(* [castle_queenside st] will return a bool pair of whether or not the
    king can castle queenside. *)
-val castle_queenside : t -> bool list
+val castle_queenside : t -> bool * bool
 
 (* [update_castle_queenside st castle] returns a new State with the
    updated castle_queenside field. *)
-val update_castle_queenside : t -> bool list -> t
+val update_castle_queenside : t -> bool * bool -> t
 
 (* [update_castle st p] returns a new State updating the castle_kingside
    and castle_queenside lists to false if either the king or rooks have
