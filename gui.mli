@@ -37,10 +37,6 @@ val coordinate_pair : Graphics.status -> int * int
 (* [string_of_coordinate_pair tuple]*)
 val string_of_coordinate_pair : int * int -> string
 
-(* [move st pos] checks if the current state has a piece clicked
-   already. If there is no piece selected, then [move st pos] updates
-   the current state. *)
-
 (* [invert_pos my_player pos] is the inverted position *)
 val invert_pos : int -> int * int -> int * int
 

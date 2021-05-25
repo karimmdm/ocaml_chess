@@ -13,7 +13,8 @@ type piece =
   | Queen
   | King
 
-(* [piece_type_to_string piece_type] is the string representation of [piece_type] *)
+(* [piece_type_to_string piece_type] is the string representation of
+   [piece_type] *)
 val piece_type_to_string : piece -> string
 
 (* The rule type specifying the general direction a piece can move and
@@ -51,7 +52,7 @@ val position : t -> int * int
    [new_pos] *)
 val update_position : t -> int * int -> t
 
-(* [to_string p] will return a string representation of a piece. Black
+(* [to_letter p] will return a string representation of a piece. Black
    pieces are represented in lowercase while white pieces are in
    uppercase*)
 val to_letter : t -> string

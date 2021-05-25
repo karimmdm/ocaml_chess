@@ -33,7 +33,8 @@ let invert_pos my_player (x, y) =
   let y' = if my_player = 1 then 7 - y else y in
   (y', x)
 
-(* [gen_grid_horizontal x y] draws a specific row *)
+(* [gen_grid_horizontal x y my_player] draws a row of rectangles based on [x] 
+  and [y]. *)
 let rec gen_grid_horizontal x y my_player =
   if x >= 800 then ()
   else if my_player = 1 then (
@@ -43,9 +44,9 @@ let rec gen_grid_horizontal x y my_player =
     if (x + y) mod 200 <> 0 then fill_rect x y 100 100;
     gen_grid_horizontal (x + 100) y my_player )
 
-(* [gen_grid x y pieces] draws either a black or white square starting
+(* [gen_grid x y my_player] draws either a black or white square starting
    at ([x],[y]). If there is a piece at that location according to
-   [pieces] then the image of the piece is drawn over the square *)
+   [my_player] then the image of the piece is drawn over the square *)
 let rec gen_grid x y my_player =
   let grey = rgb 112 128 144 in
   set_color grey;
@@ -73,7 +74,7 @@ let images_dict st =
         let path = Piece.icon p in
         Hashtbl.add tbl path (open_img path 80. 80.)
   in
-  List.iter add_to_board (State.gen_falttened_board board);
+  List.iter add_to_board (State.gen_flattened_board board);
   tbl
 
 let coordinate_pair_bound status =
@@ -93,14 +94,9 @@ let get_piece st ((x, y) : int * int) =
         | Some piece ->
             if Piece.position piece = (x, y) then h else helper t )
   in
-  helper (State.gen_falttened_board (State.board st))
+  helper (State.gen_flattened_board (State.board st))
 
-let highlight_square clr loc =
-  set_color black;
-  fill_rect (fst loc) (snd loc) 100 100;
-  set_color clr;
-  fill_rect (fst loc + 5) (snd loc + 5) 90 90
-
+(* [draw_border clr (x, y) draws a [clr] border around the square at (x, y).] *)
 let draw_border clr (x, y) =
   set_color clr;
   set_line_width 2;
@@ -134,7 +130,7 @@ let highlight_valid_locations st p_op my_player =
 
 let draw_game st my_player img_tbl room_id_interactive =
   let board = State.board st in
-  let boardlst = State.gen_falttened_board board in
+  let boardlst = State.gen_flattened_board board in
   clear_graph ();
   gen_grid 0 0 my_player;
   set_text_size 50;
