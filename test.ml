@@ -62,16 +62,39 @@ let logic_locations_test
           (Piece.make c pos)))
     ~printer:(fun x -> x)
 
-let logic_is_check_test
+let logic_is_check_test (name : string) (expected : bool) (fen : string)
+    =
+  name >:: fun _ ->
+  assert_equal expected
+    (State.state_from_fen fen None |> Logic.is_check)
+    ~printer:string_of_bool
+
+let logic_is_mate_test
     (name : string)
-    (expected : string)
+    (expected : bool)
+    (mate : State.t -> string -> bool)
+    (clr : string)
     (fen : string) =
   name >:: fun _ ->
   assert_equal expected
-    (State.state_from_fen fen None |> Logic.is_check |> string_of_bool)
-    ~printer:(fun x -> x)
+    (mate (State.state_from_fen fen None) clr)
+    ~printer:string_of_bool
 
-let logic_is_mate_test
+let logic_valid_move_test
+    (name : string)
+    (expected : bool)
+    (fen : string)
+    (c : char)
+    (pos : int * int)
+    (loc : int * int) =
+  name >:: fun _ ->
+  assert_equal expected
+    (Logic.valid_move
+       (State.state_from_fen fen None)
+       (Piece.make c pos) loc)
+    ~printer:string_of_bool
+
+let logic_move_piece_test
     (name : string)
     (expected : string)
     (mate : State.t -> string -> bool)
@@ -81,12 +104,6 @@ let logic_is_mate_test
   assert_equal expected
     (mate (State.state_from_fen fen None) clr |> string_of_bool)
     ~printer:(fun x -> x)
-
-(* let logic_valid_move_test = failwith ""
-
-   let logic_is_stalemate_test = failwith ""
-
-   let logic_move_piece_test = failwith "" *)
 
 let init_state_fen =
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
@@ -194,13 +211,26 @@ let logic_tests =
       "k7/8/8/4Q3/8/8/8/7K:1,false,false,false,true;true,true;true" 'Q'
       (3, 4);
     logic_locations_test "test king moves all open"
-      "[(2,3)(2,4)(2,5)(3,3)(3,5)(4,3)(4,4)(4,5)(7,2)(2,3)(2,4)(2,5)(3,3)(3,5)(4,3)(4,4)(4,5)(7,6)]"
+      "[(2,3)(2,4)(2,5)(3,3)(3,5)(4,3)(4,4)(4,5)(7,2)(2,3)(2,4)(2,5)(3,3)(3,5)(4,3)(4,4)(4,5)]"
       "k7/8/8/4K3/8/8/8/8:1,false,false,false,true;true,true;true" 'K'
       (3, 4);
+    logic_is_check_test "test if white king is in check by bishop" true
+      "rnbqk1nr/pppp1ppp/8/4p3/1b1P4/5P2/PPP1P1PP/RNBQKBNR:1,false,false,false,true;true,true;true";
+    logic_valid_move_test "test if white can block the check" true
+      "rnbqk1nr/pppp1ppp/8/4p3/1b1P4/5P2/PPP1P1PP/RNBQKBNR:1,true,false,false,true;true,true;true"
+      'P' (6, 2) (5, 2);
+    logic_valid_move_test "test if white can not block the check" false
+      "rnbqk1nr/pppp1ppp/8/4p3/1b1P4/5P2/PPP1P1PP/RNBQKBNR:1,true,false,false,true;true,true;true"
+      'P' (6, 7) (5, 7);
+    logic_valid_move_test "test if white can move out of the check" true
+      "rnbqk1nr/pppp1ppp/8/4p3/1b1P4/5P2/PPP1P1PP/RNBQKBNR:1,true,false,false,true;true,true;true"
+      'K' (7, 4) (6, 5);
   ]
 
 let suite =
   "test suite for chess game"
   >::: List.flatten [ piece_tests; state_tests; logic_tests ]
+
+let _ = run_test_tt_main suite
 
 let _ = run_test_tt_main suite

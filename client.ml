@@ -16,7 +16,7 @@ let join_game () =
     "Please enter a valid room name to join the game as Black.\n> ";
   let room_id = get_user_input () in
   let state_fen = get_state_by_id_request room_id in
-  Game.play_game (State.state_from_fen state_fen None)
+  Game.play_game (State.state_from_fen state_fen None) Game.Join
 
 let create_room_request room_id =
   let url = "localhost:3000/post/rooms" in
@@ -35,4 +35,11 @@ let create_game () =
   let room_id = get_user_input () in
   let state_fen = create_room_request room_id in
   print_endline state_fen;
-  Game.play_game (State.state_from_fen state_fen None)
+  Game.play_game (State.state_from_fen state_fen None) Game.Create
+
+let update_room_state room_id state_fen =
+  let url = "localhost:3000/put/" ^ room_id in
+  let body = state_fen in
+  match Curly.(run (Request.make ~body ~url ~meth:`PUT ())) with
+  | Ok x -> x.Curly.Response.body
+  | Error e -> failwith "error updating room"

@@ -1,3 +1,8 @@
+type mode =
+  | Create
+  | Join
+  | Local
+
 (* [deselect st] resets the player's turn to the piece selection phase
    by resetting the current state's piece selected to None. *)
 let deselect st = State.update_piece_clicked st None
@@ -49,14 +54,16 @@ let move st my_player pos =
           then piece_selection st pos
           else move_selection st pos )
 
-let play_game st =
+let play_game st md =
+  let my_player =
+    match md with Create -> 1 | Join -> 2 | Local -> 1
+  in
   try
-    let my_player = 1 in
     let img_dict = Gui.images_dict st in
     Gui.draw_game st my_player img_dict;
     let current_state = ref st in
     let game_running = ref true in
-    let current_player = ref 1 in
+    let current_player = ref (State.player_turn !current_state) in
     while !game_running do
       (* if !current_player = my_player then ( *)
       (* !cp = !cp for testing purposes only *)

@@ -89,24 +89,44 @@ let rec find_pieces clr piece_type grid acc =
         | Some p ->
             if Piece.piece_type p = piece_type && Piece.color p = clr
             then find_pieces_in_row t (p :: acc)
-            else find_pieces_in_row t acc)
+            else find_pieces_in_row t acc )
   in
   match grid with
   | [] -> acc
   | h :: t -> find_pieces clr piece_type t (find_pieces_in_row h acc)
 
-(* (* [check_side_castle st side] returns true if the king and [side]
-   rook are valid to castle on the specified [side] and if there are no
-   pieces blocking the path, and false otherwise. *) let
-   check_side_castle st side = let p_turn = State.player_turn st in let
-   board = State.board st in let castle_side_pair = if side = "king"
-   then State.castle_kingside st else State.castle_queenside st in let
-   castle_side = if p_turn = 1 then fst castle_side_pair else snd
-   castle_side_pair in let is_check = State.check st in let squares = if
-   side = "king" then if p_turn = 1 then [ (7, 5); (7, 6) ] else [ (0,
-   5); (0, 6) ] else if p_turn = 1 then [ (7, 1); (7, 2); (7, 3) ] else
-   [ (0, 1); (0, 2); (0, 3) ] in List.fold_left (fun acc x -> acc &&
-   get_elt board x <> None) true squares && castle_side && not is_check *)
+(* [check_side_castle st side] returns true if the king and [side] rook
+
+   are valid to castle on the specified [side] and if there are no
+   pieces blocking the path, and false otherwise. *)
+
+let check_side_castle st side =
+  let p_turn = State.player_turn st in
+
+  let board = State.board st in
+
+  let castle_side_pair =
+    if side = "king" then State.castle_kingside st
+    else State.castle_queenside st
+  in
+
+  let castle_side =
+    if p_turn = 1 then fst castle_side_pair else snd castle_side_pair
+  in
+
+  let is_check = State.check st in
+
+  let squares =
+    if side = "king" then
+      if p_turn = 1 then [ (7, 5); (7, 6) ] else [ (0, 5); (0, 6) ]
+    else if p_turn = 1 then [ (7, 1); (7, 2); (7, 3) ]
+    else [ (0, 1); (0, 2); (0, 3) ]
+  in
+
+  List.fold_left
+    (fun acc x -> acc && get_elt board x <> None)
+    true squares
+  && castle_side && not is_check
 
 (* [check_kingside_castle st] returns true if the king and kingside rook
    are valid to castle kingside and if there are no pieces blocking the
@@ -162,7 +182,7 @@ let castle_kingside_move st locs =
   let p_turn = State.player_turn st in
   let castle_kingside_pair = State.castle_kingside st in
   if p_turn = 1 then
-    if fst castle_kingside_pair && check_kingside_castle st then
+    if fst castle_kingside_pair && check_side_castle st "king" then
       (7, 6) :: locs
     else locs
   else if fst castle_kingside_pair && check_kingside_castle st then
@@ -244,27 +264,22 @@ let is_check st =
   let king_clr = if player_turn = 1 then "white" else "black" in
   let king = List.hd (find_pieces king_clr King board []) in
   let diag_threat =
-    threat st true king
-      (* [ (1, 1); (-1, 1); (1, -1); (-1, -1) ] *)
-      (Piece.base_moves Piece.Bishop).directions [ Bishop; Queen ]
+    threat st true king (Piece.base_moves Piece.Bishop).directions
+      [ Bishop; Queen ]
   in
   let pawn_threat =
     threat st false king
-      (if king_clr = "white" then [ (-1, 1); (-1, -1) ]
-      else [ (1, 1); (1, -1) ])
+      ( if king_clr = "white" then [ (-1, 1); (-1, -1) ]
+      else [ (1, 1); (1, -1) ] )
       [ Pawn ]
   in
   let king_threat =
-    threat st false king
-      (* [ (1, -1); (0, 1); (1, 1); (0, 1); (1, 0); (-1, 1); (-1, 0);
-         (-1, -1); (0, -1); ] *)
-      (Piece.base_moves Piece.King).directions [ King ]
+    threat st false king (Piece.base_moves Piece.King).directions
+      [ King ]
   in
   let knight_threat =
-    threat st false king
-      (* [ (2, 1); (2, -1); (-2, 1); (-2, -1); (1, 2); (1, -2); (-1, 2);
-         (-1, -2); ] *)
-      (Piece.base_moves Piece.Knight).directions [ Knight ]
+    threat st false king (Piece.base_moves Piece.Knight).directions
+      [ Knight ]
   in
   let vert_threat =
     threat st true king [ (-1, 0); (1, 0) ] [ Queen; Rook ]
