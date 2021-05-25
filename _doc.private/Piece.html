@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="State.html">
+<link rel="next" href="Gui.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Game" rel="Chapter" href="Game.html">
+<link title="Interactive" rel="Chapter" href="Interactive.html">
+<link title="State" rel="Chapter" href="State.html">
+<link title="Piece" rel="Chapter" href="Piece.html">
+<link title="Gui" rel="Chapter" href="Gui.html">
+<link title="Logic" rel="Chapter" href="Logic.html">
+<link title="Authors" rel="Chapter" href="Authors.html">
+<link title="Client" rel="Chapter" href="Client.html"><title>Piece</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="State.html" title="State">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Gui.html" title="Gui">Next</a>
+</div>
+<h1>Module <a href="type_Piece.html">Piece</a></h1>
+
+<pre><span id="MODULEPiece"><span class="keyword">module</span> Piece</span>: <code class="code">sig</code> <a href="Piece.html">..</a> <code class="code">end</code></pre><hr width="100%">
+
+<pre><code><span id="TYPEpiece"><span class="keyword">type</span> <code class="type"></code>piece</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTpiece.Pawn"><span class="constructor">Pawn</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTpiece.Bishop"><span class="constructor">Bishop</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTpiece.Knight"><span class="constructor">Knight</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTpiece.Rook"><span class="constructor">Rook</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTpiece.Queen"><span class="constructor">Queen</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTpiece.King"><span class="constructor">King</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><code><span id="TYPErule"><span class="keyword">type</span> <code class="type"></code>rule</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTrule.directions">directions</span>&nbsp;: <code class="type">(int * int) list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTrule.scalable">scalable</span>&nbsp;: <code class="type">bool</code>;</code></td>
+
+</tr></table>
+<code>}</code>
+
+
+
+<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.piece_type">piece_type</span>&nbsp;: <code class="type"><a href="Piece.html#TYPEpiece">piece</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.color">color</span>&nbsp;: <code class="type">string</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.icon">icon</span>&nbsp;: <code class="type">string</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.position">position</span>&nbsp;: <code class="type">int * int</code>;</code></td>
+
+</tr></table>
+<code>}</code>
+
+
+
+<pre><span id="VALpiece_type_to_string"><span class="keyword">val</span> piece_type_to_string</span> : <code class="type"><a href="Piece.html#TYPEpiece">piece</a> -> string</code></pre>
+<pre><span id="VALextract_directions"><span class="keyword">val</span> extract_directions</span> : <code class="type">[> `List of [> `Int of 'a ] list ] list -> ('a * 'a) list</code></pre>
+<pre><span id="VALbase_moves"><span class="keyword">val</span> base_moves</span> : <code class="type"><a href="Piece.html#TYPEpiece">piece</a> -> <a href="Piece.html#TYPErule">rule</a></code></pre>
+<pre><span id="VALpiece_type"><span class="keyword">val</span> piece_type</span> : <code class="type"><a href="Piece.html#TYPEt">t</a> -> <a href="Piece.html#TYPEpiece">piece</a></code></pre>
+<pre><span id="VALcolor"><span class="keyword">val</span> color</span> : <code class="type"><a href="Piece.html#TYPEt">t</a> -> string</code></pre>
+<pre><span id="VALicon"><span class="keyword">val</span> icon</span> : <code class="type"><a href="Piece.html#TYPEt">t</a> -> string</code></pre>
+<pre><span id="VALposition"><span class="keyword">val</span> position</span> : <code class="type"><a href="Piece.html#TYPEt">t</a> -> int * int</code></pre>
+<pre><span id="VALupdate_position"><span class="keyword">val</span> update_position</span> : <code class="type"><a href="Piece.html#TYPEt">t</a> -> int * int -> <a href="Piece.html#TYPEt">t</a></code></pre>
+<pre><span id="VALto_letter"><span class="keyword">val</span> to_letter</span> : <code class="type"><a href="Piece.html#TYPEt">t</a> -> string</code></pre>
+<pre><span id="VALmake"><span class="keyword">val</span> make</span> : <code class="type">char -> int * int -> <a href="Piece.html#TYPEt">t</a></code></pre></body></html>
