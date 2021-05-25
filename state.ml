@@ -139,7 +139,7 @@ let gen_board st p move_to_pos =
 
 let update_board st p pos = { st with board = gen_board st p pos }
 
-let gen_falttened_board board = List.concat board
+let gen_flattened_board board = List.concat board
 
 let player_turn st = st.player_turn
 

@@ -11,7 +11,7 @@ let join_game =
 
 let local_game =
   Interactive.make_text (10, 0) 50 240 "Local Game" (fun () ->
-      Game.play_game (State.init_state ()))
+      Game.play_game (State.init_state ()) Game.Local)
 
 let on_menu_click clickables click_pos =
   List.iter
@@ -26,8 +26,7 @@ let main () =
   let clickables_lst = [ create_game; join_game; local_game; title ] in
   Gui.draw_start_screen () clickables_lst;
   while true do
-    Gui.listen false (on_menu_click clickables_lst);
-    ()
+    ignore (Gui.listen false (on_menu_click clickables_lst))
   done
 
 let () = main ()

@@ -1,14 +1,6 @@
 open State
 open Piece
 
-(* 
-
-   val is_check : State.t -> bool
-
-   val can_castle : State.t -> bool
-
-   val promote : 'a -> 'a *)
-
 (* [locations st p] returns a list of positions represented by int
    tuples that the given piece can move to via official chess rules with
    one exception: a locaiton that causes ones one king to be checked is

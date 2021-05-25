@@ -80,7 +80,7 @@ let images_dict st =
         let path = Piece.icon p in
         Hashtbl.add tbl path (open_img path 80. 80.)
   in
-  List.iter add_to_board (State.gen_falttened_board board);
+  List.iter add_to_board (State.gen_flattened_board board);
   tbl
 
 let coordinate_pair_bound status =
@@ -100,7 +100,7 @@ let get_piece st ((x, y) : int * int) =
         | Some piece ->
             if Piece.position piece = (x, y) then h else helper t)
   in
-  helper (State.gen_falttened_board (State.board st))
+  helper (State.gen_flattened_board (State.board st))
 
 let highlight_square clr loc =
   set_color black;
@@ -141,7 +141,7 @@ let highlight_valid_locations st p_op my_player =
 
 let draw_game st my_player img_tbl =
   let board = State.board st in
-  let boardlst = State.gen_falttened_board board in
+  let boardlst = State.gen_flattened_board board in
   clear_graph ();
   gen_grid 0 0 my_player;
   set_text_size 50;
