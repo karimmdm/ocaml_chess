@@ -31,6 +31,9 @@ let rec string_to_lst (s : string) (i : int) (j : int) :
       int_to_nones n @ string_to_lst rest i (j + n)
     else Some (Piece.make c (i, j)) :: string_to_lst rest i (j + 1)
 
+(* [lst_to_string lst none_count] converts a row [lst] of the board into
+   a string for the fen notation of the board using [none_count] as an
+   accumulator for empty spaces*)
 let rec lst_to_string (lst : Piece.t option list) (none_count : int) :
     string =
   match lst with
@@ -41,6 +44,8 @@ let rec lst_to_string (lst : Piece.t option list) (none_count : int) :
         string_of_int none_count ^ Piece.to_letter p ^ lst_to_string t 0
   | None :: t -> lst_to_string t (none_count + 1)
 
+(* [fen_to_board str] converts a fen [str] to a 2d list representation
+   of the board*)
 let fen_to_board (str : string) =
   let row_lst = String.split_on_char '/' str in
   let rec board_helper lst i =
@@ -50,6 +55,8 @@ let fen_to_board (str : string) =
   in
   board_helper row_lst 0
 
+(* [castle_to_pair s ] is a helper function that converts a string
+   representation of the castling availability to a bool pair*)
 let castle_to_pair s =
   match String.split_on_char ';' s with
   | [ c1; c2 ] -> (bool_of_string c1, bool_of_string c2)
@@ -75,9 +82,11 @@ let state_from_fen fen st_option =
             castle_queenside = castle_to_pair cq;
             piece_clicked = None;
           }
-      | _ -> failwith "flag statuses were not appropriately entered" )
+      | _ -> failwith "flag statuses were not appropriately entered")
   | Some st -> { st with board = new_board }
 
+(* [board_to_fen board] converts a board to a fen string represenation
+   of the board*)
 let rec board_to_fen board =
   match board with
   | [] -> ""
