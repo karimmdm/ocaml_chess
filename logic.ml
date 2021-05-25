@@ -23,6 +23,9 @@ let check_empty (grid : 'a list list) (loc : int * int) : bool =
   let p = get_elt grid loc in
   match p with Some p -> false | None -> true
 
+(* [enemy_capture clr board loc_to_check] returns true if [loc_to_check]
+  is empty on the given [board] and false if an enemy piece (not [clr]) occupies 
+  that location. *)
 let enemy_capture clr board loc_to_check =
   match get_elt board loc_to_check with
   | None -> false
@@ -246,6 +249,8 @@ let rec filter_illegal_moves st p locs acc =
       if State.check sample_st then filter_illegal_moves st p t acc
       else filter_illegal_moves st p t (h :: acc)
 
+(* [locs_helper st p loc] returns a list of all valid moves for the piece [p]
+  at location [loc]. *)
 let locs_helper st p loc =
   let clr = Piece.color p in
   let base_moves = Piece.base_moves (Piece.piece_type p) in
@@ -280,6 +285,9 @@ let locations st p =
       @ castle_side_move st "queen"
           (filter_illegal_moves st p king_moves [])
 
+(* [enemy_check st piece_moved] returns true if [piece_moved] has moved
+  to its new location where it now puts the enemy king in check, and false
+  otherwise. *)
 let enemy_check st piece_moved =
   let new_locs = locations st piece_moved in
   let enemy_clr =
@@ -290,6 +298,7 @@ let enemy_check st piece_moved =
   let enemy_king_pos = Piece.position enemy_king in
   List.mem enemy_king_pos new_locs
 
+(* [find_allied_pieces clr grid] returns a list of the [clr] player's pieces. *)
 let find_allied_pieces clr grid =
   find_pieces clr King grid []
   @ find_pieces clr Queen grid []
@@ -298,6 +307,10 @@ let find_allied_pieces clr grid =
   @ find_pieces clr Knight grid []
   @ find_pieces clr Pawn grid []
 
+(* [is_mate st clr mate_type] determines if the [clr] player is in either
+  checkmate or stalemate, specified by [mate_type] by determining if they
+  are in check and have any valid moves left, or if they have any valid moves 
+  left. *)
 let is_mate st clr mate_type =
   let rec find_locs_helper lst acc =
     match lst with
@@ -312,6 +325,7 @@ let is_mate st clr mate_type =
   if mate_type = "checkmate" then is_check st && moves_left = 0
   else moves_left = 0
 
+
 let is_checkmate st clr = is_mate st clr "checkmate"
 
 let is_stalemate st clr = is_mate st clr "stalemate"
@@ -321,14 +335,12 @@ let switch_turn st =
   State.update_player_turn st
     (if State.player_turn st == 1 then 2 else 1)
 
+(* [reset_piece_clicked st] sets the current state's pieced click field to 
+  None. *)
 let reset_piece_clicked st = State.update_piece_clicked st None
-
-(* let castle st king castle_side = if castle_side = "kingside" then
-   State.update_board st king *)
 
 let move_piece st p new_pos =
   let castle_st = State.update_castle st p in
-  (* let p_turn = State.player_turn st in *)
   let is_castle =
     Piece.piece_type p = King
     && abs (snd (Piece.position p) - snd new_pos) > 1

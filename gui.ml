@@ -40,7 +40,8 @@ let invert_pos my_player (x, y) =
   let y' = if my_player = 1 then 7 - y else y in
   (y', x)
 
-(* [gen_grid_horizontal x y] draws a specific row *)
+(* [gen_grid_horizontal x y my_player] draws a row of rectangles based on [x] 
+  and [y]. *)
 let rec gen_grid_horizontal x y my_player =
   if x >= 800 then ()
   else if my_player = 1 then (
@@ -50,9 +51,9 @@ let rec gen_grid_horizontal x y my_player =
     if (x + y) mod 200 <> 0 then fill_rect x y 100 100;
     gen_grid_horizontal (x + 100) y my_player)
 
-(* [gen_grid x y pieces] draws either a black or white square starting
+(* [gen_grid x y my_player] draws either a black or white square starting
    at ([x],[y]). If there is a piece at that location according to
-   [pieces] then the image of the piece is drawn over the square *)
+   [my_player] then the image of the piece is drawn over the square *)
 let rec gen_grid x y my_player =
   let grey = rgb 112 128 144 in
   set_color grey;
@@ -102,12 +103,7 @@ let get_piece st ((x, y) : int * int) =
   in
   helper (State.gen_flattened_board (State.board st))
 
-let highlight_square clr loc =
-  set_color black;
-  fill_rect (fst loc) (snd loc) 100 100;
-  set_color clr;
-  fill_rect (fst loc + 5) (snd loc + 5) 90 90
-
+(* [draw_border clr (x, y) draws a [clr] border around the square at (x, y).] *)
 let draw_border clr (x, y) =
   set_color clr;
   set_line_width 2;
