@@ -58,14 +58,9 @@ let state_after_move st player pos =
    state locally or on server based on the mode [md] *)
 let move md room_id st player pos =
   let st' = state_after_move st player pos in
-  let st'_fen = State.to_fen st' in
   match md with Local -> st' | _ -> st'
 
-(**if st'_fen <> State.to_fen st then let get_st =
-   Client.update_room_state room_id st'_fen in State.state_from_fen
-   get_st None else st' *)
-
-(**[game_loop md current_player my_player room game_running
+(* [game_loop md current_player my_player room game_running
    current_state img_dict room_text] is the game loop helper for
    play_game()*)
 let game_loop
