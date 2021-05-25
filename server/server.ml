@@ -2,11 +2,9 @@ open Opium
 
 let ( let* ) = Lwt.bind
 
-(**[welcome ()] is GET / *)
 let welcome () =
   App.get "/" (fun _ -> Lwt.return (Response.of_plain_text "Welcome!"))
 
-(**[get_all_rooms ()] is GET /rooms *)
 let view_rooms () =
   App.get "/view_rooms" (fun _ ->
       print_endline "viewing all rooms";
@@ -14,7 +12,6 @@ let view_rooms () =
       let json = [%to_yojson: Db.room list] rooms in
       Lwt.return (Response.of_json json))
 
-(**[get_room_id () is GET /room_id] *)
 let get_by_room_id () =
   App.get "/get/:room_id" (fun req ->
       print_endline "getting room by id";
@@ -22,7 +19,6 @@ let get_by_room_id () =
       let* state_fen = Db.get_room room_id in
       Lwt.return (Response.of_plain_text ~status:`OK state_fen))
 
-(**[post_room ()] is POST /rooms *)
 let post_room () =
   App.post "/post/room" (fun request ->
       print_endline "creating room";
