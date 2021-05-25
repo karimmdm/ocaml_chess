@@ -10,11 +10,11 @@ let piece_type_to_string (piece_type : Piece.piece) : string =
 let print_piece_type (piece : Piece.t) : string =
   match piece_type piece with
   | Pawn -> "P"
-  | Bishop -> "Bishop"
-  | Knight -> "Knight"
-  | Rook -> "Rook"
-  | Queen -> "Queen"
-  | King -> "King"
+  | Bishop -> "B"
+  | Knight -> "N"
+  | Rook -> "R"
+  | Queen -> "Q"
+  | King -> "K"
 
 (* [print_piece_color p] is the string of the color of piece of [p] *)
 let print_piece_color (piece : Piece.t) : string =
