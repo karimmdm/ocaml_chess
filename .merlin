@@ -4,3 +4,5 @@ PKG graphics
 PKG camlimages.png
 PKG camlimages.graphics
 PKG yojson
+PKG curly
+PKG ANSITerminal

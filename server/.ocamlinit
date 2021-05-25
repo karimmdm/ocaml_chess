@@ -2,5 +2,6 @@
 #require "opium";;
 #require "yojson";;
 #require "ppx_derive_yojson";;
+#require "ANSITerminal";;
 #directory "_build";;
 #load "db.cmo";;

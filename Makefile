@@ -1,4 +1,4 @@
-MODULES= game interactive state piece gui logic printer authors
+MODULES= game interactive state piece gui logic printer authors client
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
