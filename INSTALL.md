@@ -3,7 +3,7 @@
 ### Packages to install for game
 1. Install XQuartz 2.7.11
 2. brew install libpng pkg-config
-4. opam install graphics base cppo dune dune-configurator ocaml ocamlfind stdio camlimages yojson cohttp-lwt cohttp-lwt-unix
+4. opam install graphics base cppo dune dune-configurator ocaml ocamlfind stdio camlimages yojson curly dotenv
 
 ### Packages to install for server
 1. brew install libev
