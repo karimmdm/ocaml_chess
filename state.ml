@@ -53,7 +53,7 @@ let fen_to_board (str : string) =
 let castle_to_pair s =
   match String.split_on_char ';' s with
   | [ c1; c2 ] -> (bool_of_string c1, bool_of_string c2)
-  | _ -> failwith "never reach here"
+  | _ -> failwith "castle_to_pair: never reach here"
 
 let state_from_fen fen st_option =
   let fen_split_lst = String.split_on_char ':' fen in
