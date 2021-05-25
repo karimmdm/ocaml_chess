@@ -6,7 +6,6 @@ type t = {
   check : bool;
   checkmate : bool;
   stalemate : bool;
-  (* castle_kingside : bool list; castle_queenside : bool list; *)
   castle_kingside : bool * bool;
   castle_queenside : bool * bool;
   piece_clicked : Piece.t option;

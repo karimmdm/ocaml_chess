@@ -23,6 +23,11 @@ let check_empty (grid : 'a list list) (loc : int * int) : bool =
   let p = get_elt grid loc in
   match p with Some p -> false | None -> true
 
+let enemy_capture clr board loc_to_check =
+  match get_elt board loc_to_check with
+  | None -> false
+  | Some p_other -> Piece.color p_other <> clr
+
 (* [march st direction loc] is a list of valid locations along a given
    direction. [march] recursively checks along a certain path until the
    path is blocked by an enemy piece that can be captured or an allied
@@ -39,88 +44,36 @@ let rec march st scalable clr direction loc acc =
         march st scalable clr direction loc_to_check
           (loc_to_check :: acc)
       else loc_to_check :: acc
-    else
-      let enemy_capture =
-        match get_elt (State.board st) loc_to_check with
-        | None -> false
-        | Some p_other -> Piece.color p_other <> clr
-      in
-      if enemy_capture then loc_to_check :: acc else acc
-
-let check_pawn_capture board clr loc dir =
-  let check_loc = (fst loc + fst dir, snd loc + snd dir) in
-  let p = get_elt board check_loc in
-  match p with
-  | Some p -> if String.equal clr (Piece.color p) then false else true
-  | None -> false
-
-(* Check if the direction involves moving to the right or left column.
-   If so, then this location direciton is a piece capture. *)
-let pawn_locs_capture_helper board clr loc dir check_loc =
-  if check_pawn_capture board clr loc dir then true else false
-
-let pawn_locs_move_two_helper st loc dir check_loc =
-  let board = State.board st in
-  if check_bounds board check_loc then
-    if fst dir == 2 || fst dir == -2 then
-      let check_loc_front =
-        (fst check_loc - (fst dir / 2), snd check_loc)
-      in
-      if
-        fst dir == -2
-        && fst loc == 6
-        && check_empty board check_loc
-        && check_empty board check_loc_front
-        || fst dir == 2
-           && fst loc == 1
-           && check_empty board check_loc
-           && check_empty board check_loc_front
-      then true
-      else false
-    else false
-  else false
-
-let pawn_locs_move_one_helper st loc dir check_loc =
-  let board = State.board st in
-  if
-    (fst dir == 1 && check_empty board check_loc)
-    || (fst dir == -1 && check_empty board check_loc)
-  then true
-  else false
+    else if enemy_capture clr (State.board st) loc_to_check then
+      loc_to_check :: acc
+    else acc
 
 let pawn_locs st p loc =
   let board = State.board st in
   let clr = Piece.color p in
-  let base_moves = Piece.base_moves (Piece.piece_type p) in
-  let rec pawn_locs_helper lst scalable acc =
-    match lst with
-    | [] -> acc
-    | h :: t ->
-        let check_loc = (fst h + fst loc, snd h + snd loc) in
-        if check_bounds board check_loc then
-          if snd h == 1 || snd h == -1 then
-            pawn_locs_helper t scalable
-              (if pawn_locs_capture_helper board clr loc h check_loc
-              then check_loc :: acc
-              else acc)
-          else if fst h == 2 || fst h == -2 then
-            pawn_locs_helper t scalable
-              (if pawn_locs_move_two_helper st loc h check_loc then
-               check_loc :: acc
-              else acc)
-          else if fst h == 1 || fst h == -1 then
-            pawn_locs_helper t scalable
-              (if pawn_locs_move_one_helper st loc h check_loc then
-               check_loc :: acc
-              else acc)
-          else pawn_locs_helper t scalable acc
-        else pawn_locs_helper t scalable acc
+  let row = if clr = "white" then 6 else 1 in
+  let dir = if clr = "white" then -1 else 1 in
+  let forward_one =
+    if check_empty board (fst loc + dir, snd loc) then
+      [ (fst loc + dir, snd loc) ]
+    else []
   in
-  (* Reverse directions if the player is using the black pieces. *)
-  pawn_locs_helper
-    (if String.equal clr "white" then base_moves.directions
-    else List.map (fun (row, col) -> (-row, col)) base_moves.directions)
-    base_moves.scalable []
+  let forward_two =
+    if fst loc = row && check_empty board (fst loc + (2 * dir), snd loc)
+    then [ (fst loc + (2 * dir), snd loc) ]
+    else []
+  in
+  let left_attack =
+    if enemy_capture clr board (fst loc + dir, snd loc - 1) then
+      [ (fst loc + dir, snd loc - 1) ]
+    else []
+  in
+  let right_attack =
+    if enemy_capture clr board (fst loc + dir, snd loc + 1) then
+      [ (fst loc + dir, snd loc + 1) ]
+    else []
+  in
+  forward_one @ forward_two @ left_attack @ right_attack
 
 (* [find_pieces clr grid] returns the King in that grid that matches
    that [clr]. *)
@@ -141,6 +94,19 @@ let rec find_pieces clr piece_type grid acc =
   match grid with
   | [] -> acc
   | h :: t -> find_pieces clr piece_type t (find_pieces_in_row h acc)
+
+(* (* [check_side_castle st side] returns true if the king and [side]
+   rook are valid to castle on the specified [side] and if there are no
+   pieces blocking the path, and false otherwise. *) let
+   check_side_castle st side = let p_turn = State.player_turn st in let
+   board = State.board st in let castle_side_pair = if side = "king"
+   then State.castle_kingside st else State.castle_queenside st in let
+   castle_side = if p_turn = 1 then fst castle_side_pair else snd
+   castle_side_pair in let is_check = State.check st in let squares = if
+   side = "king" then if p_turn = 1 then [ (7, 5); (7, 6) ] else [ (0,
+   5); (0, 6) ] else if p_turn = 1 then [ (7, 1); (7, 2); (7, 3) ] else
+   [ (0, 1); (0, 2); (0, 3) ] in List.fold_left (fun acc x -> acc &&
+   get_elt board x <> None) true squares && castle_side && not is_check *)
 
 (* [check_kingside_castle st] returns true if the king and kingside rook
    are valid to castle kingside and if there are no pieces blocking the
@@ -279,8 +245,8 @@ let is_check st =
   let king = List.hd (find_pieces king_clr King board []) in
   let diag_threat =
     threat st true king
-      [ (1, 1); (-1, 1); (1, -1); (-1, -1) ]
-      [ Bishop; Queen ]
+      (* [ (1, 1); (-1, 1); (1, -1); (-1, -1) ] *)
+      (Piece.base_moves Piece.Bishop).directions [ Bishop; Queen ]
   in
   let pawn_threat =
     threat st false king
@@ -290,32 +256,15 @@ let is_check st =
   in
   let king_threat =
     threat st false king
-      [
-        (1, -1);
-        (0, 1);
-        (1, 1);
-        (0, 1);
-        (1, 0);
-        (-1, 1);
-        (-1, 0);
-        (-1, -1);
-        (0, -1);
-      ]
-      [ King ]
+      (* [ (1, -1); (0, 1); (1, 1); (0, 1); (1, 0); (-1, 1); (-1, 0);
+         (-1, -1); (0, -1); ] *)
+      (Piece.base_moves Piece.King).directions [ King ]
   in
   let knight_threat =
     threat st false king
-      [
-        (2, 1);
-        (2, -1);
-        (-2, 1);
-        (-2, -1);
-        (1, 2);
-        (1, -2);
-        (-1, 2);
-        (-1, -2);
-      ]
-      [ Knight ]
+      (* [ (2, 1); (2, -1); (-2, 1); (-2, -1); (1, 2); (1, -2); (-1, 2);
+         (-1, -2); ] *)
+      (Piece.base_moves Piece.Knight).directions [ Knight ]
   in
   let vert_threat =
     threat st true king [ (-1, 0); (1, 0) ] [ Queen; Rook ]
@@ -347,17 +296,17 @@ let rec filter_illegal_moves st p locs acc =
       if State.check sample_st then filter_illegal_moves st p t acc
       else filter_illegal_moves st p t (h :: acc)
 
-let locations st p =
-  let locs_helper st p loc =
-    let clr = Piece.color p in
-    let base_moves = Piece.base_moves (Piece.piece_type p) in
-    let scalable = base_moves.scalable in
-    let rec helper acc = function
-      | [] -> acc
-      | h :: t -> march st scalable clr h loc [] @ helper acc t
-    in
-    helper [] base_moves.directions
+let locs_helper st p loc =
+  let clr = Piece.color p in
+  let base_moves = Piece.base_moves (Piece.piece_type p) in
+  let scalable = base_moves.scalable in
+  let rec helper acc = function
+    | [] -> acc
+    | h :: t -> march st scalable clr h loc [] @ helper acc t
   in
+  helper [] base_moves.directions
+
+let locations st p =
   let piece = Piece.piece_type p in
   match piece with
   | Pawn ->

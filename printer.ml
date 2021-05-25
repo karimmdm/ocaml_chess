@@ -55,3 +55,16 @@ let print_rule (rule : Piece.rule) : string =
     rule.directions ""
   ^ " "
   ^ string_of_bool rule.scalable
+
+let print_locs (lst : (int * int) list) =
+  let s =
+    List.fold_left
+      (fun acc x ->
+        "("
+        ^ string_of_int (fst x)
+        ^ ","
+        ^ string_of_int (snd x)
+        ^ ")" ^ acc)
+      "" lst
+  in
+  "[" ^ s ^ "]"
