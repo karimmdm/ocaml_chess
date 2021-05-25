@@ -18,12 +18,6 @@ test:
 play:
 	$(OCAMLBUILD) -tag 'debug' $(MAIN) && OCAMLRUNPARAM=b ./$(MAIN)
 
-check:
-	@bash check.sh
-	
-finalcheck:
-	@bash check.sh final
-
 zip:
 	zip chess_engine.zip *mli *.md *.ml* *.json *.sh _tags .merlin .ocamlformat .ocamlinit Makefile images/ -r 
 	

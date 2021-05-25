@@ -34,11 +34,11 @@ let move_selection st pos =
       if Logic.valid_move st p pos then Logic.move_piece st p pos
       else deselect st
 
-(* [move my_player pos] checks the current state's piece_selected field
-   to determine which phase of the turn the player is in: piece
-   selection or move selection. *)
-let move st my_player pos =
-  let pos = Gui.invert_pos my_player pos in
+(* [state_after_move st player pos] is the state after a checks the
+   current state's piece_selected field to determine which phase of the
+   turn the player is in: piece selection or move selection. *)
+let state_after_move st player pos =
+  let pos = Gui.invert_pos player pos in
   match State.piece_clicked st with
   | None -> piece_selection st pos
   | Some p -> (
@@ -54,30 +54,73 @@ let move st my_player pos =
           then piece_selection st pos
           else move_selection st pos )
 
-let play_game st md =
-  let my_player =
-    match md with Create -> 1 | Join -> 2 | Local -> 1
+(* [move md player pos] moves the [player] to [pos] and updates the
+   state locally or on server based on the mode [md] *)
+let move md room_id st player pos =
+  let st' = state_after_move st player pos in
+  let st'_fen = State.to_fen st' in
+  match md with Local -> st' | _ -> st'
+
+(* if st'_fen <> State.to_fen st then let get_st =
+   Client.update_room_state room_id st'_fen in State.state_from_fen
+   get_st None else st' *)
+
+(* [game_loop md current_player my_player room game_running
+   current_state img_dict room_text] is the game loop helper for
+   play_game()*)
+let game_loop
+    md
+    current_player
+    my_player
+    room
+    game_running
+    current_state
+    img_dict
+    room_text =
+  let conditional =
+    match md with
+    | Local -> !current_player = !current_player
+    | _ -> !current_player = !my_player
   in
-  try
-    let img_dict = Gui.images_dict st in
-    Gui.draw_game st my_player img_dict;
-    let current_state = ref st in
-    let game_running = ref true in
-    let current_player = ref (State.player_turn !current_state) in
-    while !game_running do
-      (* if !current_player = my_player then ( *)
-      (* !cp = !cp for testing purposes only *)
-      if !current_player = !current_player then (
-        print_endline ("Player turn " ^ string_of_int !current_player);
-        let new_state =
-          Gui.listen true (move !current_state my_player)
-        in
-        game_running :=
-          not (State.checkmate new_state || State.stalemate new_state);
-        current_player := State.player_turn new_state;
-        current_state := new_state;
-        Gui.draw_game !current_state my_player img_dict )
-      else print_endline "Game Over";
-      ()
-    done
-  with err -> raise err
+  if conditional then (
+    let new_state =
+      Gui.listen true (move md room !current_state !current_player)
+    in
+    game_running :=
+      not (State.checkmate new_state || State.stalemate new_state);
+    current_player := State.player_turn new_state;
+    my_player := if md = Local then !current_player else !my_player;
+    current_state := new_state;
+    Gui.draw_game !current_state !my_player img_dict room_text )
+  else ()
+
+let play_game st md room_id =
+  let current_state = ref st in
+  let current_player = ref (State.player_turn !current_state) in
+  let my_player =
+    match md with
+    | Create -> ref 1
+    | Join -> ref !current_player
+    | Local -> ref 1
+  in
+  let room =
+    match room_id with Some rm -> rm | None -> "Local Room"
+  in
+  let img_dict = Gui.images_dict st in
+  let room_interactive_text =
+    Interactive.make_text (10, 810) 20 0 ("Room name: " ^ room)
+      (fun _ -> ())
+  in
+  Gui.draw_game st !my_player img_dict room_interactive_text;
+  let game_running = ref true in
+  while !game_running do
+    game_loop md current_player my_player room game_running
+      current_state img_dict room_interactive_text
+  done;
+  let winner = if !current_player = 1 then "Black" else "White" in
+  let game_over_text =
+    Interactive.make_text (300, 400) 200 0
+      ("Game Over: " ^ winner ^ " is the winner")
+      (fun _ -> ())
+  in
+  Gui.draw_interactives [ game_over_text ]
