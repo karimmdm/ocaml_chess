@@ -1,6 +1,6 @@
 open Graphics
 
-(* [draw_clickable_text x y] draws a rectangle button of color [color]
+(**[draw_clickable_text x y] draws a rectangle button of color [color]
    of size [w] * [h] at coordinate location ([x], [y]) with text [text]
    at the center*)
 let draw_clickable_text color (x, y) font_size text =
@@ -33,7 +33,7 @@ let invert_pos my_player (x, y) =
   let y' = if my_player = 1 then 7 - y else y in
   (y', x)
 
-(* [gen_grid_horizontal x y my_player] draws a row of rectangles based on [x] 
+(**[gen_grid_horizontal x y my_player] draws a row of rectangles based on [x] 
   and [y]. *)
 let rec gen_grid_horizontal x y my_player =
   if x >= 800 then ()
@@ -44,7 +44,7 @@ let rec gen_grid_horizontal x y my_player =
     if (x + y) mod 200 <> 0 then fill_rect x y 100 100;
     gen_grid_horizontal (x + 100) y my_player )
 
-(* [gen_grid x y my_player] draws either a black or white square starting
+(**[gen_grid x y my_player] draws either a black or white square starting
    at ([x],[y]). If there is a piece at that location according to
    [my_player] then the image of the piece is drawn over the square *)
 let rec gen_grid x y my_player =
@@ -96,7 +96,7 @@ let get_piece st ((x, y) : int * int) =
   in
   helper (State.gen_flattened_board (State.board st))
 
-(* [draw_border clr (x, y) draws a [clr] border around the square at (x, y).] *)
+(**[draw_border clr (x, y) draws a [clr] border around the square at (x, y).] *)
 let draw_border clr (x, y) =
   set_color clr;
   set_line_width 2;
@@ -110,8 +110,8 @@ let highlight_valid_locations st p_op my_player =
   match p_op with
   | None -> ()
   | Some piece ->
-      (* clear the board before highlighting again *)
-      (* highlight the possible locations *)
+      (**clear the board before highlighting again *)
+      (**highlight the possible locations *)
       let locations = Logic.locations st piece in
       let locations_cartesian =
         List.map
@@ -122,7 +122,7 @@ let highlight_valid_locations st p_op my_player =
           locations
       in
       List.iter (draw_border green) locations_cartesian;
-      (* draw a border around the clicked piece *)
+      (**draw a border around the clicked piece *)
       let pos = Piece.position piece in
       let x = snd pos in
       let y = if my_player = 1 then 7 - fst pos else fst pos in

@@ -3,15 +3,15 @@ type mode =
   | Join
   | Local
 
-(* [deselect st] resets the player's turn to the piece selection phase
+(**[deselect st] resets the player's turn to the piece selection phase
    by resetting the current state's piece selected to None. *)
 let deselect st = State.update_piece_clicked st None
 
-(* [piece_selection st pos] validates whether or not [pos] is a valid
+(**[piece_selection st pos] validates whether or not [pos] is a valid
    location that contains a piece that the current player can move on
    their turn. *)
 let piece_selection st pos =
-  (* print_endline "Piece selection"; *)
+  (**print_endline "Piece selection"; *)
   let p_turn = State.player_turn st in
   let clr = if p_turn = 1 then "white" else "black" in
   let p = Gui.get_piece st pos in
@@ -21,11 +21,11 @@ let piece_selection st pos =
       if Piece.color pce <> clr then st
       else State.update_piece_clicked st p
 
-(* [move_selection st pos] validates whether or not [pos] is a valid
+(**[move_selection st pos] validates whether or not [pos] is a valid
    location that the current player can move the current piece selected
    to. *)
 let move_selection st pos =
-  (* print_endline "Move selection"; *)
+  (**print_endline "Move selection"; *)
   match State.piece_clicked st with
   | None ->
       failwith
@@ -34,7 +34,7 @@ let move_selection st pos =
       if Logic.valid_move st p pos then Logic.move_piece st p pos
       else deselect st
 
-(* [state_after_move st player pos] is the state after a checks the
+(**[state_after_move st player pos] is the state after a checks the
    current state's piece_selected field to determine which phase of the
    turn the player is in: piece selection or move selection. *)
 let state_after_move st player pos =
@@ -54,18 +54,18 @@ let state_after_move st player pos =
           then piece_selection st pos
           else move_selection st pos )
 
-(* [move md player pos] moves the [player] to [pos] and updates the
+(**[move md player pos] moves the [player] to [pos] and updates the
    state locally or on server based on the mode [md] *)
 let move md room_id st player pos =
   let st' = state_after_move st player pos in
   let st'_fen = State.to_fen st' in
   match md with Local -> st' | _ -> st'
 
-(* if st'_fen <> State.to_fen st then let get_st =
+(**if st'_fen <> State.to_fen st then let get_st =
    Client.update_room_state room_id st'_fen in State.state_from_fen
    get_st None else st' *)
 
-(* [game_loop md current_player my_player room game_running
+(**[game_loop md current_player my_player room game_running
    current_state img_dict room_text] is the game loop helper for
    play_game()*)
 let game_loop

@@ -5,7 +5,7 @@ open Printer
 open Gui
 
 (*TEST PLAN*)
-(* We decided to test changes in the GUI manually because we were able
+(**We decided to test changes in the GUI manually because we were able
    to visually ensure that the GUI behaved as expected. We tested by
    checking if the GUI board was being made properly with each of the
    pairs and that it correctly updated with each players move. We also
@@ -44,7 +44,7 @@ let to_fen_test (name : string) (expected : string) (state : State.t) =
   name >:: fun _ ->
   assert_equal expected (State.to_fen state) ~printer:(fun x -> x)
 
-(* let state_kingside_castle_test = failwith ""
+(**let state_kingside_castle_test = failwith ""
 
    let state_queenside_castle_test = failwith "" *)
 
@@ -168,15 +168,15 @@ let piece_tests =
   ]
 
 let state_tests =
-  [ (* state_test "empty" empty_board_string (init_state ()); *)
-    (* state_test "starting" starting_string (state_from_fen
+  [ (**state_test "empty" empty_board_string (init_state ()); *)
+    (**state_test "starting" starting_string (state_from_fen
        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f" None);
        state_test "e4" starting_string_e4 (state_from_fen
        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR:1,f,f,f" None);
        to_fen_test "starting board to fen"
        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" (state_from_fen
        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f" None); *)
-    (* ( "hi" >:: fun _ -> assert_equal
+    (**( "hi" >:: fun _ -> assert_equal
        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
        (State.to_fen (init_state ())) ~printer:(fun x -> x) ); *) ]
 

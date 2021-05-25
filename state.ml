@@ -14,7 +14,7 @@ type t = {
 let init_fen () =
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
 
-(* [string_to_list s i j] produces a list of piece options based on the
+(**[string_to_list s i j] produces a list of piece options based on the
    string [s] with the starting position at [i][j]*)
 let rec string_to_lst (s : string) (i : int) (j : int) :
     Piece.t option list =
@@ -104,7 +104,7 @@ let init_state () = state_from_fen (init_fen ()) None
 
 let board st = st.board
 
-(* [gen_board st pos] returns a new board that reflects
+(**[gen_board st pos] returns a new board that reflects
    [st.piece_clicked] moving to location [pos] on the board. requires:
    [st.piece_clicked] to be Some piece [pos] to be the position of a
    valid move location for [st.piece_clicked]*)
@@ -114,7 +114,7 @@ let gen_board st p move_to_pos =
   let piece_clicked_pos = Piece.position p in
   let piece_clicked_row = fst piece_clicked_pos in
   let row_traversal i row_lst =
-    (* [column_traversal_a elt] sets the [st.piece_clicked] piece to
+    (**[column_traversal_a elt] sets the [st.piece_clicked] piece to
        None type *)
     let column_traversal_a = function
       | None -> None
@@ -122,7 +122,7 @@ let gen_board st p move_to_pos =
           if Piece.position piece = piece_clicked_pos then None
           else Some piece
     in
-    (* [column_traversal_b j elt] sets the element [elem_option] to
+    (**[column_traversal_b j elt] sets the element [elem_option] to
        [st.piece_clicked]*)
     let column_traversal_b j elt =
       if j = move_col then
