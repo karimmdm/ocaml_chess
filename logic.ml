@@ -96,112 +96,47 @@ let rec find_pieces clr piece_type grid acc =
   | h :: t -> find_pieces clr piece_type t (find_pieces_in_row h acc)
 
 (* [check_side_castle st side] returns true if the king and [side] rook
-
    are valid to castle on the specified [side] and if there are no
    pieces blocking the path, and false otherwise. *)
-
 let check_side_castle st side =
   let p_turn = State.player_turn st in
-
   let board = State.board st in
-
   let castle_side_pair =
     if side = "king" then State.castle_kingside st
     else State.castle_queenside st
   in
-
   let castle_side =
     if p_turn = 1 then fst castle_side_pair else snd castle_side_pair
   in
-
   let is_check = State.check st in
-
   let squares =
     if side = "king" then
       if p_turn = 1 then [ (7, 5); (7, 6) ] else [ (0, 5); (0, 6) ]
     else if p_turn = 1 then [ (7, 1); (7, 2); (7, 3) ]
     else [ (0, 1); (0, 2); (0, 3) ]
   in
-
   List.fold_left
-    (fun acc x -> acc && get_elt board x <> None)
+    (fun acc x -> acc && get_elt board x = None)
     true squares
   && castle_side && not is_check
 
-(* [check_kingside_castle st] returns true if the king and kingside rook
-   are valid to castle kingside and if there are no pieces blocking the
-   path, and false otherwise. *)
-let check_kingside_castle st =
+(* [castle_side_move st side locs] checks the current State's
+  castle_kingside or castle_queenside pair based on [side] and adds the 
+  corresponding castling location to the list of valid locations for the king 
+  if the king can castle that way. *)
+let castle_side_move st side locs =
   let p_turn = State.player_turn st in
-  let board = State.board st in
-  let castle_kingside_pair = State.castle_kingside st in
-  let castle_kingside =
-    if p_turn = 1 then fst castle_kingside_pair
-    else snd castle_kingside_pair
+  let castle_side_pair =
+    if side = "king" then State.castle_kingside st
+    else State.castle_queenside st
   in
-  let is_check = State.check st in
-  let king_right_sq1 =
-    get_elt board (if p_turn = 1 then (7, 5) else (0, 5))
+  let new_loc =
+    if side = "king" then 
+      if p_turn = 1 then (7, 6) else (0, 6)
+  else
+    if p_turn = 1 then (7, 2) else (0, 2)
   in
-  let king_right_sq2 =
-    get_elt board (if p_turn = 1 then (7, 6) else (0, 6))
-  in
-  match (king_right_sq1, king_right_sq2) with
-  | None, None -> true && castle_kingside && not is_check
-  | _ -> false
-
-(* [check_queenside_castle st] returns true if the king and queenside
-   rook are valid to castle queenside and if there are no pieces
-   blocking the path, and false otherwise. *)
-let check_queenside_castle st =
-  let p_turn = State.player_turn st in
-  let board = State.board st in
-  let castle_queenside_pair = State.castle_queenside st in
-  let castle_queenside =
-    if p_turn = 1 then fst castle_queenside_pair
-    else snd castle_queenside_pair
-  in
-  let is_check = State.check st in
-  let king_left_sq1 =
-    get_elt board (if p_turn = 1 then (7, 3) else (0, 3))
-  in
-  let king_left_sq2 =
-    get_elt board (if p_turn = 1 then (7, 2) else (0, 2))
-  in
-  let king_left_sq3 =
-    get_elt board (if p_turn = 1 then (7, 1) else (0, 1))
-  in
-  match (king_left_sq1, king_left_sq2, king_left_sq3) with
-  | None, None, None -> true && castle_queenside && not is_check
-  | _ -> false
-
-(* [castle_kingside_move st locs] checks the current State's
-   castle_kingside list and adds the kingside castling location to the
-   list of valid locations for the king if the king can castle kingside. *)
-let castle_kingside_move st locs =
-  let p_turn = State.player_turn st in
-  let castle_kingside_pair = State.castle_kingside st in
-  if p_turn = 1 then
-    if fst castle_kingside_pair && check_side_castle st "king" then
-      (7, 6) :: locs
-    else locs
-  else if fst castle_kingside_pair && check_kingside_castle st then
-    (0, 6) :: locs
-  else locs
-
-(* [castle_queenside_move st locs] checks the current State's
-   castle_queenside list and adds the queenside castling location to the
-   list of valid locations for the king if the king can castle
-   queenside. *)
-let castle_queenside_move st locs =
-  let p_turn = State.player_turn st in
-  let castle_queenside_pair = State.castle_queenside st in
-  if p_turn = 1 then
-    if fst castle_queenside_pair && check_queenside_castle st then
-      (7, 2) :: locs
-    else locs
-  else if fst castle_queenside_pair && check_queenside_castle st then
-    (0, 2) :: locs
+  if fst castle_side_pair && check_side_castle st side then new_loc :: locs
   else locs
 
 (* [castle_move st p new_pos] checks if the king is castling by
@@ -341,8 +276,8 @@ let locations st p =
       filter_illegal_moves st p queen_moves []
   | King ->
       let king_moves = locs_helper st p (Piece.position p) in
-      castle_kingside_move st (filter_illegal_moves st p king_moves [])
-      @ castle_queenside_move st
+      castle_side_move st "king" (filter_illegal_moves st p king_moves [])
+      @ castle_side_move st "queen"
           (filter_illegal_moves st p king_moves [])
 
 let enemy_check st piece_moved =
