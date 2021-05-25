@@ -51,10 +51,6 @@ let get_room room_id =
       Lwt.return (parse_helper room_id json_lst))
 
 let update_json room_id state_fen lst =
-  (* List.map (fun h -> let assoc_lst = h |> to_assoc in if List.assoc
-     "room_id" assoc_lst |> to_string = room_id then `Assoc [
-     ("room_id", `String room_id); ("state_fen", `String state_fen); ]
-     else h) lst *)
   List.map
     (fun h -> if h.room_id = room_id then { h with state_fen } else h)
     lst

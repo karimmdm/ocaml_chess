@@ -29,7 +29,7 @@ let piece_type_to_string piece_type =
   | Queen -> "Queen"
   | King -> "King"
 
-(* [extract_directions lst] returns the the json list [lst] into a
+(**[extract_directions lst] returns the the json list [lst] into a
    [rule] compatible directions list *)
 let extract_directions lst =
   List.map

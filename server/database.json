@@ -1,22 +1,42 @@
 [
   {
+    "room_id": "4898",
+    "state_fen":
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
+  },
+  {
+    "room_id": "test2",
+    "state_fen":
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
+  },
+  {
+    "room_id": "sultan",
+    "state_fen":
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
+  },
+  {
+    "room_id": "hd3621",
+    "state_fen":
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
+  },
+  {
+    "room_id": "test2",
+    "state_fen":
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
+  },
+  {
+    "room_id": "test",
+    "state_fen":
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
+  },
+  {
     "room_id": "hd3620",
-    "state_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:2,true,false,false,true;true,true;true"
-  },
-  {
-    "room_id": "cs3420",
-    "state_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f"
-  },
-  {
-    "room_id": "cs2800",
-    "state_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f"
+    "state_fen":
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:2,true,false,false,true;true,true;true"
   },
   {
     "room_id": "cs3110",
-    "state_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:2,false,false,false,true;true,true;true"
-  },
-  {
-    "room_id": "mysecondroom",
-    "state_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,f,f,f"
+    "state_fen":
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:2,false,false,false,true;true,true;true"
   }
 ]

@@ -5,7 +5,7 @@ open Printer
 open Gui
 
 (*TEST PLAN*)
-(* We decided to test changes in the GUI manually because we were able
+(**We decided to test changes in the GUI manually because we were able
    to visually ensure that the GUI behaved as expected. We tested by
    checking if the GUI board was being made properly with each of the
    pairs and that it correctly updated with each players move. We also
@@ -63,7 +63,7 @@ let to_fen_test (name : string) (expected : string) (state : State.t) =
   name >:: fun _ ->
   assert_equal expected (State.to_fen state) ~printer:(fun x -> x)
 
-(* let state_kingside_castle_test = failwith ""
+(**let state_kingside_castle_test = failwith ""
 
    let state_queenside_castle_test = failwith "" *)
 

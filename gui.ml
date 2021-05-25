@@ -1,24 +1,17 @@
 open Graphics
 
-(* [draw_clickable_text x y] draws a rectangle button of color [color]
+(**[draw_clickable_text x y] draws a rectangle button of color [color]
    of size [w] * [h] at coordinate location ([x], [y]) with text [text]
    at the center*)
 let draw_clickable_text color (x, y) font_size text =
   moveto x y;
   set_color color;
   set_font
-    ("-*-fixed-medium-r-semicondensed--" ^ string_of_int font_size
-   ^ "-*-*-*-*-*-iso8859-1");
-  let str =
-    match text_size text with
-    | a, b ->
-        "text size of " ^ text ^ string_of_int a ^ ", "
-        ^ string_of_int b
-  in
-  print_endline str;
+    ( "-*-fixed-medium-r-semicondensed--" ^ string_of_int font_size
+    ^ "-*-*-*-*-*-iso8859-1" );
   draw_string text
 
-let draw_start_screen () clickable_lst =
+let draw_interactives clickable_lst =
   let rec helper = function
     | h :: t ->
         draw_clickable_text black
@@ -40,26 +33,27 @@ let invert_pos my_player (x, y) =
   let y' = if my_player = 1 then 7 - y else y in
   (y', x)
 
-(* [gen_grid_horizontal x y] draws a specific row *)
+(**[gen_grid_horizontal x y my_player] draws a row of rectangles based on [x] 
+  and [y]. *)
 let rec gen_grid_horizontal x y my_player =
   if x >= 800 then ()
   else if my_player = 1 then (
     if (x + y) mod 200 = 0 then fill_rect x y 100 100;
-    gen_grid_horizontal (x + 100) y my_player)
+    gen_grid_horizontal (x + 100) y my_player )
   else (
     if (x + y) mod 200 <> 0 then fill_rect x y 100 100;
-    gen_grid_horizontal (x + 100) y my_player)
+    gen_grid_horizontal (x + 100) y my_player )
 
-(* [gen_grid x y pieces] draws either a black or white square starting
+(**[gen_grid x y my_player] draws either a black or white square starting
    at ([x],[y]). If there is a piece at that location according to
-   [pieces] then the image of the piece is drawn over the square *)
+   [my_player] then the image of the piece is drawn over the square *)
 let rec gen_grid x y my_player =
   let grey = rgb 112 128 144 in
   set_color grey;
   if y >= 800 then ()
   else
-    (gen_grid_horizontal x y my_player;
-     gen_grid x (y + 100))
+    ( gen_grid_horizontal x y my_player;
+      gen_grid x (y + 100) )
       my_player
 
 let open_img path w h =
@@ -80,7 +74,7 @@ let images_dict st =
         let path = Piece.icon p in
         Hashtbl.add tbl path (open_img path 80. 80.)
   in
-  List.iter add_to_board (State.gen_falttened_board board);
+  List.iter add_to_board (State.gen_flattened_board board);
   tbl
 
 let coordinate_pair_bound status =
@@ -98,16 +92,11 @@ let get_piece st ((x, y) : int * int) =
         match h with
         | None -> helper t
         | Some piece ->
-            if Piece.position piece = (x, y) then h else helper t)
+            if Piece.position piece = (x, y) then h else helper t )
   in
-  helper (State.gen_falttened_board (State.board st))
+  helper (State.gen_flattened_board (State.board st))
 
-let highlight_square clr loc =
-  set_color black;
-  fill_rect (fst loc) (snd loc) 100 100;
-  set_color clr;
-  fill_rect (fst loc + 5) (snd loc + 5) 90 90
-
+(**[draw_border clr (x, y) draws a [clr] border around the square at (x, y).] *)
 let draw_border clr (x, y) =
   set_color clr;
   set_line_width 2;
@@ -121,8 +110,8 @@ let highlight_valid_locations st p_op my_player =
   match p_op with
   | None -> ()
   | Some piece ->
-      (* clear the board before highlighting again *)
-      (* highlight the possible locations *)
+      (**clear the board before highlighting again *)
+      (**highlight the possible locations *)
       let locations = Logic.locations st piece in
       let locations_cartesian =
         List.map
@@ -133,15 +122,15 @@ let highlight_valid_locations st p_op my_player =
           locations
       in
       List.iter (draw_border green) locations_cartesian;
-      (* draw a border around the clicked piece *)
+      (**draw a border around the clicked piece *)
       let pos = Piece.position piece in
       let x = snd pos in
       let y = if my_player = 1 then 7 - fst pos else fst pos in
       draw_border blue (x * 100, y * 100)
 
-let draw_game st my_player img_tbl =
+let draw_game st my_player img_tbl room_id_interactive =
   let board = State.board st in
-  let boardlst = State.gen_falttened_board board in
+  let boardlst = State.gen_flattened_board board in
   clear_graph ();
   gen_grid 0 0 my_player;
   set_text_size 50;
@@ -156,8 +145,9 @@ let draw_game st my_player img_tbl =
             let x = snd pos in
             let img = Hashtbl.find img_tbl (Piece.icon piece) in
             draw_image img ((x * 100) + 20) ((y * 100) + 20);
-            overlay_piece_img my_player t)
+            overlay_piece_img my_player t )
   in
+  draw_interactives [ room_id_interactive ];
   overlay_piece_img my_player boardlst;
   highlight_valid_locations st (State.piece_clicked st) my_player
 
