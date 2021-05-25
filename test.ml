@@ -18,7 +18,9 @@ open Gui
    accounted for. Certain logical parts were tested using glass box
    methoding due to the limited possibilities and paths. We also used
    black box testing when testing checks and checkmates to test for
-   corner cases *)
+   corner cases. The test cases ensured everything was correct by
+   checking all features of the game are correct at every time with
+   every move.*)
 
 let piece_base_moves_test
     (name : string)
