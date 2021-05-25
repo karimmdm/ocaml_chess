@@ -6,10 +6,10 @@ TEST=test.byte
 MAIN=main.byte
 OCAMLBUILD=ocamlbuild -use-ocamlfind
 
-SERVER_MODULES= server/db
+SERVER_MODULES= server/db server/server
 SERVER_MLS=$(SERVER_MODULES:=.ml)
 SERVER_MLIS=$(SERVER_MODULES:=.mli)
-SERVER_OBJECTS=$(MODULES:=.cmo)
+SERVER_OBJECTS=$(SERVER_MODULES:=.cmo)
 server_name = server
 
 default: build
@@ -31,15 +31,16 @@ docs: docs-public docs-private
 	
 docs-public: build
 	mkdir -p _doc.public
-	ocamlfind ocamldoc -I _build -package graphics,yojson,ANSITerminal,curly,camlimages.png,camlimages.graphics\
-		-html -stars -d _doc.public $(MLIS) $(SERVER_MLIS)
+	ocamlfind ocamldoc -I _build -package graphics,yojson,ANSITerminal,curly,camlimages.png,camlimages.graphics,opium,ppx_deriving_yojson\
+		-html -stars -d _doc.public $(MLIS)
 
 docs-private: build
 	mkdir -p _doc.private
 	ocamlfind ocamldoc -I _build -package graphics,yojson,ANSITerminal,curly,camlimages.png,camlimages.graphics,opium,ppx_deriving_yojson\
 		-html -stars -d _doc.private \
-		-inv-merge-ml-mli -m A $(MLIS) $(MLS) $(SERVER_MLIS) $(SERVER_MLS) 
+		-inv-merge-ml-mli -m A $(MLIS) $(MLS) 
 
 clean:
 	ocamlbuild -clean
 	rm -rf _doc.public _doc.private chess.zip
+
