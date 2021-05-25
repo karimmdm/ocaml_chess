@@ -11,6 +11,8 @@ type t = {
   piece_clicked : Piece.t option;
 }
 
+let init_fen () = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
+
 (* [string_to_list s i j] produces a list of piece options based on the
    string [s] with the starting position at [i][j]*)
 let rec string_to_lst (s : string) (i : int) (j : int) :
@@ -96,9 +98,7 @@ let to_fen t =
   ^ string_of_bool (List.nth t.castle_queenside 1)
 
 let init_state () =
-  state_from_fen
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR:1,false,false,false,true;true,true;true"
-    None
+  state_from_fen (init_fen ()) None
 
 let board st = st.board
 

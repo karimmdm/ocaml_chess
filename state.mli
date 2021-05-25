@@ -8,6 +8,9 @@
 (* The abstract type of values representing a game state. *)
 type t
 
+(* Returns the fen notation for the initial state of the game *)
+val init_fen : unit -> string
+
 (* [init_state ()] initializes a new state with an empty 8x8 board and
    sets the player turn to 1 and all the booleans to false. *)
 val init_state : unit -> t

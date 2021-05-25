@@ -49,10 +49,10 @@ let move st my_player pos =
           then piece_selection st pos
           else move_selection st pos)
 
-let play_game () =
+let play_game st =
   try
     let my_player = 1 in
-    let st = State.init_state () in
+
     let img_dict = Gui.images_dict st in
     Gui.draw_game st my_player img_dict;
     let current_state = ref st in

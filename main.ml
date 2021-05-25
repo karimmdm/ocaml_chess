@@ -3,7 +3,8 @@ let title =
 
 let create_game =
   Interactive.make_text (10, 200) 50 264 "Create Game" (fun () ->
-      print_endline "Making a new game")
+      print_endline "Making a new game";
+      Client.create_game ())
 
 let join_game =
   Interactive.make_text (10, 100) 50 216 "Join Game" (fun () ->
@@ -13,7 +14,7 @@ let join_game =
 let local_game =
   Interactive.make_text (10, 0) 50 240 "Local Game" (fun () ->
       print_endline "Starting a local game";
-      Game.play_game ())
+      Game.play_game (State.init_state ()))
 
 let on_menu_click clickables click_pos =
   List.iter

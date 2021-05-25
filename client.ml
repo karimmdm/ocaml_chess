@@ -1,18 +1,37 @@
-open Lwt
+let get_user_input () =
+  match read_line () with
+  | exception End_of_file -> failwith "Invalid input"
+  | user_input -> user_input
 
-let join_game () = ANSITerminal.print_string [ ANSITerminal.red ]
-"\n\nWelcome to the OCaml Multiplayer Chess Game!\n";
-print_endline
-"Please enter a valid room ID to join the game as Black.\n";
-print_string "> ";
-match read_line () with
-| exception End_of_file -> ()
-| room_id -> 
-    let body = Cohttp_lwt_unix.Client.get (Uri.of_string ("localhost:3000/" ^ room_id)) >>= fun (resp, body) ->
-      (* let code = resp |> Cohttp.Response.status |> Cohttp.Code.code_of_status in
-      Printf.printf "Response code: %d\n" code;
-      Printf.printf "Headers: %s\n" (resp |> Cohttp.Response.headers |> Cohttp.Header.to_string); *)
-      body |> Cohttp_lwt.Body.to_string >|= fun body ->
-      Printf.printf "Body of length: %d\n" (String.length body);
-      body in
-    let run_body = Lwt_main.run body in print_endline ("Received body\n" ^ run_body)
+let get_state_by_id_request room_id =
+  let url = "localhost:3000/" ^ room_id in
+  print_endline url;
+  match Curly.(run (Request.make ~url:url ~meth:`GET ())) with
+  | Ok x -> x.Curly.Response.body
+  | Error e -> failwith ("error finding a room name: " ^ room_id)
+
+let join_game () =
+  ANSITerminal.print_string [ ANSITerminal.red ]
+    "\n\nWelcome to the OCaml Multiplayer Chess Game!\n"; 
+  print_endline
+    "Please enter a valid room name to join the game as Black.\n> ";
+  let room_id = get_user_input () in
+  let state_fen = get_state_by_id_request room_id in
+  Game.play_game (State.state_from_fen state_fen None)
+
+let create_room_request room_id = 
+  let url = "localhost:3000/rooms" in 
+  let body = {|{"room_id": |} ^  "\"" ^ room_id ^ "\"" ^ {|, "state_fen": |} ^ "\"" ^ State.init_fen () ^ "\"}" in 
+  match Curly.(run (Request.make ~body:body ~url:url ~meth:`POST ())) with 
+  | Ok x -> x.Curly.Response.body
+  | Error e -> failwith "error making a room"
+
+let create_game () =
+  ANSITerminal.print_string [ ANSITerminal.red ]
+    "\n\nWelcome to the OCaml Multiplayer Chess Game!\n";
+  print_endline "Please enter a room name.\n>";
+  let room_id = get_user_input () in
+  let state_fen = create_room_request room_id in 
+  print_endline state_fen;
+  Game.play_game (State.state_from_fen state_fen None)
+  
