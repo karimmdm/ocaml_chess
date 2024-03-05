@@ -1,2 +1,2 @@
-# Multiplayer Chess Engine
-A multiplayer chess engine made in Ocaml
+#Chess Engine
+Chess for CS 3110
